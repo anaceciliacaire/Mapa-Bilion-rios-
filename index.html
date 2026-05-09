@@ -8,12 +8,12 @@
         :root { --bg-dark: #1a1a1a; --bg-sidebar: #222; --accent: #2ecc71; --text: white; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text); overflow: hidden; }
         
-        /* Sidebar Ajustável */
-        #sidebar { min-width: 150px; width: 330px; max-width: 500px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 10; }
-        
-        /* A BARRA PARA ARRASTAR */
-        #resizer { width: 6px; cursor: col-resize; background: #444; transition: 0.2s; z-index: 20; }
-        #resizer:hover { background: var(--accent); }
+        /* Sidebar com Transição */
+        #sidebar { min-width: 300px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 10; transition: transform 0.4s ease, margin-left 0.4s ease; position: relative; }
+        #sidebar.hidden { margin-left: -330px; }
+
+        /* Botão de Seta para Esconder */
+        #toggle-sidebar { position: absolute; right: -25px; top: 50%; transform: translateY(-50%); width: 25px; height: 50px; background: #333; color: var(--accent); display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 8px 8px 0; border: 1px solid #444; border-left: none; z-index: 1001; }
         
         .sidebar-header { padding: 20px; background: #111; text-align: center; font-weight: bold; color: var(--accent); border-bottom: 1px solid #333; }
         #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid var(--accent); }
@@ -22,22 +22,20 @@
         .ranking-item:hover { background: #333; }
 
         #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
-        #header { padding: 12px 20px; background: #111; display: flex; gap: 15px; border-bottom: 1px solid #333; align-items: center; }
+        #header { padding: 12px 20px; background: #111; display: flex; gap: 15px; border-bottom: 1px solid #333; align-items: center; flex-wrap: wrap; }
         #map { flex-grow: 1; }
 
-        /* Botão de Tema */
-        #theme-toggle { position: absolute; top: 70px; right: 10px; z-index: 1000; background: white; color: black; border: 2px solid rgba(0,0,0,0.3); padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        #theme-toggle { position: absolute; top: 70px; right: 10px; z-index: 1000; background: white; color: black; border: 2px solid rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
         
         input, select { padding: 8px; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: white; }
         .popup-card { color: #222; min-width: 240px; }
-        .popup-img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
-        .legend { padding: 10px; background: rgba(0,0,0,0.85); color: white; border-radius: 8px; font-size: 11px; }
-        .legend i { width: 10px; height: 10px; float: left; margin-right: 8px; border-radius: 50%; margin-top: 3px; }
+        .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
+        <div id="toggle-sidebar" onclick="toggleSidebar()"> ◀ </div>
         <div class="sidebar-header">TOP BILIONÁRIOS BRASIL</div>
         <div id="stats-box">
             <small>Fortuna Total Visível</small><br>
@@ -46,10 +44,8 @@
         <div id="ranking-list"></div>
     </div>
 
-    <div id="resizer"></div>
-
     <div id="main-content">
-        <button id="theme-toggle" onclick="toggleTheme()">🌓 Mudar Visual do Mapa</button>
+        <button id="theme-toggle" onclick="toggleTheme()">🌓 Alternar Mapa</button>
         <div id="header">
             <input type="text" id="search" placeholder="🔍 Buscar nome..." onkeyup="processar()">
             <select id="filterUf" onchange="processar()">
@@ -73,57 +69,36 @@
 
     <script>
         const map = L.map('map').setView([-15, -50], 4);
-        
-        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-        
-        darkTiles.addTo(map);
         let currentTheme = 'dark';
 
         function toggleTheme() {
-            if (currentTheme === 'dark') {
-                map.removeLayer(darkTiles);
-                lightTiles.addTo(map);
-                currentTheme = 'light';
-            } else {
-                map.removeLayer(lightTiles);
-                darkTiles.addTo(map);
-                currentTheme = 'dark';
-            }
+            if (currentTheme === 'dark') { map.removeLayer(darkTiles); lightTiles.addTo(map); currentTheme = 'light'; }
+            else { map.removeLayer(lightTiles); darkTiles.addTo(map); currentTheme = 'dark'; }
         }
 
-        // Lógica para Arrastar a Sidebar
-        const sidebar = document.getElementById('sidebar');
-        const resizer = document.getElementById('resizer');
-        let isResizing = false;
-
-        resizer.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', () => {
-                isResizing = false;
-                document.removeEventListener('mousemove', handleMouseMove);
-            });
-        });
-
-        function handleMouseMove(e) {
-            if (!isResizing) return;
-            const offsetRight = e.clientX;
-            if (offsetRight > 150 && offsetRight < 600) {
-                sidebar.style.width = offsetRight + 'px';
-                map.invalidateSize();
-            }
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const btn = document.getElementById('toggle-sidebar');
+            sb.classList.toggle('hidden');
+            btn.innerText = sb.classList.contains('hidden') ? "▶" : "◀";
+            setTimeout(() => { map.invalidateSize(); }, 400);
         }
 
         const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'Estrangeiro': 'blue' };
-        const coresHex = { 'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 'SC': '#9b59b6', 'Estrangeiro': '#3498db' };
-
         const dados = [
-            {n: "Eduardo Luiz Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, usd: 41.27, o: "Facebook", v: "Singapura", e: "Meta", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
-            {n: "Jorge Paulo Lemann", i: 85, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 88, usd: 16, o: "AB InBev", v: "Suíça", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
-            {n: "André Santos Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, usd: 9.27, o: "BTG Pactual", v: "Brasil", e: "BTG", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
-            {n: "Marcel Telles", i: 74, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 32, usd: 5.82, o: "AB InBev", v: "Mônaco", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"}
+            {n: "Eduardo Luiz Saverin", uf: "SP", r: 227, lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", e: "Meta"},
+            {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", e: "Banco Safra"},
+            {n: "Jorge Paulo Lemann", uf: "RJ", r: 88, lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", e: "3G Capital"},
+            {n: "André Santos Esteves", uf: "RJ", r: 51, lat: -22.9150, lng: -43.1800, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", e: "BTG Pactual"},
+            {n: "Joesley Batista", uf: "GO", r: 25, lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", e: "JBS"},
+            {n: "Wesley Batista", uf: "GO", r: 25, lat: -15.5500, lng: -47.3400, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", e: "JBS"},
+            {n: "Marcel Telles", uf: "RJ", r: 32, lat: -22.9250, lng: -43.1900, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", e: "3G Capital"},
+            {n: "Alexandre Grendene", uf: "RS", r: 20.5, lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg", e: "Grendene"},
+            {n: "Alceu Feldmann", uf: "SC", r: 18.5, lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", e: "Fertipar"},
+            {n: "Ricardo Faria", uf: "RJ", r: 19.6, lat: -22.9350, lng: -43.2000, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", e: "Granja Faria"},
+            {n: "Lirio Parisotto", uf: "RS", r: 18.2, lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", e: "Videolar"}
         ];
 
         const camadaPins = L.layerGroup().addTo(map);
@@ -132,47 +107,31 @@
             camadaPins.clearLayers();
             const busca = document.getElementById('search').value.toLowerCase();
             const ufFiltro = document.getElementById('filterUf').value;
-            const minR = document.getElementById('minFortune').value;
+            const minR = parseFloat(document.getElementById('minFortune').value);
             const listaRanking = document.getElementById('ranking-list');
             document.getElementById('valMin').innerText = minR;
             
             let totalBi = 0;
             listaRanking.innerHTML = "";
 
-            const filtrados = dados.filter(p => {
+            dados.filter(p => {
                 const bUf = (p.uf === ufFiltro || ufFiltro === "");
                 return p.n.toLowerCase().includes(busca) && bUf && p.r >= minR;
-            }).sort((a, b) => b.r - a.r);
-
-            const coordenadasOcupadas = {};
-
-            filtrados.forEach(p => {
+            }).sort((a, b) => b.r - a.r).forEach(p => {
                 totalBi += p.r;
                 const corPin = coresPins[p.uf] || 'blue';
-                const corHex = coresHex[p.uf] || '#3498db';
-                
-                let lat = p.lat; let lng = p.lng;
-                const chave = `${lat},${lng}`;
-                if (coordenadasOcupadas[chave]) {
-                    const ang = coordenadasOcupadas[chave] * 0.8;
-                    lat += Math.cos(ang) * 0.1; lng += Math.sin(ang) * 0.1;
-                    coordenadasOcupadas[chave]++;
-                } else { coordenadasOcupadas[chave] = 1; }
-
                 const icon = new L.Icon({
                     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${corPin}.png`,
                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                     iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
                 });
 
-                const marker = L.marker([lat, lng], { icon: icon }).addTo(camadaPins);
-                marker.bindPopup(`<div class="popup-card"><img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x150?text=Forbes'"><br><b>${p.n}</b><br>R$ ${p.r} Bi</div>`);
-
-                listaRanking.innerHTML += `<div class="ranking-item" onclick="map.setView([${lat}, ${lng}], 10)"><span>${p.n}</span><b>R$ ${p.r}B</b></div>`;
+                const marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(camadaPins);
+                marker.bindPopup(`<div class="popup-card"><img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x150?text=Forbes'"><br><b>${p.n}</b><br>R$ ${p.r} Bi<br>Empresa: ${p.e}</div>`);
+                listaRanking.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 10)"><span>${p.n}</span><b>R$ ${p.r}B</b></div>`;
             });
             document.getElementById('total-money').innerText = `R$ ${totalBi.toFixed(1)} Bi`;
         }
-
         processar();
     </script>
 </body>
