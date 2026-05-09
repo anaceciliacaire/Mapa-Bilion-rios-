@@ -8,8 +8,8 @@
         :root { --bg-dark: #1a1a1a; --bg-sidebar: #222; --accent: #2ecc71; --text: white; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text); overflow: hidden; }
         
-        /* Sidebar e Scrollbar */
-        #sidebar { min-width: 330px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 1002; transition: all 0.5s ease; position: relative; }
+        /* Sidebar e Scrollbar Corrigidos */
+        #sidebar { min-width: 330px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: all 0.5s ease; position: relative; }
         #sidebar.hidden { margin-left: -330px; min-width: 0; }
         
         #resizer { width: 4px; cursor: col-resize; background: #333; z-index: 1003; }
@@ -18,10 +18,10 @@
         #toggle-sidebar { position: absolute; right: -30px; top: 20px; width: 30px; height: 60px; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 8px 8px 0; font-weight: bold; z-index: 2000; box-shadow: 2px 0 5px rgba(0,0,0,0.3); font-size: 18px; }
         
         .sidebar-header { padding: 25px 20px; background: #111; text-align: center; font-weight: bold; color: var(--accent); border-bottom: 1px solid #333; letter-spacing: 1px; }
-        #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid var(--accent); }
+        #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid var(--accent); flex-shrink: 0; }
         
-        /* BARRA DE ROLAGEM APRIMORADA */
-        #ranking-list { flex-grow: 1; overflow-y: auto; padding: 5px; scrollbar-width: thin; scrollbar-color: var(--accent) #222; }
+        /* BARRA DE ROLAGEM */
+        #ranking-list { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 5px; scrollbar-width: thin; scrollbar-color: var(--accent) #222; }
         #ranking-list::-webkit-scrollbar { width: 6px; }
         #ranking-list::-webkit-scrollbar-track { background: #222; }
         #ranking-list::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
@@ -36,12 +36,22 @@
         #theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: white; color: black; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         input, select { padding: 8px; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: white; }
 
-        /* ESTILO DO BALÃO E DO CARROSSEL */
-        .popup-card { color: #222; min-width: 220px; font-family: sans-serif; }
-        .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+        /* ESTILO DO BALÃO E FOTOS CORRIGIDAS */
+        .popup-card { color: #222; min-width: 220px; font-family: sans-serif; text-align: center; }
+        .popup-img { 
+            width: 100%; 
+            height: 160px; /* Aumentei um pouco a altura */
+            object-fit: cover; 
+            object-position: top center; /* <--- O SEGREDO ESTÁ AQUI: Força a foto a focar no rosto */
+            border-radius: 6px; 
+            margin-bottom: 10px; 
+        }
         .carousel-nav { display: flex; justify-content: space-between; background: #f1f1f1; padding: 8px; border-radius: 4px; margin-top: 10px; align-items: center; }
-        .carousel-btn { background: var(--accent); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .carousel-btn { background: var(--accent); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .carousel-btn:hover { background: #27ae60; }
+        
+        .legend { padding: 10px; background: rgba(0,0,0,0.85); color: white; border-radius: 8px; font-size: 11px; }
+        .legend i { width: 10px; height: 10px; float: left; margin-right: 8px; border-radius: 50%; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -69,6 +79,7 @@
                 <option value="GO">Goiás</option>
                 <option value="RS">Rio Grande do Sul</option>
                 <option value="SC">Santa Catarina</option>
+                <option value="CE">Ceará</option>
                 <option value="Estrangeiro">Estrangeiros</option>
             </select>
         </div>
@@ -88,7 +99,6 @@
             else { map.removeLayer(lightTiles); darkTiles.addTo(map); currentTheme = 'dark'; }
         }
 
-        // Barra arrastável
         const sidebar = document.getElementById('sidebar');
         const resizer = document.getElementById('resizer');
         resizer.addEventListener('mousedown', () => {
@@ -97,7 +107,6 @@
         });
         function resize(e) { if (e.pageX > 200 && e.pageX < 600) sidebar.style.width = e.pageX + 'px'; map.invalidateSize(); }
 
-        // Esconder barra
         function toggleSidebar() {
             const btn = document.getElementById('toggle-sidebar');
             sidebar.classList.toggle('hidden');
@@ -105,7 +114,8 @@
             setTimeout(() => { map.invalidateSize(); }, 500);
         }
 
-        // Dados Completos
+        const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'CE': 'grey', 'Estrangeiro': 'blue' };
+
         const dados = [
             {n: "Eduardo Saverin", uf: "SP", r: 227, lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", e: "Meta"},
             {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", e: "Banco Safra"},
@@ -113,20 +123,21 @@
             {n: "André Esteves", uf: "RJ", r: 51, lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", e: "BTG Pactual"},
             {n: "Marcel Telles", uf: "RJ", r: 32, lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", e: "3G Capital"},
             {n: "Ricardo Faria", uf: "RJ", r: 19.6, lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", e: "Granja Faria"},
+            {n: "Roberto Irineu Marinho", uf: "RJ", r: 18.5, lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg", e: "Rede Globo"},
             {n: "Joesley Batista", uf: "GO", r: 25, lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", e: "JBS"},
             {n: "Wesley Batista", uf: "GO", r: 25, lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", e: "JBS"},
             {n: "Alexandre Grendene", uf: "RS", r: 20.5, lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg", e: "Grendene"},
-            {n: "Alceu Feldmann", uf: "SC", r: 18.5, lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", e: "Fertipar"},
             {n: "Lirio Parisotto", uf: "RS", r: 18.2, lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", e: "Videolar"},
-            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", e: "O Boticário"}
+            {n: "Alceu Feldmann", uf: "SC", r: 18.5, lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", e: "Fertipar"},
+            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", e: "O Boticário"},
+            {n: "Mário Araripe", uf: "CE", r: 15, lat: -7.2342, lng: -39.4125, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg", e: "Casa dos Ventos"}
         ];
 
         const camadaPins = L.layerGroup().addTo(map);
 
-        // LÓGICA DO CARROSSEL
         window.cityData = {};
         window.cityIndices = {};
-        window.cidadesMap = {}; // Guarda os marcadores
+        window.cidadesMap = {};
 
         window.renderPopup = function(cityId) {
             const nomes = window.cityData[cityId];
@@ -138,9 +149,9 @@
             if (total > 1) {
                 nav = `
                     <div class="carousel-nav">
-                        <button class="carousel-btn" onclick="changeSlide('${cityId}', -1)">◀</button>
+                        <button class="carousel-btn" onclick="event.stopPropagation(); changeSlide('${cityId}', -1)">◀</button>
                         <span style="font-size:12px; font-weight:bold;">${idx + 1} de ${total}</span>
-                        <button class="carousel-btn" onclick="changeSlide('${cityId}', 1)">▶</button>
+                        <button class="carousel-btn" onclick="event.stopPropagation(); changeSlide('${cityId}', 1)">▶</button>
                     </div>
                 `;
             }
@@ -168,12 +179,11 @@
         };
 
         window.abrirDoRanking = function(cityId, idxList) {
-            window.cityIndices[cityId] = idxList; // Seta o carrossel na pessoa certa
+            window.cityIndices[cityId] = idxList; 
             const markerData = window.cidadesMap[cityId];
             map.setView([markerData.lat, markerData.lng], 12);
             markerData.marker.openPopup();
             
-            // Atualiza o HTML caso o balão já estivesse aberto em outra pessoa
             setTimeout(() => {
                 const popupDiv = document.getElementById('popup-' + cityId);
                 if (popupDiv) popupDiv.innerHTML = window.renderPopup(cityId);
@@ -198,7 +208,6 @@
                 return p.n.toLowerCase().includes(busca) && bUf;
             }).sort((a, b) => b.r - a.r);
 
-            // Agrupa as pessoas pela mesma localização (Cidade)
             let cityCounter = 0;
             const tempMap = {};
 
@@ -214,7 +223,7 @@
                 }
                 
                 const cityId = tempMap[coordKey];
-                const myIndex = window.cityData[cityId].length; // Índice dessa pessoa na cidade
+                const myIndex = window.cityData[cityId].length; 
                 window.cityData[cityId].push(p);
 
                 listaRanking.innerHTML += `
@@ -224,14 +233,19 @@
                 `;
             });
 
-            // Cria apenas UM PIN por localização (cidade)
             for (let coord in tempMap) {
                 const cityId = tempMap[coord];
-                const p = window.cityData[cityId][0]; // Pega a latitude do primeiro cara da cidade
+                const p = window.cityData[cityId][0]; 
                 
-                const marker = L.marker([p.lat, p.lng]).addTo(camadaPins);
+                const corPin = coresPins[p.uf] || 'blue';
+                const icon = new L.Icon({
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${corPin}.png`,
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                });
+
+                const marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(camadaPins);
                 
-                // O balão chama a função que desenha o Carrossel
                 marker.bindPopup(`<div id="popup-${cityId}" class="popup-card">${window.renderPopup(cityId)}</div>`, { maxWidth: 260 });
                 
                 window.cidadesMap[cityId] = { lat: p.lat, lng: p.lng, marker: marker };
@@ -239,6 +253,18 @@
 
             document.getElementById('total-money').innerText = `R$ ${totalBi.toFixed(1)} Bi`;
         }
+
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<strong>🌎 Cores no Mapa</strong><br>';
+            const legendCores = { 'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 'SC': '#9b59b6', 'CE': '#7f8c8d', 'Estrangeiro': '#3498db' };
+            for (let k in legendCores) {
+                div.innerHTML += `<i style="background:${legendCores[k]}"></i> ${k}<br>`;
+            }
+            return div;
+        };
+        legend.addTo(map);
 
         processar();
     </script>
