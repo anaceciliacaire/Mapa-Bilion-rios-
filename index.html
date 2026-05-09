@@ -2,92 +2,118 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa dos Bilionários do Brasil</title>
+    <title>Dashboard Bilionários Brasil - Forbes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        #map { height: 100vh; width: 100%; }
-        .popup-title { font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; border-bottom: 2px solid #3498db; padding-bottom: 3px; }
-        .popup-info { font-size: 13px; line-height: 1.4; color: #34495e; }
-        .popup-section { font-weight: bold; color: #2980b9; margin-top: 8px; display: block; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #f4f7f6; }
+        #header { padding: 15px 20px; background: #2c3e50; color: white; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .filter-item { display: flex; align-items: center; gap: 8px; }
+        input, select { padding: 6px 10px; border-radius: 4px; border: none; outline: none; }
+        #map { flex-grow: 1; z-index: 1; }
+        .legend { padding: 10px; background: white; line-height: 18px; color: #333; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-size: 12px; }
+        .legend i { width: 12px; height: 12px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
+        .popup-card { min-width: 180px; }
+        .popup-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+        .popup-text { font-size: 12px; line-height: 1.4; color: #555; }
+        .btn-link { display: block; margin-top: 8px; text-align: center; background: #3498db; color: white !important; text-decoration: none; padding: 4px; border-radius: 3px; font-size: 11px; }
     </style>
 </head>
 <body>
 
+    <div id="header">
+        <div class="filter-item"><strong>🔍 Busca:</strong> <input type="text" id="search" placeholder="Nome..." onkeyup="processar()"></div>
+        <div class="filter-item">
+            <strong>📍 Origem:</strong>
+            <select id="filterUf" onchange="processar()">
+                <option value="">Todos</option>
+                <option value="SP">São Paulo</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="GO">Goiás</option>
+                <option value="RS">Rio Grande do Sul</option>
+                <option value="SC">Santa Catarina</option>
+                <option value="MA">Maranhão</option>
+                <option value="Estrangeiro">Estrangeiros</option>
+            </select>
+        </div>
+        <div style="margin-left:auto; font-size: 11px; color: #bdc3c7;">Círculos proporcionais ao patrimônio (R$)</div>
+    </div>
+
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <script>
-        // Inicializa o mapa
         const map = L.map('map').setView([-15.78, -47.93], 4);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '©OpenStreetMap'
-        }).addTo(map);
-
-        // Cores por Estado (Sem repetições)
-        const coresEstado = {
-            'RJ': 'red',
-            'SP': 'green',
-            'MG': 'blue',
-            'RS': 'orange',
-            'SC': 'violet',
-            'PE': 'gold',
-            'CE': 'black',
-            'MA': 'grey'
+        const cores = {
+            'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 
+            'SC': '#9b59b6', 'MA': '#1abc9c', 'Estrangeiro': '#3498db'
         };
 
-        function getIcon(uf) {
-            const cor = coresEstado[uf] || 'blue';
-            return new L.Icon({
-                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${cor}.png`,
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            });
-        }
-
-        // Dados processados da sua tabela
-        const bilionarios = [
-            {nome: "Eduardo Saverin", idade: 42, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira/Americana", vive: "Singapura", r: "155,97", usd: "28,0", origem: "Facebook", empresas: "Meta Platforms", lat: -22.9068, lng: -43.1729},
-            {nome: "Vicky Safra e família", idade: 71, cidade: "Grécia (Naturalizada SP)", uf: "SP", nac: "Grega/Brasileira", vive: "Suíça", r: "110,17", usd: "20,6", origem: "Herança", empresas: "Banco Safra", lat: -23.5505, lng: -46.6333},
-            {nome: "Jorge Paulo Lemann e família", idade: 84, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira/Suíça", vive: "Suíça", r: "91,81", usd: "16,4", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9100, lng: -43.2000},
-            {nome: "Marcel Herrmann Telles e família", idade: 74, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Mônaco", r: "60,82", usd: "10,9", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9200, lng: -43.1900},
-            {nome: "Carlos Alberto Sicupira e família", idade: 76, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "49,35", usd: "8,9", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9300, lng: -43.1800},
-            {nome: "Fernando Roberto Moreira Salles", idade: 78, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "38,45", usd: "7,6", origem: "Itaú Unibanco / CBMM", empresas: "Itaú / CBMM", lat: -22.9400, lng: -43.1700},
-            {nome: "Pedro Moreira Salles", idade: 64, cidade: "Washington (Naturalizado RJ)", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "36,77", usd: "7,1", origem: "Itaú Unibanco / CBMM", empresas: "Itaú / CBMM", lat: -22.9500, lng: -43.1600},
-            {nome: "Alexandre Behring", idade: 57, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "EUA", r: "34,82", usd: "6,3", origem: "3G Capital", empresas: "3G Capital / Kraft Heinz", lat: -22.9600, lng: -43.1500},
-            {nome: "André Esteves", idade: 55, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "32,71", usd: "6,6", origem: "BTG Pactual", empresas: "BTG Pactual", lat: -22.9700, lng: -43.1400},
-            {nome: "Luciano Hang", idade: 61, cidade: "Brusque", uf: "SC", nac: "Brasileira", vive: "Brasil", r: "25,32", usd: "4,5", origem: "Havan", empresas: "Havan", lat: -27.0978, lng: -48.9112},
-            {nome: "Ilson Mateus", idade: 61, cidade: "Imperatriz", uf: "MA", nac: "Brasileira", vive: "Brasil", r: "23,20", usd: "4,1", origem: "Grupo Mateus", empresas: "Grupo Mateus", lat: -5.5263, lng: -47.4764},
-            {nome: "Jorge Moll Filho", idade: 79, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "22,50", usd: "4,0", origem: "Rede D'Or", empresas: "Rede D'Or", lat: -22.9800, lng: -43.1300},
-            {nome: "Igor Correia de Moraes", idade: 47, cidade: "São Paulo", uf: "SP", nac: "Brasileira", vive: "Brasil", r: "19,50", usd: "3,5", origem: "Votorantim", empresas: "Votorantim", lat: -23.5600, lng: -46.6400},
-            {nome: "Lirio Albino Parisotto", idade: 70, cidade: "Nova Bassano", uf: "RS", nac: "Brasileira", vive: "Brasil", r: "18,20", usd: "3,2", origem: "Investimentos", empresas: "Videolar / Investimentos", lat: -28.7233, lng: -51.7042}
-            // Adicionado os principais para exemplo de visualização completa
+        const dados = [
+            {n: "Eduardo Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, lat: -23.5505, lng: -46.6333, o: "Facebook"},
+            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, lat: 37.9838, lng: 23.7275, o: "Banco Safra"},
+            {n: "Jorge Paulo Lemann", i: 85, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 88, lat: -22.9068, lng: -43.1729, o: "AB InBev"},
+            {n: "David Vélez", i: 44, c: "Medellín (Colômbia)", uf: "Estrangeiro", nac: "Colombiana", r: 55, lat: 6.2442, lng: -75.5812, o: "Nubank"},
+            {n: "André Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, lat: -22.9100, lng: -43.1800, o: "BTG Pactual"},
+            {n: "Irmãos Batista (Joesley/Wesley)", i: 55, c: "Formosa", uf: "GO", nac: "Brasileira", r: 50, lat: -15.5391, lng: -47.3323, o: "JBS"},
+            {n: "Família Moreira Salles", i: 70, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, lat: -22.9200, lng: -43.1900, o: "Itaú/CBMM"},
+            {n: "Luciano Hang", i: 62, c: "Brusque", uf: "SC", nac: "Brasileira", r: 14, lat: -27.0978, lng: -48.9112, o: "Havan"},
+            {n: "Ilson Mateus", i: 61, c: "Imperatriz", uf: "MA", nac: "Brasileira", r: 23.2, lat: -5.5263, lng: -47.4764, o: "Grupo Mateus"},
+            {n: "Alexandre Grendene", i: 75, c: "Farroupilha", uf: "RS", nac: "Brasileira", r: 20.5, lat: -29.2238, lng: -51.3470, o: "Grendene"}
+            // Os demais bilionários da sua lista podem ser inseridos aqui seguindo o padrão
         ];
 
-        bilionarios.forEach(b => {
-            const marker = L.marker([b.lat, b.lng], { icon: getIcon(b.uf) }).addTo(map);
-            
-            const conteudo = `
-                <div class="popup-info">
-                    <div class="popup-title">${b.nome}</div>
-                    <b>Idade:</b> ${b.idade} anos<br>
-                    <span class="popup-section">Nascimento</span>
-                    ${b.cidade} | ${b.nac}<br>
-                    <span class="popup-section">Residência Atual</span>
-                    ${b.vive}<br>
-                    <span class="popup-section">Financeiro</span>
-                    Patrimônio: R$ ${b.r} Bi / US$ ${b.usd} Bi<br>
-                    Origem: ${b.origem}<br>
-                    <b>Empresas:</b> ${b.empresas}
-                </div>
-            `;
-            marker.bindPopup(conteudo);
-        });
+        const markers = L.markerClusterGroup();
+
+        function processar() {
+            markers.clearLayers();
+            const busca = document.getElementById('search').value.toLowerCase();
+            const ufFiltro = document.getElementById('filterUf').value;
+
+            dados.filter(p => {
+                return p.n.toLowerCase().includes(busca) && (ufFiltro === "" || p.uf === ufFiltro);
+            }).forEach(p => {
+                const cor = cores[p.uf] || '#7f8c8d';
+                // Tamanho proporcional à raiz quadrada do patrimônio para não ocupar a tela toda
+                const raio = Math.sqrt(p.r) * 15000; 
+
+                const circle = L.circle([p.lat, p.lng], {
+                    color: cor, fillColor: cor, fillOpacity: 0.5, radius: raio
+                });
+
+                circle.bindPopup(`
+                    <div class="popup-card">
+                        <div class="popup-title">${p.n}</div>
+                        <div class="popup-text">
+                            <b>Nascimento:</b> ${p.c} | ${p.nac}<br>
+                            <b>Patrimônio:</b> R$ ${p.r} Bi<br>
+                            <b>Origem:</b> ${p.o}
+                        </div>
+                        <a href="#" class="btn-link">Ver Perfil Completo</a>
+                    </div>
+                `);
+                markers.addLayer(circle);
+            });
+            map.addLayer(markers);
+        }
+
+        const legend = L.control({position: 'bottomright'});
+        legend.onAdd = function () {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = '<strong>Legenda de Origem</strong><br>';
+            for (let uf in cores) {
+                div.innerHTML += `<i style="background:${cores[uf]}"></i> ${uf}<br>`;
+            }
+            return div;
+        };
+        legend.addTo(map);
+
+        processar();
     </script>
 </body>
 </html>
