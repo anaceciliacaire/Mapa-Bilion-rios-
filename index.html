@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa dos Bilionários do Brasil</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; }
+        .popup-title { font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; border-bottom: 2px solid #3498db; padding-bottom: 3px; }
+        .popup-info { font-size: 13px; line-height: 1.4; color: #34495e; }
+        .popup-section { font-weight: bold; color: #2980b9; margin-top: 8px; display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Inicializa o mapa
+        const map = L.map('map').setView([-15.78, -47.93], 4);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '©OpenStreetMap'
+        }).addTo(map);
+
+        // Cores por Estado (Sem repetições)
+        const coresEstado = {
+            'RJ': 'red',
+            'SP': 'green',
+            'MG': 'blue',
+            'RS': 'orange',
+            'SC': 'violet',
+            'PE': 'gold',
+            'CE': 'black',
+            'MA': 'grey'
+        };
+
+        function getIcon(uf) {
+            const cor = coresEstado[uf] || 'blue';
+            return new L.Icon({
+                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${cor}.png`,
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+        }
+
+        // Dados processados da sua tabela
+        const bilionarios = [
+            {nome: "Eduardo Saverin", idade: 42, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira/Americana", vive: "Singapura", r: "155,97", usd: "28,0", origem: "Facebook", empresas: "Meta Platforms", lat: -22.9068, lng: -43.1729},
+            {nome: "Vicky Safra e família", idade: 71, cidade: "Grécia (Naturalizada SP)", uf: "SP", nac: "Grega/Brasileira", vive: "Suíça", r: "110,17", usd: "20,6", origem: "Herança", empresas: "Banco Safra", lat: -23.5505, lng: -46.6333},
+            {nome: "Jorge Paulo Lemann e família", idade: 84, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira/Suíça", vive: "Suíça", r: "91,81", usd: "16,4", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9100, lng: -43.2000},
+            {nome: "Marcel Herrmann Telles e família", idade: 74, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Mônaco", r: "60,82", usd: "10,9", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9200, lng: -43.1900},
+            {nome: "Carlos Alberto Sicupira e família", idade: 76, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "49,35", usd: "8,9", origem: "AB Inbev", empresas: "AB Inbev / 3G Capital", lat: -22.9300, lng: -43.1800},
+            {nome: "Fernando Roberto Moreira Salles", idade: 78, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "38,45", usd: "7,6", origem: "Itaú Unibanco / CBMM", empresas: "Itaú / CBMM", lat: -22.9400, lng: -43.1700},
+            {nome: "Pedro Moreira Salles", idade: 64, cidade: "Washington (Naturalizado RJ)", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "36,77", usd: "7,1", origem: "Itaú Unibanco / CBMM", empresas: "Itaú / CBMM", lat: -22.9500, lng: -43.1600},
+            {nome: "Alexandre Behring", idade: 57, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "EUA", r: "34,82", usd: "6,3", origem: "3G Capital", empresas: "3G Capital / Kraft Heinz", lat: -22.9600, lng: -43.1500},
+            {nome: "André Esteves", idade: 55, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "32,71", usd: "6,6", origem: "BTG Pactual", empresas: "BTG Pactual", lat: -22.9700, lng: -43.1400},
+            {nome: "Luciano Hang", idade: 61, cidade: "Brusque", uf: "SC", nac: "Brasileira", vive: "Brasil", r: "25,32", usd: "4,5", origem: "Havan", empresas: "Havan", lat: -27.0978, lng: -48.9112},
+            {nome: "Ilson Mateus", idade: 61, cidade: "Imperatriz", uf: "MA", nac: "Brasileira", vive: "Brasil", r: "23,20", usd: "4,1", origem: "Grupo Mateus", empresas: "Grupo Mateus", lat: -5.5263, lng: -47.4764},
+            {nome: "Jorge Moll Filho", idade: 79, cidade: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", vive: "Brasil", r: "22,50", usd: "4,0", origem: "Rede D'Or", empresas: "Rede D'Or", lat: -22.9800, lng: -43.1300},
+            {nome: "Igor Correia de Moraes", idade: 47, cidade: "São Paulo", uf: "SP", nac: "Brasileira", vive: "Brasil", r: "19,50", usd: "3,5", origem: "Votorantim", empresas: "Votorantim", lat: -23.5600, lng: -46.6400},
+            {nome: "Lirio Albino Parisotto", idade: 70, cidade: "Nova Bassano", uf: "RS", nac: "Brasileira", vive: "Brasil", r: "18,20", usd: "3,2", origem: "Investimentos", empresas: "Videolar / Investimentos", lat: -28.7233, lng: -51.7042}
+            // Adicionado os principais para exemplo de visualização completa
+        ];
+
+        bilionarios.forEach(b => {
+            const marker = L.marker([b.lat, b.lng], { icon: getIcon(b.uf) }).addTo(map);
+            
+            const conteudo = `
+                <div class="popup-info">
+                    <div class="popup-title">${b.nome}</div>
+                    <b>Idade:</b> ${b.idade} anos<br>
+                    <span class="popup-section">Nascimento</span>
+                    ${b.cidade} | ${b.nac}<br>
+                    <span class="popup-section">Residência Atual</span>
+                    ${b.vive}<br>
+                    <span class="popup-section">Financeiro</span>
+                    Patrimônio: R$ ${b.r} Bi / US$ ${b.usd} Bi<br>
+                    Origem: ${b.origem}<br>
+                    <b>Empresas:</b> ${b.empresas}
+                </div>
+            `;
+            marker.bindPopup(conteudo);
+        });
+    </script>
+</body>
+</html>
