@@ -2,52 +2,63 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Bilionários Brasil - Forbes</title>
+    <title>Dashboard Bilionários Brasil - Forbes 30</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background: #f4f7f6; }
-        #header { padding: 15px 20px; background: #2c3e50; color: white; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .filter-item { display: flex; align-items: center; gap: 8px; }
-        input, select { padding: 6px 10px; border-radius: 4px; border: none; outline: none; }
-        #map { flex-grow: 1; z-index: 1; }
-        .legend { padding: 10px; background: white; line-height: 18px; color: #333; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-size: 12px; }
-        .legend i { width: 12px; height: 12px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
-        .popup-card { min-width: 180px; }
-        .popup-title { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #2c3e50; border-bottom: 1px solid #eee; padding-bottom: 3px; }
-        .popup-text { font-size: 12px; line-height: 1.4; color: #555; }
-        .btn-link { display: block; margin-top: 8px; text-align: center; background: #3498db; color: white !important; text-decoration: none; padding: 4px; border-radius: 3px; font-size: 11px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: #1a1a1a; color: white; overflow: hidden; }
+        #sidebar { width: 330px; background: #222; display: flex; flex-direction: column; border-right: 1px solid #333; z-index: 10; }
+        .sidebar-header { padding: 20px; background: #111; text-align: center; font-weight: bold; color: #2ecc71; border-bottom: 1px solid #333; letter-spacing: 1px; }
+        #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid #2ecc71; }
+        #ranking-list { flex-grow: 1; overflow-y: auto; padding: 5px; }
+        .ranking-item { padding: 12px 15px; border-bottom: 1px solid #333; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .ranking-item:hover { background: #333; }
+        #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        #header { padding: 12px 20px; background: #1a1a1a; display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #333; }
+        #map { flex-grow: 1; background: #1a1a1a; }
+        input, select { padding: 8px 12px; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: white; outline: none; }
+        .popup-card { color: #222; min-width: 240px; font-family: sans-serif; }
+        .popup-img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; background: #eee; }
+        .btn-link { display: block; text-align: center; background: #2ecc71; color: white !important; text-decoration: none; padding: 8px; border-radius: 5px; margin-top: 10px; font-weight: bold; }
+        .legend { padding: 12px; background: rgba(0,0,0,0.9); color: white; line-height: 20px; border-radius: 8px; font-size: 12px; border: 1px solid #444; }
+        .legend i { width: 12px; height: 12px; float: left; margin-right: 10px; border-radius: 50%; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <div id="header">
-        <div class="filter-item"><strong>🔍 Busca:</strong> <input type="text" id="search" placeholder="Nome..." onkeyup="processar()"></div>
-        <div class="filter-item">
-            <strong>📍 Origem:</strong>
-            <select id="filterUf" onchange="processar()">
-                <option value="">Todos</option>
-                <option value="SP">São Paulo</option>
-                <option value="RJ">Rio de Janeiro</option>
-                <option value="GO">Goiás</option>
-                <option value="RS">Rio Grande do Sul</option>
-                <option value="SC">Santa Catarina</option>
-                <option value="MA">Maranhão</option>
-                <option value="Estrangeiro">Estrangeiros</option>
-            </select>
+    <div id="sidebar">
+        <div class="sidebar-header">TOP BILIONÁRIOS BRASIL</div>
+        <div id="stats-box">
+            <small>Patrimônio Visível</small><br>
+            <strong id="total-money" style="font-size: 1.3em;">R$ 0 Bi</strong>
         </div>
-        <div style="margin-left:auto; font-size: 11px; color: #bdc3c7;">Círculos proporcionais ao patrimônio (R$)</div>
+        <div id="ranking-list"></div>
     </div>
 
-    <div id="map"></div>
+    <div id="main-content">
+        <div id="header">
+            <input type="text" id="search" placeholder="🔍 Buscar bilionário..." onkeyup="processar()">
+            <select id="filterUf" onchange="processar()">
+                <option value="">🌎 Todas as Origens</option>
+                <option value="SP">São Paulo (SP)</option>
+                <option value="RJ">Rio de Janeiro (RJ)</option>
+                <option value="GO">Goiás (GO)</option>
+                <option value="RS">Rio Grande do Sul (RS)</option>
+                <option value="SC">Santa Catarina (SC)</option>
+                <option value="MA">Maranhão (MA)</option>
+                <option value="Estrangeiro">Nascidos fora do Brasil</option>
+            </select>
+        </div>
+        <div id="map"></div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/markercluster.js"></script>
 
     <script>
-        const map = L.map('map').setView([-15.78, -47.93], 4);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        const map = L.map('map').setView([-15, -50], 4);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
         const cores = {
             'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 
@@ -55,59 +66,104 @@
         };
 
         const dados = [
-            {n: "Eduardo Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, lat: -23.5505, lng: -46.6333, o: "Facebook"},
-            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, lat: 37.9838, lng: 23.7275, o: "Banco Safra"},
-            {n: "Jorge Paulo Lemann", i: 85, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 88, lat: -22.9068, lng: -43.1729, o: "AB InBev"},
-            {n: "David Vélez", i: 44, c: "Medellín (Colômbia)", uf: "Estrangeiro", nac: "Colombiana", r: 55, lat: 6.2442, lng: -75.5812, o: "Nubank"},
-            {n: "André Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, lat: -22.9100, lng: -43.1800, o: "BTG Pactual"},
-            {n: "Irmãos Batista (Joesley/Wesley)", i: 55, c: "Formosa", uf: "GO", nac: "Brasileira", r: 50, lat: -15.5391, lng: -47.3323, o: "JBS"},
-            {n: "Família Moreira Salles", i: 70, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, lat: -22.9200, lng: -43.1900, o: "Itaú/CBMM"},
-            {n: "Luciano Hang", i: 62, c: "Brusque", uf: "SC", nac: "Brasileira", r: 14, lat: -27.0978, lng: -48.9112, o: "Havan"},
-            {n: "Ilson Mateus", i: 61, c: "Imperatriz", uf: "MA", nac: "Brasileira", r: 23.2, lat: -5.5263, lng: -47.4764, o: "Grupo Mateus"},
-            {n: "Alexandre Grendene", i: 75, c: "Farroupilha", uf: "RS", nac: "Brasileira", r: 20.5, lat: -29.2238, lng: -51.3470, o: "Grendene"}
-            // Os demais bilionários da sua lista podem ser inseridos aqui seguindo o padrão
+            {n: "Eduardo Luiz Saverin", i: 43, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 227, usd: 41.27, o: "Facebook (Meta)", v: "Singapura", e: "Meta, B Capital", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {n: "Vicky Safra", i: 73, c: "Salonpass (Grécia)", uf: "Estrangeiro", nac: "Grega", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra Sarasin", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {n: "Jorge Paulo Lemann", i: 85, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 88, usd: 16, o: "AB InBev", v: "Suíça", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
+            {n: "André Santos Esteves", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 51, usd: 9.27, o: "BTG Pactual", v: "Brasil", e: "BTG Pactual", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
+            {n: "Fernando Roberto Moreira Salles", i: 79, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 40.2, usd: 7.3, o: "Itaú Unibanco, CBMM", v: "Brasil", e: "Itaú Unibanco", lat: -22.9068, lng: -43.1729, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
+            {n: "Carlos Alberto da Veiga Sicupira", i: 77, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 39.1, usd: 7.1, o: "AB InBev, 3G Capital", v: "Brasil/Suíça", e: "Americanas", lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
+            {n: "Pedro Moreira Salles", i: 65, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, usd: 6.9, o: "Itaú Unibanco", v: "Brasil", e: "CBMM", lat: -22.9068, lng: -43.1729, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
+            {n: "Alex Behring", i: 57, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 36.5, usd: 6.64, o: "3G Capital", v: "EUA", e: "Kraft Heinz", lat: -22.9068, lng: -43.1729, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
+            {n: "Marcel Herrmann Telles", i: 74, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 32, usd: 5.82, o: "AB InBev", v: "Mônaco", e: "3G Capital", lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"},
+            {n: "Jorge Neval Moll Filho", i: 79, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 22.5, usd: 4.1, o: "Rede D'Or", v: "Brasil", e: "Rede D'Or", lat: -22.9068, lng: -43.1729, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds"},
+            {n: "Miguel Gellert Krigsner", i: 74, c: "La Paz (Bolívia)", uf: "Estrangeiro", nac: "Boliviana", r: 27, usd: 4.91, o: "O Boticário", v: "Brasil", e: "Grupo Boticário", lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
+            {n: "Joesley Mendonça Batista", i: 53, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F Investimentos", lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
+            {n: "Wesley Mendonça Batista", i: 55, c: "Formosa", uf: "GO", nac: "Brasileira", r: 25, usd: 4.54, o: "JBS", v: "Brasil", e: "J&F Investimentos", lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
+            {n: "Maurizio Billi", i: 68, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 20.6, usd: 3.74, o: "Eurofarma", v: "Brasil", e: "Eurofarma", lat: -23.5505, lng: -46.6333, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg"},
+            {n: "Alexandre Grendene Bartelle", i: 75, c: "Farroupilha", uf: "RS", nac: "Brasileira", r: 20.5, usd: 3.72, o: "Grendene", v: "Brasil", e: "Grendene", lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909"},
+            {n: "Ricardo Castellar de Faria", i: 50, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 19.6, usd: 3.56, o: "Granja Faria", v: "Brasil", e: "Granja Faria", lat: -22.9068, lng: -43.1729, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg"},
+            {n: "Alceu Elias Feldmann", i: 75, c: "Pouso Redondo", uf: "SC", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Fertipar", v: "Brasil", e: "Fertipar", lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg"},
+            {n: "José João Abdalla Filho", i: 80, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Banco Clássico", v: "Brasil", e: "Eletrobras", lat: -23.5505, lng: -46.6333, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg"},
+            {n: "José Roberto Marinho", i: 69, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Grupo Globo", lat: -22.9068, lng: -43.1729, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg"},
+            {n: "João Roberto Marinho", i: 71, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Grupo Globo", lat: -22.9068, lng: -43.1729, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s"},
+            {n: "Roberto Irineu Marinho", i: 77, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 18.5, usd: 3.36, o: "Rede Globo", v: "Brasil", e: "Grupo Globo", lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg"},
+            {n: "Mário Araújo Alencar Araripe", i: 70, c: "Crato (CE)", uf: "CE", nac: "Brasileira", r: 15, usd: 2.7, o: "Casa dos Ventos", v: "Brasil", e: "Casa dos Ventos", lat: -7.2342, lng: -39.4125, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg"},
+            {n: "Jayme Brasil Garfinkel", i: 78, c: "São Paulo", uf: "SP", nac: "Brasileira", r: 10, usd: 1.8, o: "Porto Seguro", v: "Brasil", e: "Porto Seguro", lat: -23.5505, lng: -46.6333, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg"},
+            {n: "Lirio Albino Parisotto", i: 72, c: "Nova Bassano", uf: "RS", nac: "Brasileira", r: 18.2, usd: 3.2, o: "Videolar", v: "Brasil", e: "Videolar", lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg"},
+            {n: "João Moreira Salles", i: 64, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, usd: 6.9, o: "Itaú Unibanco", v: "Brasil", e: "Itaú Unibanco", lat: -22.9068, lng: -43.1729, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
+            {n: "Walther Moreira Salles Junior", i: 67, c: "Rio de Janeiro", uf: "RJ", nac: "Brasileira", r: 38, usd: 6.9, o: "Itaú Unibanco", v: "Brasil", e: "Itaú Unibanco", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"}
         ];
 
-        const markers = L.markerClusterGroup();
+        const markers = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            maxClusterRadius: 40
+        });
 
         function processar() {
             markers.clearLayers();
             const busca = document.getElementById('search').value.toLowerCase();
             const ufFiltro = document.getElementById('filterUf').value;
+            const listaRanking = document.getElementById('ranking-list');
+            let totalBi = 0;
 
-            dados.filter(p => {
-                return p.n.toLowerCase().includes(busca) && (ufFiltro === "" || p.uf === ufFiltro);
-            }).forEach(p => {
+            listaRanking.innerHTML = "";
+
+            const filtrados = dados.filter(p => {
+                const bUf = (p.uf === ufFiltro || ufFiltro === "");
+                return p.n.toLowerCase().includes(busca) && bUf;
+            }).sort((a, b) => b.r - a.r);
+
+            filtrados.forEach(p => {
+                totalBi += p.r;
                 const cor = cores[p.uf] || '#7f8c8d';
-                // Tamanho proporcional à raiz quadrada do patrimônio para não ocupar a tela toda
-                const raio = Math.sqrt(p.r) * 15000; 
+                
+                const jitterLat = (Math.random() - 0.5) * 0.01;
+                const jitterLng = (Math.random() - 0.5) * 0.01;
+                const raio = Math.sqrt(p.r) * 12000;
 
-                const circle = L.circle([p.lat, p.lng], {
-                    color: cor, fillColor: cor, fillOpacity: 0.5, radius: raio
+                const circle = L.circle([p.lat + jitterLat, p.lng + jitterLng], {
+                    color: cor, weight: 2, fillColor: cor, fillOpacity: 0.5, radius: raio
                 });
+
+                const imgHtml = p.f ? `<img src="${p.f}" class="popup-img" onerror="this.style.display='none'">` : '';
 
                 circle.bindPopup(`
                     <div class="popup-card">
-                        <div class="popup-title">${p.n}</div>
-                        <div class="popup-text">
-                            <b>Nascimento:</b> ${p.c} | ${p.nac}<br>
-                            <b>Patrimônio:</b> R$ ${p.r} Bi<br>
-                            <b>Origem:</b> ${p.o}
+                        ${imgHtml}
+                        <div style="font-weight:bold; font-size:16px;">${p.n}</div>
+                        <div style="font-size:11px; margin-bottom:8px; border-bottom:1px solid #ddd; padding-bottom:5px;">
+                            <b>Idade:</b> ${p.i} | <b>Vive em:</b> ${p.v}
                         </div>
-                        <a href="#" class="btn-link">Ver Perfil Completo</a>
+                        <div style="font-size:12px; line-height:1.5;">
+                            <b>Nascimento:</b> ${p.c} (${p.nac})<br>
+                            <b>Fortuna:</b> R$ ${p.r} Bi / US$ ${p.usd} Bi<br>
+                            <b>Origem:</b> ${p.o}<br>
+                            <b>Empresas:</b> ${p.e}
+                        </div>
                     </div>
                 `);
+
                 markers.addLayer(circle);
+                listaRanking.innerHTML += `
+                    <div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 12)">
+                        <span>${p.n}</span>
+                        <b style="color:#2ecc71">R$ ${p.r}B</b>
+                    </div>
+                `;
             });
+
+            document.getElementById('total-money').innerText = `R$ ${totalBi.toFixed(1)} Bi`;
             map.addLayer(markers);
         }
 
         const legend = L.control({position: 'bottomright'});
         legend.onAdd = function () {
             const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<strong>Legenda de Origem</strong><br>';
-            for (let uf in cores) {
-                div.innerHTML += `<i style="background:${cores[uf]}"></i> ${uf}<br>`;
+            div.innerHTML = '<strong>🌎 Estados</strong><br>';
+            for (let k in cores) {
+                div.innerHTML += `<i style="background:${cores[k]}"></i> ${k}<br>`;
             }
             return div;
         };
