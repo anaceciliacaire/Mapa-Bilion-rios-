@@ -8,7 +8,6 @@
         :root { --bg-dark: #1a1a1a; --bg-sidebar: #222; --accent: #2ecc71; --text: white; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text); overflow: hidden; }
         
-        /* Sidebar e Scrollbar Corrigidos */
         #sidebar { min-width: 330px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: all 0.5s ease; position: relative; }
         #sidebar.hidden { margin-left: -330px; min-width: 0; }
         
@@ -20,7 +19,6 @@
         .sidebar-header { padding: 25px 20px; background: #111; text-align: center; font-weight: bold; color: var(--accent); border-bottom: 1px solid #333; letter-spacing: 1px; }
         #stats-box { padding: 15px; background: #2d2d2d; margin: 10px; border-radius: 8px; text-align: center; border-left: 5px solid var(--accent); flex-shrink: 0; }
         
-        /* BARRA DE ROLAGEM */
         #ranking-list { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 5px; scrollbar-width: thin; scrollbar-color: var(--accent) #222; }
         #ranking-list::-webkit-scrollbar { width: 6px; }
         #ranking-list::-webkit-scrollbar-track { background: #222; }
@@ -36,16 +34,8 @@
         #theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: white; color: black; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         input, select { padding: 8px; border-radius: 6px; border: 1px solid #444; background: #2d2d2d; color: white; }
 
-        /* ESTILO DO BALÃO E FOTOS CORRIGIDAS */
         .popup-card { color: #222; min-width: 220px; font-family: sans-serif; text-align: center; }
-        .popup-img { 
-            width: 100%; 
-            height: 160px; /* Aumentei um pouco a altura */
-            object-fit: cover; 
-            object-position: top center; /* <--- O SEGREDO ESTÁ AQUI: Força a foto a focar no rosto */
-            border-radius: 6px; 
-            margin-bottom: 10px; 
-        }
+        .popup-img { width: 100%; height: 160px; object-fit: cover; object-position: top center; border-radius: 4px; margin-bottom: 10px; }
         .carousel-nav { display: flex; justify-content: space-between; background: #f1f1f1; padding: 8px; border-radius: 4px; margin-top: 10px; align-items: center; }
         .carousel-btn { background: var(--accent); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .carousel-btn:hover { background: #27ae60; }
@@ -116,21 +106,38 @@
 
         const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'CE': 'grey', 'Estrangeiro': 'blue' };
 
+        // LISTA 100% COMPLETA - 30 NOMES
         const dados = [
             {n: "Eduardo Saverin", uf: "SP", r: 227, lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", e: "Meta"},
             {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", e: "Banco Safra"},
             {n: "Jorge Paulo Lemann", uf: "RJ", r: 88, lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", e: "3G Capital"},
             {n: "André Esteves", uf: "RJ", r: 51, lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", e: "BTG Pactual"},
-            {n: "Marcel Telles", uf: "RJ", r: 32, lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", e: "3G Capital"},
-            {n: "Ricardo Faria", uf: "RJ", r: 19.6, lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", e: "Granja Faria"},
-            {n: "Roberto Irineu Marinho", uf: "RJ", r: 18.5, lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg", e: "Rede Globo"},
+            {n: "Fernando Moreira Salles", uf: "RJ", r: 40.2, lat: -22.9068, lng: -43.1729, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg", e: "Itaú / CBMM"},
+            {n: "Carlos Alberto Sicupira", uf: "RJ", r: 39.1, lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg", e: "3G Capital"},
+            {n: "Pedro Moreira Salles", uf: "RJ", r: 38, lat: -22.9068, lng: -43.1729, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg", e: "Itaú / CBMM"},
+            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", e: "O Boticário"},
+            {n: "Alex Behring", uf: "RJ", r: 36.5, lat: -22.9068, lng: -43.1729, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp", e: "3G Capital"},
+            {n: "Jorge Neval Moll Filho", uf: "RJ", r: 22.5, lat: -22.9068, lng: -43.1729, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds", e: "Rede D'Or"},
+            {n: "Max Van Hoegarden H. Telles", uf: "RJ", r: 32, lat: -22.9068, lng: -43.1729, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg", e: "3G Capital"},
+            {n: "Ermírio Pereira de Moraes", uf: "SP", r: 15, lat: -23.5505, lng: -46.6333, f: "https://geneall.net/images/names/pes_1072027.jpg", e: "Votorantim"},
+            {n: "Luís Ermírio de Moraes", uf: "SP", r: 15, lat: -23.5505, lng: -46.6333, f: "https://cdn-sites-assets.mziq.com/wp-content/uploads/sites/918/2022/02/luis-ermirio.jpg", e: "Votorantim"},
+            {n: "Maria Helena Moraes", uf: "SP", r: 15, lat: -23.5505, lng: -46.6333, f: "https://marciatravessoni.com.br/wp-content/uploads/2021/09/Maria-Helena-Moraes-Scripilliti.jpg", e: "Votorantim"},
+            {n: "João Moreira Salles", uf: "RJ", r: 38, lat: -22.9068, lng: -43.1729, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg", e: "Itaú / CBMM"},
+            {n: "Walther Moreira Salles Jr.", uf: "RJ", r: 38, lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg", e: "Itaú / CBMM"},
             {n: "Joesley Batista", uf: "GO", r: 25, lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", e: "JBS"},
             {n: "Wesley Batista", uf: "GO", r: 25, lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", e: "JBS"},
+            {n: "Maurizio Billi", uf: "SP", r: 20.6, lat: -23.5505, lng: -46.6333, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg", e: "Eurofarma"},
             {n: "Alexandre Grendene", uf: "RS", r: 20.5, lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg", e: "Grendene"},
-            {n: "Lirio Parisotto", uf: "RS", r: 18.2, lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", e: "Videolar"},
+            {n: "Ricardo Faria", uf: "RJ", r: 19.6, lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", e: "Granja Faria"},
             {n: "Alceu Feldmann", uf: "SC", r: 18.5, lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", e: "Fertipar"},
-            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", e: "O Boticário"},
-            {n: "Mário Araripe", uf: "CE", r: 15, lat: -7.2342, lng: -39.4125, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg", e: "Casa dos Ventos"}
+            {n: "José João Abdalla Filho", uf: "SP", r: 18.5, lat: -23.5505, lng: -46.6333, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg", e: "Banco Clássico"},
+            {n: "José Roberto Marinho", uf: "RJ", r: 18.5, lat: -22.9068, lng: -43.1729, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg", e: "Rede Globo"},
+            {n: "João Roberto Marinho", uf: "RJ", r: 18.5, lat: -22.9068, lng: -43.1729, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s", e: "Rede Globo"},
+            {n: "Mário Araripe", uf: "CE", r: 15, lat: -7.2342, lng: -39.4125, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg", e: "Casa dos Ventos"},
+            {n: "Jayme Garfinkel", uf: "SP", r: 10, lat: -23.5505, lng: -46.6333, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg", e: "Porto Seguro"},
+            {n: "Roberto Irineu Marinho", uf: "RJ", r: 18.5, lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg", e: "Rede Globo"},
+            {n: "Lirio Parisotto", uf: "RS", r: 18.2, lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", e: "Videolar"},
+            {n: "Marcel Herrmann Telles", uf: "RJ", r: 32, lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", e: "3G Capital"}
         ];
 
         const camadaPins = L.layerGroup().addTo(map);
@@ -147,6 +154,7 @@
 
             let nav = '';
             if (total > 1) {
+                // event.stopPropagation() PREVINE O FECHAMENTO DO BALÃO
                 nav = `
                     <div class="carousel-nav">
                         <button class="carousel-btn" onclick="event.stopPropagation(); changeSlide('${cityId}', -1)">◀</button>
@@ -157,7 +165,7 @@
             }
 
             return `
-                <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x150?text=Sem+Foto'">
+                <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x160?text=Sem+Foto'">
                 <div style="font-weight:bold; font-size:16px;">${p.n}</div>
                 <div style="font-size:13px; color:#555; margin-top:5px; line-height:1.4;">
                     <b>💰 R$ ${p.r} Bi</b><br>
