@@ -33,9 +33,9 @@
         
         body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
         
-        /* SIDEBAR ESQUERDA */
-        #sidebar-left { min-width: 340px; width: 340px; background: var(--panel); backdrop-filter: var(--backdrop); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: 0.4s ease; border-right: 1px solid var(--border); position: relative; }
-        #sidebar-left.hidden { margin-left: -340px; }
+        /* --- SIDEBAR ESQUERDA --- */
+        #sidebar-left { min-width: 340px; width: 340px; background: var(--panel); backdrop-filter: var(--backdrop); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: transform 0.4s ease; border-right: 1px solid var(--border); position: relative; }
+        #sidebar-left.hidden { transform: translateX(-100%); }
 
         .toggle-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2005; border: none; }
         #toggle-left { right: -24px; border-radius: 0 8px 8px 0; }
@@ -52,43 +52,47 @@
         .ranking-item { padding: 12px; border-radius: 12px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid transparent;}
         .ranking-item:hover { background: var(--card); border-color: var(--border);}
 
-        /* ÁREA CENTRAL */
+        /* --- CENTRO (MAPA E BUSCA) --- */
         #main-content { flex: 1; position: relative; display: flex; flex-direction: column; }
         #map { flex: 1; width: 100%; height: 100%; z-index: 1; background: #0b0c10; }
         
         #search-box { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1000; }
         #search-box input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); backdrop-filter: var(--backdrop); color: var(--text); outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-        /* BOTÃO VISUAL (TOPO DIREITO) */
+        /* BOTÃO VISUAL NO TOPO DIREITO */
         #theme-btn { position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 15px; background: var(--card); color: var(--text); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* SIDEBAR DIREITA */
-        #btn-open-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border-radius: 8px 0 0 8px; z-index: 1001; border: none; }
+        /* --- SIDEBAR DIREITA (ANÁLISE) --- */
+        #btn-open-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border-radius: 8px 0 0 8px; z-index: 1001; border: none; box-shadow: -4px 0 12px rgba(0,0,0,0.2);}
 
-        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.8); backdrop-filter: blur(15px); z-index: 2000; padding: 60px 80px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; transition: transform 0.4s; transform: translateX(100%); overflow-y: auto; }
-        body.light-theme #sidebar-right { background: rgba(197, 208, 230, 0.8); }
+        /* Regras estritas para não vazar da página */
+        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.9); backdrop-filter: blur(15px); z-index: 2000; padding: 40px; display: flex; flex-direction: column; gap: 20px; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); overflow-y: auto; box-sizing: border-box; }
+        body.light-theme #sidebar-right { background: rgba(197, 208, 230, 0.9); }
         #sidebar-right.active { transform: translateX(0); }
         
-        /* BOTÃO VOLTAR (ABA DIREITA) */
-        #btn-close-right { position: absolute; left: 30px; top: 30px; padding: 10px 20px; background: var(--card); color: var(--accent); font-weight: bold; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; z-index: 2005; font-size: 14px; }
+        .right-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        #btn-close-right { padding: 10px 20px; background: var(--card); color: var(--text); font-weight: bold; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: 0.2s;}
+        #btn-close-right:hover { background: var(--accent); color: var(--bg); }
 
-        /* GRÁFICOS MENORES */
-        .chart-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; max-height: 320px; }
-        .chart-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; text-align: center; }
-        canvas { flex: 1; width: 100% !important; height: auto !important; max-height: 220px; }
+        .charts-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; flex: 1; }
 
-        /* POPUP E CARROSSEL */
-        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); padding: 0; overflow: hidden; }
+        .chart-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; box-sizing: border-box;}
+        .chart-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; width: 100%; text-align: center; }
+        .chart-box canvas { max-width: 100%; max-height: 240px; }
+
+        /* --- POPUP E CARROSSEL --- */
+        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); padding: 0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .leaflet-popup-tip { background: var(--card); }
         .leaflet-popup-content { margin: 0; }
-        .popup-card { width: 240px; position: relative; }
-        .popup-img { width: 100%; height: 150px; object-fit: cover; }
+        .popup-card { width: 240px; position: relative; display: flex; flex-direction: column; }
+        /* Imagem centralizada */
+        .popup-img { display: block; margin: 0 auto; width: 100%; max-height: 160px; object-fit: cover; object-position: center; border-bottom: 1px solid var(--border); }
         .popup-body { padding: 15px; }
-        .popup-name { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 5px;}
-        .popup-data { font-size: 12px; line-height: 1.6; color: var(--muted); }
+        .popup-name { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 5px; text-align: center;}
+        .popup-data { font-size: 12px; line-height: 1.6; color: var(--muted); margin-top: 10px;}
         .popup-data b { color: var(--accent); }
         
-        .carousel-controls { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 15px; font-size: 12px; color: var(--accent); font-weight: bold; border-top: 1px solid var(--border); }
+        .carousel-controls { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 8px 15px; font-size: 12px; color: var(--accent); font-weight: bold; border-top: 1px solid var(--border); }
         .carousel-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 10px;}
         .carousel-btn:hover { color: var(--text); }
     </style>
@@ -100,8 +104,8 @@
         <div class="header-area">
             <div class="sidebar-title">FORTUNAS DO BRASIL</div>
             <select id="db-selector" onchange="switchData()">
-                <option value="br">🇧🇷 Top 30 Brasil</option>
-                <option value="world">🌍 Top 30 Mundo</option>
+                <option value="br">🇧🇷 Top 30 Brasil (Forbes 2025)</option>
+                <option value="world">🌍 Top 25 Mundo (Forbes 2026)</option>
             </select>
         </div>
         <div class="stat-card">
@@ -114,7 +118,7 @@
     <div id="main-content">
         <button id="theme-btn" onclick="swapTheme()">🌓 Visual</button>
         <div id="search-box">
-            <input type="text" placeholder="Pesquisar nome..." onkeyup="refresh()">
+            <input type="text" placeholder="Pesquisar nome ou empresa..." onkeyup="refresh()">
         </div>
         <div id="map"></div>
     </div>
@@ -122,20 +126,25 @@
     <button id="btn-open-right" onclick="toggleSidebar('right')">◀</button>
 
     <div id="sidebar-right">
-        <button id="btn-close-right" onclick="toggleSidebar('right')">▶ Voltar</button>
-        
-        <div class="chart-box" style="grid-column: span 2; margin-top: 40px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                <span class="chart-title">Evolução do Patrimônio (Top 5)</span>
-                <select id="hist-type" onchange="refresh()" style="background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:5px; padding: 2px 8px; font-size: 11px;">
-                    <option value="line">Linha do Tempo</option>
-                    <option value="bar">Lado a Lado</option>
-                </select>
-            </div>
-            <canvas id="chartHistory"></canvas>
+        <div class="right-header">
+            <h2 style="margin:0; color:var(--accent);">Painel de Análises</h2>
+            <button id="btn-close-right" onclick="toggleSidebar('right')">▶ Voltar ao Mapa</button>
         </div>
-        <div class="chart-box"><span class="chart-title">Setores</span><canvas id="secChart"></canvas></div>
-        <div class="chart-box"><span class="chart-title">Geografia</span><canvas id="geoChart"></canvas></div>
+        
+        <div class="charts-wrapper">
+            <div class="chart-box" style="grid-column: 1 / -1;">
+                <div style="display:flex; justify-content:space-between; width: 100%; align-items: center; margin-bottom: 10px;">
+                    <span class="chart-title" style="margin:0; text-align:left;">Evolução do Patrimônio (Top 5)</span>
+                    <select id="hist-type" onchange="refresh()" style="background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:5px; padding: 4px 8px; font-size: 12px;">
+                        <option value="line">Linha do Tempo</option>
+                        <option value="bar">Lado a Lado</option>
+                    </select>
+                </div>
+                <canvas id="chartHistory"></canvas>
+            </div>
+            <div class="chart-box"><span class="chart-title">Setores de Atuação</span><canvas id="secChart"></canvas></div>
+            <div class="chart-box"><span class="chart-title">Distribuição Geográfica</span><canvas id="geoChart"></canvas></div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -164,79 +173,74 @@
             setTimeout(() => map.invalidateSize(), 400);
         }
 
-        const gerH = (v) => [(v*0.8).toFixed(1), (v*0.9).toFixed(1), v];
-        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=1c1c1c&color=C5D0E6`;
+        const gerH = (v) => [(v*0.75).toFixed(1), (v*0.85).toFixed(1), v];
 
-        // BASE DE DADOS COMPLETA
+        // BASE EXATA DA FORBES BRASIL 2025
         const dbBrasil = [
-            {n: "Eduardo Saverin", usd: 28.0, h: gerH(28), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", usd: 20.6, h: gerH(20.6), uf: "Estrangeiro", lat: -23.55, lng: -46.63, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
-            {n: "Jorge Paulo Lemann", usd: 16.4, h: gerH(16.4), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
-            {n: "Marcel Telles", usd: 10.9, h: gerH(10.9), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"},
-            {n: "Carlos Alberto Sicupira", usd: 8.9, h: gerH(8.9), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
-            {n: "André Esteves", usd: 6.6, h: gerH(6.6), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
-            {n: "Alexandre Behring", usd: 6.3, h: gerH(6.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
-            {n: "João Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
-            {n: "Walther Moreira Salles Jr", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Itaú", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
-            {n: "Fernando R. Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
-            {n: "Pedro Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
-            {n: "Maurizio Billi", usd: 3.9, h: gerH(3.9), uf: "SP", lat: -23.55, lng: -46.63, setor: "Saúde", o: "Eurofarma", v: "Brasil", br:true},
-            {n: "Walter Faria", usd: 3.2, h: gerH(3.2), uf: "SP", lat: -23.55, lng: -46.63, setor: "Bebidas", o: "Grupo Petrópolis", v: "Brasil", br:true},
+            {n: "Eduardo Saverin", usd: 45.4, h: gerH(45.4), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {n: "Vicky Safra", usd: 22.0, h: gerH(22.0), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {n: "Jorge Paulo Lemann", usd: 18.3, h: gerH(18.3), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Suíça", br:true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
+            {n: "André Esteves", usd: 10.0, h: gerH(10.0), uf: "RJ", lat: -22.93, lng: -43.20, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
+            {n: "Fernando R. M. Salles", usd: 8.0, h: gerH(8.0), uf: "RJ", lat: -22.94, lng: -43.21, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
+            {n: "Carlos Alberto Sicupira", usd: 7.5, h: gerH(7.5), uf: "RJ", lat: -22.92, lng: -43.19, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
+            {n: "Pedro Moreira Salles", usd: 7.4, h: gerH(7.4), uf: "RJ", lat: -22.95, lng: -43.22, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
+            {n: "João Moreira Salles", usd: 7.1, h: gerH(7.1), uf: "RJ", lat: -22.96, lng: -43.23, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
+            {n: "Walther M. Salles Jr.", usd: 7.1, h: gerH(7.1), uf: "RJ", lat: -22.97, lng: -43.24, setor: "Mídia", o: "Itaú", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
+            {n: "Marcel Telles", usd: 7.0, h: gerH(7.0), uf: "RJ", lat: -22.91, lng: -43.18, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"},
+            {n: "Alexandre Behring", usd: 6.3, h: gerH(6.3), uf: "RJ", lat: -22.98, lng: -43.25, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
+            {n: "Ricardo Castellar de Faria", usd: 3.5, h: gerH(3.5), uf: "SC", lat: -27.21, lng: -49.94, setor: "Agronegócio", o: "Granja Faria", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Ricardo+Castellar"},
             {n: "Miguel Krigsner", usd: 3.1, h: gerH(3.1), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
-            {n: "Alceu Feldmann", usd: 3.0, h: gerH(3.0), uf: "PR", lat: -25.42, lng: -49.27, setor: "Agro", o: "Fertipar", v: "Brasil", br:true},
-            {n: "J. João Abdalla Filho", usd: 2.8, h: gerH(2.8), uf: "SP", lat: -23.55, lng: -46.63, setor: "Energia", o: "Banco Clássico", v: "Brasil", br:true},
-            {n: "Claudio S. de Moraes", usd: 2.6, h: gerH(2.6), uf: "SP", lat: -23.55, lng: -46.63, setor: "Saúde", o: "EMS", v: "Brasil", br:true},
-            {n: "Lúcia Maggi", usd: 2.6, h: gerH(2.6), uf: "MT", lat: -15.60, lng: -56.09, setor: "Agro", o: "Amaggi", v: "Brasil", br:true},
-            {n: "Artur Grynbaum", usd: 2.5, h: gerH(2.5), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true},
-            {n: "Jose Isaac Peres", usd: 2.4, h: gerH(2.4), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Imobiliário", o: "Multiplan", v: "Brasil", br:true},
-            {n: "Eduardo de Voys", usd: 2.3, h: gerH(2.3), uf: "SP", lat: -23.55, lng: -46.63, setor: "Investimentos", o: "Lojas Americanas", v: "Brasil", br:true},
-            {n: "Irineu Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
-            {n: "João Roberto Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
-            {n: "José Roberto Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
-            {n: "Rubens Ometto", usd: 2.1, h: gerH(2.1), uf: "SP", lat: -23.55, lng: -46.63, setor: "Logística", o: "Cosan", v: "Brasil", br:true},
-            {n: "Luciano Hang", usd: 2.0, h: gerH(2), uf: "SC", lat: -27.10, lng: -48.91, setor: "Varejo", o: "Havan", v: "Brasil", br:true},
-            {n: "Alexandre Grendene", usd: 2.0, h: gerH(2), uf: "RS", lat: -29.16, lng: -51.51, setor: "Calçados", o: "Grendene", v: "Brasil", br:true},
-            {n: "Sasson Dayan", usd: 1.9, h: gerH(1.9), uf: "SP", lat: -23.55, lng: -46.63, setor: "Finanças", o: "Banco Daycoval", v: "Brasil", br:true},
-            {n: "Guilherme Benchimol", usd: 1.9, h: gerH(1.9), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "XP Inc.", v: "Brasil", br:true},
-            {n: "Julio Bozano", usd: 1.8, h: gerH(1.8), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Banco Bozano", v: "Brasil", br:true}
+            {n: "Maurizio Billi", usd: 3.0, h: gerH(3.0), uf: "SP", lat: -23.57, lng: -46.65, setor: "Saúde", o: "Eurofarma", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Maurizio+Billi"},
+            {n: "Jorge Moll Filho", usd: 2.9, h: gerH(2.9), uf: "RJ", lat: -22.99, lng: -43.26, setor: "Saúde", o: "Rede D'Or", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Jorge+Moll"},
+            {n: "Alceu Feldmann", usd: 2.8, h: gerH(2.8), uf: "PR", lat: -25.43, lng: -49.28, setor: "Agronegócio", o: "Fertipar", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Alceu+Feldmann"},
+            {n: "Joesley Batista", usd: 2.7, h: gerH(2.7), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
+            {n: "Wesley Batista", usd: 2.7, h: gerH(2.7), uf: "GO", lat: -15.54, lng: -47.34, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
+            {n: "Rubens Ometto", usd: 1.9, h: gerH(1.9), uf: "SP", lat: -23.59, lng: -46.67, setor: "Logística", o: "Cosan", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Rubens+Ometto"},
+            {n: "Luciano Hang", usd: 1.8, h: gerH(1.8), uf: "SC", lat: -27.10, lng: -48.91, setor: "Varejo", o: "Havan", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Luciano+Hang"},
+            {n: "Alexandre Grendene", usd: 1.7, h: gerH(1.7), uf: "RS", lat: -29.16, lng: -51.51, setor: "Varejo", o: "Grendene", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Alexandre+Grendene"},
+            {n: "Julio Bozano", usd: 1.6, h: gerH(1.6), uf: "RJ", lat: -22.80, lng: -43.10, setor: "Finanças", o: "Banco Bozano", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Julio+Bozano"},
+            {n: "Guilherme Benchimol", usd: 1.5, h: gerH(1.5), uf: "RJ", lat: -23.00, lng: -43.30, setor: "Finanças", o: "XP Inc.", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Guilherme+Benchimol"},
+            {n: "Lirio Parisotto", usd: 1.4, h: gerH(1.4), uf: "RS", lat: -28.72, lng: -51.70, setor: "Indústria", o: "Videolar", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Lirio+Parisotto"},
+            {n: "Cristina Junqueira", usd: 1.4, h: gerH(1.4), uf: "SP", lat: -23.58, lng: -46.66, setor: "Finanças", o: "Nubank", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Cristina+Junqueira"},
+            {n: "Neide Helena de Moraes", usd: 1.3, h: gerH(1.3), uf: "SP", lat: -23.60, lng: -46.68, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Neide+Moraes"},
+            {n: "Maria Cristina Frias", usd: 1.2, h: gerH(1.2), uf: "SP", lat: -23.61, lng: -46.69, setor: "Tecnologia", o: "PagSeguro/Folha", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Maria+Cristina"},
+            {n: "Lívia Voigt", usd: 1.1, h: gerH(1.1), uf: "SC", lat: -26.48, lng: -49.08, setor: "Indústria", o: "WEG", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Livia+Voigt"},
+            {n: "Dora Voigt de Assis", usd: 1.1, h: gerH(1.1), uf: "SC", lat: -26.49, lng: -49.09, setor: "Indústria", o: "WEG", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Dora+Voigt"},
+            {n: "Lucia Maggi", usd: 1.0, h: gerH(1.0), uf: "MT", lat: -15.60, lng: -56.09, setor: "Agronegócio", o: "Amaggi", v: "Brasil", br:true, f: "https://via.placeholder.com/240x160.png?text=Lucia+Maggi"}
         ];
 
+        // BASE EXATA DA FORBES MUNDO 2026 (SEM FOTOS)
         const dbMundo = [
-            {n: "Elon Musk", usd: 210, h: gerH(210), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla", v: "EUA", br: false},
-            {n: "Jeff Bezos", usd: 201, h: gerH(201), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
-            {n: "Bernard Arnault", usd: 195, h: gerH(195), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false},
-            {n: "Mark Zuckerberg", usd: 175, h: gerH(175), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false},
-            {n: "Larry Ellison", usd: 152, h: gerH(152), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false},
-            {n: "Warren Buffett", usd: 135, h: gerH(135), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Investimentos", o: "Berkshire", v: "EUA", br: false},
-            {n: "Bill Gates", usd: 131, h: gerH(131), uf: "EUA", lat: 47.60, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
-            {n: "Larry Page", usd: 128, h: gerH(128), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
-            {n: "Steve Ballmer", usd: 125, h: gerH(125), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
-            {n: "Sergey Brin", usd: 121, h: gerH(121), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
-            {n: "Mukesh Ambani", usd: 116, h: gerH(116), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false},
-            {n: "Michael Bloomberg", usd: 106, h: gerH(106), uf: "EUA", lat: 40.71, lng: -74.00, setor: "Mídia", o: "Bloomberg", v: "EUA", br: false},
-            {n: "Amancio Ortega", usd: 103, h: gerH(103), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false},
-            {n: "Carlos Slim Helu", usd: 102, h: gerH(102), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false},
-            {n: "Francoise Bettencourt", usd: 99, h: gerH(99), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false},
-            {n: "Michael Dell", usd: 91, h: gerH(91), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false},
-            {n: "Gautam Adani", usd: 84, h: gerH(84), uf: "Índia", lat: 23.02, lng: 72.57, setor: "Infra", o: "Adani", v: "Índia", br: false},
-            {n: "Jim Walton", usd: 78, h: gerH(78), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "Rob Walton", usd: 77, h: gerH(77), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "Alice Walton", usd: 72, h: gerH(72), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "David Thomson", usd: 67, h: gerH(67), uf: "Canadá", lat: 43.65, lng: -79.38, setor: "Mídia", o: "Reuters", v: "Canadá", br: false},
-            {n: "Julia Koch", usd: 64, h: gerH(64), uf: "EUA", lat: 40.75, lng: -73.98, setor: "Indústria", o: "Koch", v: "EUA", br: false},
-            {n: "Charles Koch", usd: 58, h: gerH(58), uf: "EUA", lat: 37.68, lng: -97.33, setor: "Indústria", o: "Koch", v: "EUA", br: false},
-            {n: "Zhong Shanshan", usd: 52, h: gerH(52), uf: "China", lat: 30.27, lng: 120.15, setor: "Bebidas", o: "Nongfu", v: "China", br: false},
-            {n: "Jensen Huang", usd: 51, h: gerH(51), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false},
-            {n: "Prajogo Pangestu", usd: 49, h: gerH(49), uf: "Indonésia", lat: -6.20, lng: 106.84, setor: "Energia", o: "Barito", v: "Indonésia", br: false},
-            {n: "Tadashi Yanai", usd: 43, h: gerH(43), uf: "Japão", lat: 35.68, lng: 139.65, setor: "Moda", o: "Uniqlo", v: "Japão", br: false},
-            {n: "Phil Knight", usd: 40, h: gerH(40), uf: "EUA", lat: 45.52, lng: -122.67, setor: "Moda", o: "Nike", v: "EUA", br: false},
-            {n: "Zhang Yiming", usd: 38, h: gerH(38), uf: "China", lat: 39.90, lng: 116.40, setor: "Tecnologia", o: "TikTok", v: "China", br: false},
-            {n: "Eduardo Saverin", usd: 28, h: gerH(28), uf: "Brasil", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br: true}
+            {n: "Elon Musk", usd: 839, h: gerH(839), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false},
+            {n: "Larry Page", usd: 257, h: gerH(257), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {n: "Sergey Brin", usd: 237, h: gerH(237), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {n: "Jeff Bezos", usd: 224, h: gerH(224), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
+            {n: "Mark Zuckerberg", usd: 222, h: gerH(222), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false},
+            {n: "Larry Ellison", usd: 190, h: gerH(190), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false},
+            {n: "Bernard Arnault", usd: 171, h: gerH(171), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false},
+            {n: "Jensen Huang", usd: 154, h: gerH(154), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false},
+            {n: "Warren Buffett", usd: 149, h: gerH(149), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false},
+            {n: "Amancio Ortega", usd: 148, h: gerH(148), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false},
+            {n: "Rob Walton", usd: 146, h: gerH(146), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "Jim Walton", usd: 143, h: gerH(143), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "Michael Dell", usd: 141, h: gerH(141), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false},
+            {n: "Alice Walton", usd: 134, h: gerH(134), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "Steve Ballmer", usd: 126, h: gerH(126), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
+            {n: "Carlos Slim", usd: 125, h: gerH(125), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false},
+            {n: "Francoise Bettencourt", usd: 100, h: gerH(100), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false},
+            {n: "Mukesh Ambani", usd: 99.7, h: gerH(99.7), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false},
+            {n: "Zhong Shanshan", usd: 68.1, h: gerH(68.1), uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos/Bebidas", o: "Nongfu Spring", v: "China", br: false},
+            {n: "John Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.90, lng: -77.03, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
+            {n: "Jacqueline Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.91, lng: -77.04, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
+            {n: "Giovanni Ferrero", usd: 48.8, h: gerH(48.8), uf: "Itália", lat: 45.07, lng: 7.68, setor: "Alimentos/Bebidas", o: "Ferrero", v: "Itália", br: false},
+            {n: "Mark Mateschitz", usd: 45.8, h: gerH(45.8), uf: "Áustria", lat: 47.80, lng: 13.04, setor: "Alimentos/Bebidas", o: "Red Bull", v: "Áustria", br: false},
+            {n: "Emmanuel Besnier", usd: 40.0, h: gerH(40.0), uf: "França", lat: 48.08, lng: -0.75, setor: "Alimentos/Bebidas", o: "Lactalis", v: "França", br: false},
+            {n: "Todd Graves", usd: 39.0, h: gerH(39.0), uf: "EUA", lat: 30.45, lng: -91.14, setor: "Alimentos/Bebidas", o: "Raising Cane's", v: "EUA", br: false}
         ];
 
         let activeSet = dbBrasil;
         const pins = L.layerGroup().addTo(map);
-        window.clusterData = {}; // Armazena grupos de pessoas por local
+        window.clusterData = {};
 
         function switchData() {
             activeSet = (document.getElementById('db-selector').value === 'br') ? dbBrasil : dbMundo;
@@ -254,13 +258,12 @@
             const filtered = activeSet.filter(p => p.n.toLowerCase().includes(search)).sort((a,b) => b.usd - a.usd);
             const secs = {}; const geos = {};
 
-            // 1. Agrupamento (Carrossel) e Listagem
             filtered.forEach(p => {
                 total += p.usd;
                 secs[p.setor] = (secs[p.setor] || 0) + p.usd;
                 geos[p.uf] = (geos[p.uf] || 0) + 1;
 
-                const key = `${p.lat},${p.lng}`;
+                const key = `${p.uf}`; // Agrupamento por Estado/País
                 if(!window.clusterData[key]) window.clusterData[key] = [];
                 window.clusterData[key].push(p);
 
@@ -270,10 +273,9 @@
                 </div>`;
             });
 
-            // 2. Desenhando Ponto Único por Estado/Cidade no Mapa
             for(let key in window.clusterData) {
                 const group = window.clusterData[key];
-                const p = group[0]; // Pega o primeiro para definir a cor
+                const p = group[0]; 
                 
                 let cor = (document.getElementById('db-selector').value === 'br') ? ({'SP':'green','RJ':'red','GO':'gold','PR':'violet','SC':'violet','RS':'orange'}[p.uf] || 'blue') : (p.br ? 'gold' : 'white');
                 
@@ -281,7 +283,6 @@
                     icon: L.divIcon({ className: 'p', html: `<div style="background:var(--accent); width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>` })
                 }).addTo(pins);
 
-                // Vincula a abertura do popup para renderizar o carrossel no índice 0
                 marker.bindPopup(buildPopupHTML(key, 0));
             }
 
@@ -289,31 +290,27 @@
             atualizarGraficos(secs, geos, filtered.slice(0, 5));
         }
 
-        // Função para construir o HTML do balão com o conversor BRL e Carrossel
         window.buildPopupHTML = function(key, idx) {
             const group = window.clusterData[key];
             const p = group[idx];
+            const brl = (p.usd * 5.0).toFixed(1);
             
-            // Conversor Automático BRL
-            const brl = p.r ? p.r : (p.usd * 5.0).toFixed(1);
-            
-            // Foto Dinâmica (Se não tem, usa UI Avatars)
-            const imgUrl = p.f ? p.f : getAvatar(p.n);
+            // Renderiza foto APENAS se p.f existir (No Top 25 mundo, não existe)
+            let imgHtml = p.f ? `<img src="${p.f}" class="popup-img" alt="${p.n}">` : '';
 
             let html = `
                 <div class="popup-card">
-                    <img src="${imgUrl}" class="popup-img" onerror="this.src='${getAvatar(p.n)}'">
+                    ${imgHtml}
                     <div class="popup-body">
                         <div class="popup-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
-                        <div class="popup-data" style="margin-bottom: 5px;">
-                            <b>💰 US$ ${p.usd} Bi</b> (R$ ${brl} Bi)<br>
+                        <div class="popup-data">
+                            <b>💰 Fortuna:</b> US$ ${p.usd} Bi (R$ ${brl} Bi)<br>
                             <b>💎 Setor:</b> ${p.setor}<br>
                             <b>🏢 Origem:</b> ${p.o}<br>
-                            <b>📍 Base:</b> ${p.v}
+                            <b>📍 Reside em:</b> ${p.v}
                         </div>
                     </div>`;
             
-            // Se tiver mais de uma pessoa, adiciona a barrinha do carrossel em baixo
             if(group.length > 1) {
                 html += `
                     <div class="carousel-controls">
@@ -326,14 +323,11 @@
             return html;
         };
 
-        // Função para trocar o slide do carrossel dentro do balão aberto
         window.changeSlide = function(key, newIdx, e) {
-            e.stopPropagation(); // Evita fechar o popup
+            e.stopPropagation(); 
             const group = window.clusterData[key];
             if(newIdx < 0) newIdx = group.length - 1;
             if(newIdx >= group.length) newIdx = 0;
-            
-            // Atualiza o conteúdo do popup atualmente aberto pelo Leaflet
             document.querySelector('.leaflet-popup-content').innerHTML = buildPopupHTML(key, newIdx);
         };
 
@@ -355,7 +349,7 @@
             c1 = new Chart(document.getElementById('secChart'), {
                 type: 'doughnut',
                 data: { labels: Object.keys(s), datasets: [{ data: Object.values(s), backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'], borderWidth: 0 }] },
-                options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+                options: { cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
             });
 
             c2 = new Chart(document.getElementById('geoChart'), {
