@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* VARIÁVEIS DE TEMA ESCURO */
+        /* VARIÁVEIS DE TEMA ESCURO (PADRÃO) */
         :root { 
             --bg: #101214; 
-            --panel: rgba(26, 29, 33, 0.8); 
+            --panel: rgba(26, 29, 33, 0.85); 
             --backdrop: blur(12px);
             --card: #24282d;
             --accent: #C5D0E6; 
@@ -19,10 +19,10 @@
             --border: rgba(255,255,255,0.05);
         }
         
-        /* VARIÁVEIS DE TEMA CLARO SOLICITADO */
+        /* VARIÁVEIS DE TEMA CLARO */
         body.light-theme {
             --bg: #cbd7e3; 
-            --panel: rgba(197, 208, 230, 0.9); 
+            --panel: rgba(197, 208, 230, 0.95); 
             --backdrop: blur(10px);
             --card: #b6c3d9;
             --accent: #414A4C; 
@@ -33,12 +33,12 @@
         
         body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
         
-        #sidebar-left { min-width: 340px; width: 340px; background: var(--panel); backdrop-filter: var(--backdrop); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: 0.4s ease; border-right: 1px solid var(--border); position: relative; }
-        #sidebar-left.hidden { margin-left: -340px; }
+        /* --- SIDEBAR ESQUERDA --- */
+        #sidebar-left { min-width: 340px; width: 340px; background: var(--panel); backdrop-filter: var(--backdrop); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: transform 0.4s ease; border-right: 1px solid var(--border); position: relative; }
+        #sidebar-left.hidden { transform: translateX(-100%); }
 
         .toggle-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2005; border: none; }
         #toggle-left { right: -24px; border-radius: 0 8px 8px 0; }
-        #toggle-right { left: -24px; border-radius: 8px 0 0 8px; }
 
         .header-area { padding: 30px 20px; }
         .sidebar-title { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
@@ -52,28 +52,45 @@
         .ranking-item { padding: 12px; border-radius: 12px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
         .ranking-item:hover { background: var(--card); }
 
+        /* --- CENTRO (MAPA E BUSCA) --- */
         #main-content { flex: 1; position: relative; display: flex; flex-direction: column; }
         #map { flex: 1; width: 100%; height: 100%; z-index: 1; background: #0b0c10; }
         
         #search-box { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1000; }
         #search-box input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); backdrop-filter: var(--backdrop); color: var(--text); outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-        #theme-btn { position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 15px; background: var(--card); color: var(--text); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; }
+        #theme-btn { position: absolute; top: 20px; left: 20px; z-index: 1000; padding: 10px 15px; background: var(--card); color: var(--text); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; }
+
+        /* --- SIDEBAR DIREITA (ANÁLISE) --- */
+        /* Botão fixo na tela para abrir a aba direita */
+        #btn-open-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border-radius: 8px 0 0 8px; z-index: 1001; box-shadow: -4px 0 12px rgba(0,0,0,0.2); border: none;}
+
+        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.7); backdrop-filter: blur(15px); z-index: 2000; padding: 60px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); overflow-y: auto; }
+        body.light-theme #sidebar-right { background: rgba(197, 208, 230, 0.7); }
+        #sidebar-right.active { transform: translateX(0); }
         
-        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.6); backdrop-filter: blur(15px); z-index: 2000; padding: 60px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; transition: 0.5s; overflow-y: auto; }
-        #sidebar-right.hidden { right: -100vw; display: none; }
-        
+        /* Botão para fechar a aba direita (fica dentro dela) */
+        #btn-close-right { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border-radius: 0 8px 8px 0; z-index: 2005; border: none; }
+
         .chart-box { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; }
         .chart-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; text-align: center; }
 
-        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); }
+        /* --- BALÕES DO MAPA (POPUPS) --- */
+        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .leaflet-popup-tip { background: var(--card); }
+        .popup-card { font-family: 'Inter', sans-serif; min-width: 220px; }
+        .popup-img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 8px;}
+        .popup-name { font-weight: 700; font-size: 15px; color: var(--text); }
+        .badge { background: var(--bg); color: var(--accent); padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid var(--border);}
+        .popup-data { font-size: 12px; line-height: 1.6; color: var(--muted); }
+        .popup-data b { color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div id="sidebar-left">
-        <button id="toggle-left" class="toggle-handle" onclick="toggle('left')">◀</button>
+        <button id="toggle-left" class="toggle-handle" onclick="toggleSidebar('left')">◀</button>
         <div class="header-area">
             <div class="sidebar-title">FORTUNAS DO BRASIL</div>
             <select id="db-selector" onchange="switchData()">
@@ -91,19 +108,22 @@
     <div id="main-content">
         <button id="theme-btn" onclick="swapTheme()">🌓 Visual</button>
         <div id="search-box">
-            <input type="text" placeholder="Pesquisar nome..." onkeyup="refresh()">
+            <input type="text" placeholder="Pesquisar nome ou empresa..." onkeyup="refresh()">
         </div>
         <div id="map"></div>
     </div>
 
-    <div id="sidebar-right" class="hidden">
-        <button id="toggle-right" class="toggle-handle" onclick="toggle('right')">◀</button>
+    <button id="btn-open-right" onclick="toggleSidebar('right')">◀</button>
+
+    <div id="sidebar-right">
+        <button id="btn-close-right" onclick="toggleSidebar('right')">▶</button>
+        
         <div class="chart-box" style="grid-column: span 2;">
             <div style="display:flex; justify-content:space-between">
-                <span class="chart-title">Evolução Histórica</span>
-                <select id="hist-type" onchange="refresh()" style="background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px; padding: 4px; font-size: 12px;">
-                    <option value="line">Linha</option>
-                    <option value="bar">Barras</option>
+                <span class="chart-title">Análise de Crescimento (Top 5)</span>
+                <select id="hist-type" onchange="refresh()" style="background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:5px; padding: 4px; font-size: 12px; outline:none;">
+                    <option value="line">📈 Evolução</option>
+                    <option value="bar">📊 Comparativo</option>
                 </select>
             </div>
             <canvas id="histChart"></canvas>
@@ -115,8 +135,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([-15, -50], 4);
-        let darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
-        let lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+        const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
         darkTiles.addTo(map);
         
         function swapTheme() {
@@ -124,33 +144,39 @@
             const isLight = document.body.classList.contains('light-theme');
             if (isLight) { map.removeLayer(darkTiles); lightTiles.addTo(map); }
             else { map.removeLayer(lightTiles); darkTiles.addTo(map); }
-            refresh();
+            refreshCharts();
         }
 
-        function toggle(side) {
-            const el = document.getElementById(`sidebar-${side}`);
-            el.classList.toggle('hidden');
-            if(side === 'left') document.getElementById('toggle-left').innerText = el.classList.contains('hidden') ? '▶' : '◀';
+        function toggleSidebar(side) {
+            if (side === 'left') {
+                const el = document.getElementById('sidebar-left');
+                el.classList.toggle('hidden');
+                document.getElementById('toggle-left').innerText = el.classList.contains('hidden') ? '▶' : '◀';
+            } else if (side === 'right') {
+                const el = document.getElementById('sidebar-right');
+                el.classList.toggle('active'); // Usa 'active' para transição suave de tela cheia
+            }
             setTimeout(() => map.invalidateSize(), 400);
         }
 
         const gerH = (v) => [(v*0.8).toFixed(1), (v*0.9).toFixed(1), v];
 
+        // DADOS COMPLETOS BRASIL (TOP 30) - COM FOTOS
         const dbBrasil = [
-            {n: "Eduardo Saverin", usd: 28.0, h: gerH(28), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true},
-            {n: "Vicky Safra", usd: 20.6, h: gerH(20.6), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true},
-            {n: "Jorge Paulo Lemann", usd: 16.4, h: gerH(16.4), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
-            {n: "Marcel Telles", usd: 10.9, h: gerH(10.9), uf: "RJ", lat: -22.91, lng: -43.18, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
-            {n: "Carlos Alberto Sicupira", usd: 8.9, h: gerH(8.9), uf: "RJ", lat: -22.92, lng: -43.19, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
-            {n: "André Esteves", usd: 6.6, h: gerH(6.6), uf: "RJ", lat: -22.93, lng: -43.20, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true},
-            {n: "Alexandre Behring", usd: 6.3, h: gerH(6.3), uf: "RJ", lat: -22.94, lng: -43.21, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true},
-            {n: "João Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.95, lng: -43.22, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
-            {n: "Walther Moreira Salles Jr", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.96, lng: -43.23, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
-            {n: "Fernando R. Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.97, lng: -43.24, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
-            {n: "Pedro Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.98, lng: -43.25, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
+            {n: "Eduardo Saverin", usd: 28.0, h: gerH(28), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {n: "Vicky Safra", usd: 20.6, h: gerH(20.6), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {n: "Jorge Paulo Lemann", usd: 16.4, h: gerH(16.4), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
+            {n: "Marcel Telles", usd: 10.9, h: gerH(10.9), uf: "RJ", lat: -22.91, lng: -43.18, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"},
+            {n: "Carlos Alberto Sicupira", usd: 8.9, h: gerH(8.9), uf: "RJ", lat: -22.92, lng: -43.19, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
+            {n: "André Esteves", usd: 6.6, h: gerH(6.6), uf: "RJ", lat: -22.93, lng: -43.20, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
+            {n: "Alexandre Behring", usd: 6.3, h: gerH(6.3), uf: "RJ", lat: -22.94, lng: -43.21, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
+            {n: "João Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.95, lng: -43.22, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
+            {n: "Walther Moreira Salles Jr", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.96, lng: -43.23, setor: "Mídia", o: "Itaú", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
+            {n: "Fernando R. Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.97, lng: -43.24, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
+            {n: "Pedro Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.98, lng: -43.25, setor: "Finanças", o: "Itaú", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
             {n: "Maurizio Billi", usd: 3.9, h: gerH(3.9), uf: "SP", lat: -23.57, lng: -46.65, setor: "Saúde", o: "Eurofarma", v: "Brasil", br:true},
             {n: "Walter Faria", usd: 3.2, h: gerH(3.2), uf: "SP", lat: -23.58, lng: -46.66, setor: "Bebidas", o: "Grupo Petrópolis", v: "Brasil", br:true},
-            {n: "Miguel Krigsner", usd: 3.1, h: gerH(3.1), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true},
+            {n: "Miguel Krigsner", usd: 3.1, h: gerH(3.1), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
             {n: "Alceu Feldmann", usd: 3.0, h: gerH(3.0), uf: "PR", lat: -25.43, lng: -49.28, setor: "Agro", o: "Fertipar", v: "Brasil", br:true},
             {n: "J. João Abdalla Filho", usd: 2.8, h: gerH(2.8), uf: "SP", lat: -23.59, lng: -46.67, setor: "Energia", o: "Banco Clássico", v: "Brasil", br:true},
             {n: "Claudio S. de Moraes", usd: 2.6, h: gerH(2.6), uf: "SP", lat: -23.60, lng: -46.68, setor: "Saúde", o: "EMS", v: "Brasil", br:true},
@@ -169,6 +195,7 @@
             {n: "Julio Bozano", usd: 1.8, h: gerH(1.8), uf: "RJ", lat: -23.01, lng: -43.31, setor: "Finanças", o: "Banco Bozano", v: "Brasil", br:true}
         ];
 
+        // DADOS COMPLETOS MUNDO (TOP 30) - SEM FOTOS
         const dbMundo = [
             {n: "Elon Musk", usd: 210, h: gerH(210), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla", v: "EUA", br: false},
             {n: "Jeff Bezos", usd: 201, h: gerH(201), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
@@ -204,7 +231,12 @@
 
         let activeSet = dbBrasil;
         const pins = L.layerGroup().addTo(map);
-        let c1, c2, c3;
+
+        function switchData() {
+            activeSet = (document.getElementById('db-selector').value === 'br') ? dbBrasil : dbMundo;
+            if(activeSet === dbBrasil) map.setView([-15, -50], 4); else map.setView([20, 0], 2);
+            refresh();
+        }
 
         function refresh() {
             pins.clearLayers();
@@ -212,7 +244,7 @@
             const list = document.getElementById('ranking-list');
             let total = 0; list.innerHTML = "";
             
-            const filtered = activeSet.filter(p => p.n.toLowerCase().includes(search));
+            const filtered = activeSet.filter(p => p.n.toLowerCase().includes(search)).sort((a,b) => b.usd - a.usd);
             const secs = {}; const geos = {};
 
             filtered.forEach(p => {
@@ -221,22 +253,50 @@
                 geos[p.uf] = (geos[p.uf] || 0) + 1;
 
                 list.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 7)">
-                    <div><b>${p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
+                    <div><b style="color:var(--text)">${p.br ? p.n+' 🇧🇷' : p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
                     <b style="color:var(--accent)">$${p.usd}B</b>
                 </div>`;
 
+                let cor = (document.getElementById('db-selector').value === 'br') ? ({'SP':'green','RJ':'red','GO':'gold','PR':'violet','SC':'violet','RS':'orange'}[p.uf] || 'blue') : (p.br ? 'gold' : 'white');
+                
+                // LÓGICA DO BALÃO: Mostra imagem apenas se ela existir no banco de dados
+                let imgHtml = p.f ? `<img src="${p.f}" class="popup-img" onerror="this.style.display='none'">` : '';
+
                 L.marker([p.lat, p.lng], {
                     icon: L.divIcon({ className: 'p', html: `<div style="background:var(--accent); width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>` })
-                }).addTo(pins).bindPopup(`<b>${p.n}</b><br>$${p.usd} Bi<br>${p.o}`);
+                }).addTo(pins).bindPopup(`
+                    <div class="popup-card">
+                        ${imgHtml}
+                        <div class="popup-header">
+                            <div class="popup-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
+                            <span class="badge">${p.setor}</span>
+                        </div>
+                        <div class="popup-data">
+                            <b>💰 Fortuna:</b> US$ ${p.usd} Bi<br>
+                            <b>💎 Origem:</b> ${p.o}<br>
+                            <b>📍 Base:</b> ${p.v}
+                        </div>
+                    </div>
+                `);
             });
 
             document.getElementById('total-val').innerText = `$ ${total.toFixed(1)} Bi`;
-            updateCharts(secs, geos, filtered.slice(0, 5));
+            atualizarGraficos(secs, geos, filtered.slice(0, 5));
         }
 
-        function updateCharts(s, g, t5) {
+        let lastCharts = null;
+        let c1, c2, c3;
+
+        function refreshCharts() {
+            if(lastCharts) atualizarGraficos(lastCharts.s, lastCharts.g, lastCharts.t5);
+        }
+
+        function atualizarGraficos(s, g, t5) {
+            lastCharts = {s, g, t5};
             const isL = document.body.classList.contains('light-theme');
-            Chart.defaults.color = isL ? '#414A4C' : '#8a8f98';
+            Chart.defaults.color = isL ? '#5a6466' : '#8a8f98';
+            Chart.defaults.font.family = "'Inter', sans-serif";
+
             if(c1) c1.destroy(); if(c2) c2.destroy(); if(c3) c3.destroy();
 
             c1 = new Chart(document.getElementById('secChart'), {
@@ -247,7 +307,7 @@
 
             c2 = new Chart(document.getElementById('geoChart'), {
                 type: 'bar',
-                data: { labels: Object.keys(g), datasets: [{ data: Object.values(g), backgroundColor: '#C5D0E6' }] },
+                data: { labels: Object.keys(g), datasets: [{ data: Object.values(g), backgroundColor: '#C5D0E6', borderRadius: 6 }] },
                 options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
             });
 
@@ -255,18 +315,13 @@
                 type: document.getElementById('hist-type').value,
                 data: {
                     labels: ['2022', '2024', '2026'],
-                    datasets: t5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], tension: 0.3 }))
-                }
+                    datasets: t5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], tension: 0.3, fill: document.getElementById('hist-type').value === 'bar' }))
+                },
+                options: { plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
             });
         }
 
-        function switchData() {
-            activeSet = (document.getElementById('db-selector').value === 'br') ? dbBrasil : dbMundo;
-            if(activeSet === dbBrasil) map.setView([-15, -50], 4); else map.setView([20, 0], 2);
-            refresh();
-        }
-
-        refresh();
+        switchData();
     </script>
 </body>
 </html>
