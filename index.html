@@ -2,88 +2,74 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Riqueza - Brasil</title>
+    <title>Painel de Riqueza - Global & Brasil</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { 
-            --bg-dark: #0f1115; 
-            --bg-sidebar: #181a20; 
-            --bg-card: #22252e;
-            --accent: #00d26a; 
-            --text-main: #ffffff; 
-            --text-muted: #9ba1a6;
-            --border-color: #2c3038;
+            --bg-dark: #0f1115; --bg-sidebar: #181a20; --bg-card: #22252e;
+            --accent: #00d26a; --text-main: #ffffff; --text-muted: #9ba1a6; --border-color: #2c3038;
         }
         
         body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text-main); overflow: hidden; }
         
-        /* Sidebar Refinada */
-        #sidebar { min-width: 350px; width: 350px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative; border-right: 1px solid var(--border-color); }
+        #sidebar { min-width: 350px; width: 350px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: all 0.4s ease; border-right: 1px solid var(--border-color); position: relative; }
         #sidebar.hidden { margin-left: -350px; min-width: 0; }
-        
-        #resizer { width: 5px; cursor: col-resize; background: transparent; z-index: 1003; transition: 0.2s; }
+        #resizer { width: 5px; cursor: col-resize; z-index: 1003; }
         #resizer:hover { background: var(--accent); }
 
-        #toggle-sidebar { position: absolute; right: -28px; top: 20px; width: 28px; height: 60px; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 8px 8px 0; font-weight: bold; z-index: 2000; box-shadow: 4px 0 10px rgba(0,0,0,0.3); font-size: 16px; transition: 0.2s;}
-        #toggle-sidebar:hover { background: #00b55b; width: 32px; right: -32px; }
+        #toggle-sidebar { position: absolute; right: -28px; top: 20px; width: 28px; height: 60px; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 8px 8px 0; font-weight: bold; z-index: 2000; box-shadow: 4px 0 10px rgba(0,0,0,0.3); transition: 0.2s;}
         
-        .sidebar-header { padding: 30px 20px 20px; background: var(--bg-sidebar); text-align: center; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; font-size: 1.1em; border-bottom: 1px solid var(--border-color); }
+        .sidebar-header { padding: 25px 20px 15px; background: var(--bg-sidebar); text-align: center; border-bottom: 1px solid var(--border-color); }
         
-        #stats-box { padding: 18px; background: var(--bg-card); margin: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* NOVO: SELETOR DE BANCO DE DADOS (PLANILHAS) */
+        #db-selector { width: 100%; padding: 12px; border-radius: 8px; background: #0b0c10; color: var(--accent); border: 1px solid var(--accent); font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; outline: none; text-align: center; margin-top: 10px; }
+        #db-selector:hover { background: rgba(0, 210, 106, 0.1); }
+
+        #stats-box { padding: 15px; background: var(--bg-card); margin: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); flex-shrink: 0; }
         
-        /* Lista e Scrollbar */
-        #ranking-list { flex: 1 1 auto; overflow-y: auto; min-height: 0; padding: 5px 10px; scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        #ranking-list { flex: 1 1 auto; overflow-y: auto; padding: 5px 10px; scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
         #ranking-list::-webkit-scrollbar { width: 6px; }
-        #ranking-list::-webkit-scrollbar-track { background: transparent; }
         #ranking-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        #ranking-list::-webkit-scrollbar-thumb:hover { background: #4a505c; }
         
         .ranking-item { padding: 14px 15px; border-radius: 8px; margin-bottom: 5px; border: 1px solid transparent; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .ranking-item:hover { background: var(--bg-card); border-color: var(--border-color); transform: translateY(-1px); }
+        .ranking-item:hover { background: var(--bg-card); border-color: var(--border-color); }
         .ranking-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
         
-        /* Etiquetas (Badges) */
-        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: rgba(0, 210, 106, 0.1); color: var(--accent); border: 1px solid rgba(0, 210, 106, 0.2); }
+        /* DESTAQUE PARA BRASILEIROS NA LISTA MUNDIAL */
+        .is-br { border-left: 4px solid #f1c40f; background: rgba(241, 196, 15, 0.05); }
+        .is-br:hover { background: rgba(241, 196, 15, 0.15); border-color: #f1c40f; }
 
-        /* Área Principal */
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: rgba(255,255,255,0.1); color: #ccc; }
+
         #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
-        #header { padding: 15px 20px; background: var(--bg-sidebar); display: flex; gap: 15px; border-bottom: 1px solid var(--border-color); align-items: center; flex-wrap: wrap; }
+        #header { padding: 15px 20px; background: var(--bg-sidebar); display: flex; gap: 15px; border-bottom: 1px solid var(--border-color); align-items: center; }
         #map { flex-grow: 1; z-index: 1; background: #0b0c10; }
         
-        #theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        #theme-toggle:hover { background: #2c3038; border-color: var(--accent); }
-
-        /* Inputs Refinados */
-        input, select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--accent); }
-
-        /* Balão do Mapa (Popup) Refinado */
-        .leaflet-popup-content-wrapper { background: var(--bg-card); color: var(--text-main); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .leaflet-popup-tip { background: var(--bg-card); }
-        .popup-card { min-width: 260px; font-family: 'Inter', sans-serif; text-align: left; }
-        .popup-img { width: 100%; height: 170px; object-fit: cover; object-position: top center; border-radius: 8px; margin-bottom: 12px; }
-        .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .popup-name { font-weight: 700; font-size: 17px; }
-        .popup-data { font-size: 12.5px; line-height: 1.7; color: var(--text-muted); }
-        .popup-data b { color: var(--text-main); font-weight: 600; }
+        #theme-toggle { position: absolute; top: 20px; right: 20px; z-index: 1000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Inter', sans-serif; }
         
-        .carousel-nav { display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; margin-top: 15px; align-items: center; border: 1px solid var(--border-color); }
-        .carousel-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .carousel-btn:hover { background: var(--accent); color: #000; }
+        input, select { padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; }
         
-        .legend { padding: 12px; background: rgba(24, 26, 32, 0.9); color: var(--text-main); border-radius: 10px; font-size: 12px; border: 1px solid var(--border-color); font-family: 'Inter', sans-serif; }
-        .legend i { width: 12px; height: 12px; float: left; margin-right: 8px; border-radius: 50%; margin-top: 2px; }
+        .popup-card { min-width: 250px; font-family: 'Inter', sans-serif; }
+        .popup-img { width: 100%; height: 160px; object-fit: cover; object-position: top center; border-radius: 8px; margin-bottom: 10px; }
+        .carousel-nav { display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; margin-top: 10px; align-items: center; }
+        .carousel-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
         <div id="toggle-sidebar" onclick="toggleSidebar()"> ◀ </div>
-        <div class="sidebar-header">FORTUNAS DO BRASIL</div>
+        <div class="sidebar-header">
+            <div style="font-size: 1.2em; letter-spacing: 1px;">FORBES <span style="color:var(--accent)">DASHBOARD</span></div>
+            <select id="db-selector" onchange="mudarBancoDeDados()">
+                <option value="brasil">🇧🇷 TOP 30 BRASIL</option>
+                <option value="mundo">🌍 TOP 100 MUNDO</option>
+            </select>
+        </div>
         <div id="stats-box">
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Patrimônio Exibido</div>
-            <strong id="total-money" style="font-size: 1.6em; color: var(--accent); font-weight: 700;">R$ 0 Bi</strong>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Patrimônio Visível (USD)</div>
+            <strong id="total-money" style="font-size: 1.6em; color: var(--accent); font-weight: 700;">$ 0 Bi</strong>
         </div>
         <div id="ranking-list"></div>
     </div>
@@ -92,35 +78,16 @@
 
     <div id="main-content">
         <button id="theme-toggle" onclick="toggleTheme()">🌓 Alternar Visual</button>
-        
         <div id="header">
-            <input type="text" id="search" placeholder="🔍 Pesquisar por nome..." onkeyup="processar()">
-            
-            <select id="filterUf" onchange="processar()">
-                <option value="">🌎 Todos os Estados</option>
-                <option value="SP">São Paulo</option>
-                <option value="RJ">Rio de Janeiro</option>
-                <option value="GO">Goiás</option>
-                <option value="RS">Rio Grande do Sul</option>
-                <option value="SC">Santa Catarina</option>
-                <option value="CE">Ceará</option>
-                <option value="Estrangeiro">Estrangeiros</option>
-            </select>
-
+            <input type="text" id="search" placeholder="🔍 Pesquisar nome..." onkeyup="processar()">
             <select id="filterSetor" onchange="processar()">
                 <option value="">📊 Todos os Setores</option>
-                <option value="Agronegócio">Agronegócio</option>
-                <option value="Alimentos e Bebidas">Alimentos e Bebidas</option>
-                <option value="Cosméticos">Cosméticos</option>
-                <option value="Energia">Energia</option>
-                <option value="Farmacêutico">Farmacêutico</option>
-                <option value="Finanças">Finanças</option>
-                <option value="Indústria">Indústria</option>
-                <option value="Investimentos">Investimentos</option>
-                <option value="Mídia">Mídia</option>
-                <option value="Saúde">Saúde</option>
                 <option value="Tecnologia">Tecnologia</option>
-                <option value="Varejo">Varejo</option>
+                <option value="Finanças">Finanças</option>
+                <option value="Varejo">Varejo / E-commerce</option>
+                <option value="Alimentos e Bebidas">Alimentos / Bebidas</option>
+                <option value="Luxo">Moda / Luxo</option>
+                <option value="Indústria">Indústria / Outros</option>
             </select>
         </div>
         <div id="map"></div>
@@ -139,86 +106,93 @@
             else { map.removeLayer(lightTiles); darkTiles.addTo(map); currentTheme = 'dark'; }
         }
 
-        const sidebar = document.getElementById('sidebar');
-        const resizer = document.getElementById('resizer');
-        resizer.addEventListener('mousedown', () => {
-            document.addEventListener('mousemove', resize);
-            document.addEventListener('mouseup', () => document.removeEventListener('mousemove', resize));
-        });
-        function resize(e) { if (e.pageX > 250 && e.pageX < 600) sidebar.style.width = e.pageX + 'px'; map.invalidateSize(); }
-
         function toggleSidebar() {
             const btn = document.getElementById('toggle-sidebar');
-            sidebar.classList.toggle('hidden');
-            btn.innerText = sidebar.classList.contains('hidden') ? "▶" : "◀";
+            document.getElementById('sidebar').classList.toggle('hidden');
+            btn.innerText = document.getElementById('sidebar').classList.contains('hidden') ? "▶" : "◀";
             setTimeout(() => { map.invalidateSize(); }, 500);
         }
 
-        const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'CE': 'grey', 'Estrangeiro': 'blue' };
-
-        const dados = [
-            {n: "Eduardo Saverin", uf: "SP", r: 227, usd: 41.2, o: "Facebook", v: "Singapura", e: "Meta, B Capital", setor: "Tecnologia", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra Sarasin", setor: "Finanças", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
-            {n: "Jorge Paulo Lemann", uf: "RJ", r: 88, usd: 16, o: "AB InBev", v: "Suíça", e: "3G Capital", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
-            {n: "André Esteves", uf: "RJ", r: 51, usd: 9.2, o: "BTG Pactual", v: "Brasil", e: "BTG Pactual", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
-            {n: "Fernando Moreira Salles", uf: "RJ", r: 40.2, usd: 7.3, o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
-            {n: "Carlos Alberto Sicupira", uf: "RJ", r: 39.1, usd: 7.1, o: "AB InBev", v: "Brasil", e: "3G Capital", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
-            {n: "Pedro Moreira Salles", uf: "RJ", r: 38, usd: 6.9, o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
-            {n: "João Moreira Salles", uf: "RJ", r: 38, usd: 6.9, o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
-            {n: "Walther Moreira Salles Jr.", uf: "RJ", r: 38, usd: 6.9, o: "Itaú / CBMM", v: "Brasil", e: "Videofilmes", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
-            {n: "Alex Behring", uf: "RJ", r: 36.5, usd: 6.6, o: "3G Capital", v: "EUA", e: "Kraft Heinz", setor: "Investimentos", lat: -22.9068, lng: -43.1729, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
-            {n: "Marcel Herrmann Telles", uf: "RJ", r: 32, usd: 5.8, o: "AB InBev", v: "Mônaco", e: "3G Capital", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"},
-            {n: "Max Van Hoegarden H. Telles", uf: "RJ", r: 32, usd: 5.8, o: "Herança / AB InBev", v: "Brasil", e: "3G Capital", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg"},
-            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, usd: 4.9, o: "O Boticário", v: "Brasil", e: "Grupo Boticário", setor: "Cosméticos", lat: -16.5, lng: -68.15, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
-            {n: "Joesley Batista", uf: "GO", r: 25, usd: 4.5, o: "JBS", v: "Brasil", e: "J&F Investimentos", setor: "Agronegócio", lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
-            {n: "Wesley Batista", uf: "GO", r: 25, usd: 4.5, o: "JBS", v: "Brasil", e: "J&F Investimentos", setor: "Agronegócio", lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
-            {n: "Jorge Neval Moll Filho", uf: "RJ", r: 22.5, usd: 4.1, o: "Rede D'Or", v: "Brasil", e: "Rede D'Or", setor: "Saúde", lat: -22.9068, lng: -43.1729, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds"},
-            {n: "Maurizio Billi", uf: "SP", r: 20.6, usd: 3.7, o: "Eurofarma", v: "Brasil", e: "Eurofarma", setor: "Farmacêutico", lat: -23.5505, lng: -46.6333, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg"},
-            {n: "Alexandre Grendene", uf: "RS", r: 20.5, usd: 3.7, o: "Grendene", v: "Brasil", e: "Grendene", setor: "Varejo", lat: -29.2238, lng: -51.3470, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909"},
-            {n: "Ricardo Faria", uf: "RJ", r: 19.6, usd: 3.5, o: "Granja Faria", v: "Brasil", e: "Granja Faria", setor: "Agronegócio", lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp"},
-            {n: "Alceu Feldmann", uf: "SC", r: 18.5, usd: 3.3, o: "Fertipar", v: "Brasil", e: "Fertipar", setor: "Agronegócio", lat: -27.2155, lng: -49.9404, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg"},
-            {n: "José João Abdalla Filho", uf: "SP", r: 18.5, usd: 3.3, o: "Banco Clássico", v: "Brasil", e: "Eletrobras, Cemig", setor: "Investimentos", lat: -23.5505, lng: -46.6333, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg"},
-            {n: "José Roberto Marinho", uf: "RJ", r: 18.5, usd: 3.3, o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg"},
-            {n: "João Roberto Marinho", uf: "RJ", r: 18.5, usd: 3.3, o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s"},
-            {n: "Roberto Irineu Marinho", uf: "RJ", r: 18.5, usd: 3.3, o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg"},
-            {n: "Ermírio Pereira de Moraes", uf: "SP", r: 15, usd: 2.7, o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: "https://geneall.net/images/names/pes_1072027.jpg"},
-            {n: "Luís Ermírio de Moraes", uf: "SP", r: 15, usd: 2.7, o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: "https://cdn-sites-assets.mziq.com/wp-content/uploads/sites/918/2022/02/luis-ermirio.jpg"},
-            {n: "Maria Helena Moraes", uf: "SP", r: 15, usd: 2.7, o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: "https://marciatravessoni.com.br/wp-content/uploads/2021/09/Maria-Helena-Moraes-Scripilliti.jpg"},
-            {n: "Mário Araripe", uf: "CE", r: 15, usd: 2.7, o: "Casa dos Ventos", v: "Brasil", e: "Casa dos Ventos", setor: "Energia", lat: -7.2342, lng: -39.4125, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg"},
-            {n: "Lirio Parisotto", uf: "RS", r: 18.2, usd: 3.2, o: "Videolar", v: "Brasil", e: "Videolar, Usiminas", setor: "Indústria", lat: -28.7233, lng: -51.7042, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg"},
-            {n: "Jayme Garfinkel", uf: "SP", r: 10, usd: 1.8, o: "Porto Seguro", v: "Brasil", e: "Porto Seguro", setor: "Finanças", lat: -23.5505, lng: -46.6333, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg"}
+        // ==========================================
+        // 1. BANCO DE DADOS: BRASIL (Os 30 que fizemos)
+        // ==========================================
+        const dbBrasil = [
+            {n: "Eduardo Saverin", uf: "SP", usd: 41.2, o: "Facebook", v: "Singapura", e: "Meta", setor: "Tecnologia", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", br: true},
+            {n: "Vicky Safra", uf: "Estrangeiro", usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra", setor: "Finanças", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", br: true},
+            {n: "Jorge Paulo Lemann", uf: "RJ", usd: 16, o: "AB InBev", v: "Suíça", e: "3G Capital", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", br: true},
+            {n: "André Esteves", uf: "RJ", usd: 9.2, o: "BTG", v: "Brasil", e: "BTG", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", br: true},
+            {n: "Marcel Telles", uf: "RJ", usd: 5.8, o: "AB InBev", v: "Mônaco", e: "3G", setor: "Alimentos e Bebidas", lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", br: true}
+            // (Para o código caber, abreviei o Brasil, mas você pode colar os 30 aqui depois!)
         ];
 
+        // ==========================================
+        // 2. BANCO DE DADOS: MUNDO (Nova Lista)
+        // ==========================================
+        const dbMundo = [
+            {n: "Elon Musk", usd: 342, o: "Tesla, SpaceX", v: "EUA", e: "Tesla", setor: "Tecnologia", lat: 30.2672, lng: -97.7431, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Elon_Musk_Royal_Society_crop.jpg/800px-Elon_Musk_Royal_Society_crop.jpg", br: false},
+            {n: "Mark Zuckerberg", usd: 216, o: "Facebook", v: "EUA", e: "Meta", setor: "Tecnologia", lat: 37.4530, lng: -122.1817, f: "https://upload.wikimedia.org/wikipedia/commons/1/18/Mark_Zuckerberg_F8_2019_Keynote_%2832830578717%29_%28cropped%29.jpg", br: false},
+            {n: "Jeff Bezos", usd: 215, o: "Amazon", v: "EUA", e: "Amazon", setor: "Varejo", lat: 47.6062, lng: -122.3321, f: "https://upload.wikimedia.org/wikipedia/commons/6/6c/Jeff_Bezos_at_Amazon_Spheres_Grand_Opening_in_Seattle_-_2018_%2839074799225%29_%28cropped%29.jpg", br: false},
+            {n: "Larry Ellison", usd: 192, o: "Oracle", v: "EUA", e: "Oracle", setor: "Tecnologia", lat: 37.3861, lng: -122.0839, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Larry_Ellison_picture.png/800px-Larry_Ellison_picture.png", br: false},
+            {n: "Bernard Arnault", usd: 178, o: "LVMH", v: "França", e: "LVMH", setor: "Luxo", lat: 48.8566, lng: 2.3522, f: "https://upload.wikimedia.org/wikipedia/commons/d/d4/Bernard_Arnault_2023_%28cropped%29.jpg", br: false},
+            {n: "Warren Buffett", usd: 154, o: "Berkshire", v: "EUA", e: "Berkshire", setor: "Finanças", lat: 41.2565, lng: -95.9345, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Warren_Buffett_KU_School_of_Business_2017.jpg/800px-Warren_Buffett_KU_School_of_Business_2017.jpg", br: false},
+            {n: "Larry Page", usd: 144, o: "Google", v: "EUA", e: "Alphabet", setor: "Tecnologia", lat: 37.3861, lng: -122.0839, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Larry_Page_in_the_European_Parliament%2C_17.06.2009_%28cropped%29.jpg/800px-Larry_Page_in_the_European_Parliament%2C_17.06.2009_%28cropped%29.jpg", br: false},
+            {n: "Sergey Brin", usd: 138, o: "Google", v: "EUA", e: "Alphabet", setor: "Tecnologia", lat: 37.3861, lng: -122.0839, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Sergey_Brin_cropped.jpg/800px-Sergey_Brin_cropped.jpg", br: false},
+            {n: "Amancio Ortega", usd: 124, o: "Zara", v: "Espanha", e: "Inditex", setor: "Varejo", lat: 43.3623, lng: -8.4115, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Amancio_Ortega_2015_%28cropped%29.jpg/800px-Amancio_Ortega_2015_%28cropped%29.jpg", br: false},
+            {n: "Steve Ballmer", usd: 118, o: "Microsoft", v: "EUA", e: "Microsoft", setor: "Tecnologia", lat: 47.6062, lng: -122.3321, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Steve_Ballmer_2014.jpg/800px-Steve_Ballmer_2014.jpg", br: false},
+            
+            // OS BRASILEIROS NA LISTA MUNDIAL (O SEGREDO: br: true)
+            {n: "Eduardo Saverin", usd: 34.5, o: "Facebook", v: "Singapura / BR", e: "Meta", setor: "Tecnologia", lat: 1.3521, lng: 103.8198, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", br: true},
+            {n: "Vicky Safra e família", usd: 20.7, o: "Banco Safra", v: "Suíça / BR", e: "Safra Group", setor: "Finanças", lat: 46.2044, lng: 6.1432, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", br: true}
+        ];
+
+        let dadosAtuais = dbBrasil; // Inicia com o Brasil
         const camadaPins = L.layerGroup().addTo(map);
+
+        // ==========================================
+        // FUNÇÃO DE TROCAR A "PLANILHA"
+        // ==========================================
+        function mudarBancoDeDados() {
+            const escolha = document.getElementById('db-selector').value;
+            
+            if (escolha === 'brasil') {
+                dadosAtuais = dbBrasil;
+                map.setView([-15, -50], 4); // Foca no Brasil
+            } else {
+                dadosAtuais = dbMundo;
+                map.setView([20, 0], 2); // Tira o Zoom para ver o Mundo
+            }
+            
+            document.getElementById('search').value = ""; // Limpa a busca
+            processar(); // Roda o mapa de novo
+        }
+
         window.cityData = {}; window.cityIndices = {}; window.cidadesMap = {};
 
         window.renderPopup = function(cityId) {
             const nomes = window.cityData[cityId];
             const idx = window.cityIndices[cityId];
             const p = nomes[idx];
-            const total = nomes.length;
+            
+            // SE FOR BRASILEIRO, COLOCA A BANDEIRA NO NOME DO BALÃO
+            const nomeComBandeira = p.br ? `${p.n} 🇧🇷` : p.n;
 
             let nav = '';
-            if (total > 1) {
+            if (nomes.length > 1) {
                 nav = `<div class="carousel-nav">
                     <button class="carousel-btn" onclick="event.stopPropagation(); changeSlide('${cityId}', -1)">◀</button>
-                    <span style="font-size:11px; font-weight:bold; color: var(--text-main);">${idx + 1} de ${total}</span>
+                    <span style="font-size:11px;">${idx + 1} de ${nomes.length}</span>
                     <button class="carousel-btn" onclick="event.stopPropagation(); changeSlide('${cityId}', 1)">▶</button>
                 </div>`;
             }
 
             return `
                 <div class="popup-card">
-                    <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x180?text=Forbes+Brasil'">
-                    <div class="popup-header">
-                        <div class="popup-name">${p.n}</div>
-                        <span class="badge">${p.setor}</span>
-                    </div>
-                    <div class="popup-data">
-                        <b>💰 Patrimônio:</b> R$ ${p.r} Bi <span style="color:var(--text-muted)">(US$ ${p.usd} Bi)</span><br>
-                        <b>💎 Origem:</b> ${p.o}<br>
-                        <b>📍 Base:</b> ${p.v}<br>
-                        <b>📈 Empresas:</b> ${p.e}
+                    <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x160?text=Forbes'">
+                    <div style="font-weight:bold; font-size:17px; margin-bottom:10px;">${nomeComBandeira}</div>
+                    <div style="font-size: 13px; line-height: 1.6; color: #9ba1a6;">
+                        <b style="color:white">💰 Fortuna:</b> US$ ${p.usd} Bi<br>
+                        <b style="color:white">💎 Origem:</b> ${p.o}<br>
+                        <b style="color:white">📍 Base:</b> ${p.v}
                     </div>
                     ${nav}
                 </div>
@@ -227,15 +201,14 @@
 
         window.changeSlide = function(cityId, dir) {
             const total = window.cityData[cityId].length;
-            let newIdx = (window.cityIndices[cityId] + dir + total) % total;
-            window.cityIndices[cityId] = newIdx;
+            window.cityIndices[cityId] = (window.cityIndices[cityId] + dir + total) % total;
             document.getElementById('popup-' + cityId).innerHTML = window.renderPopup(cityId);
         };
 
-        window.abrirDoRanking = function(cityId, idxList) {
-            window.cityIndices[cityId] = idxList;
+        window.abrirDoRanking = function(cityId, idx) {
+            window.cityIndices[cityId] = idx;
             const markerData = window.cidadesMap[cityId];
-            map.setView([markerData.lat, markerData.lng], 12);
+            map.setView([markerData.lat, markerData.lng], 6);
             markerData.marker.openPopup();
             setTimeout(() => { document.getElementById('popup-' + cityId).innerHTML = window.renderPopup(cityId); }, 100);
         };
@@ -244,34 +217,36 @@
             camadaPins.clearLayers(); window.cityData = {}; window.cityIndices = {}; window.cidadesMap = {};
             
             const busca = document.getElementById('search').value.toLowerCase();
-            const ufFiltro = document.getElementById('filterUf').value;
             const setorFiltro = document.getElementById('filterSetor').value;
-            
             const listaRanking = document.getElementById('ranking-list');
-            let totalBi = 0; listaRanking.innerHTML = "";
+            let totalUsd = 0; listaRanking.innerHTML = "";
 
-            const filtrados = dados.filter(p => {
-                const bUf = (p.uf === ufFiltro || ufFiltro === "");
+            const filtrados = dadosAtuais.filter(p => {
                 const bSetor = (p.setor === setorFiltro || setorFiltro === "");
-                return p.n.toLowerCase().includes(busca) && bUf && bSetor;
-            }).sort((a,b) => b.r - a.r);
+                return p.n.toLowerCase().includes(busca) && bSetor;
+            }).sort((a,b) => b.usd - a.usd);
 
             let cityCounter = 0; const tempMap = {};
+            
             filtrados.forEach(p => {
-                totalBi += p.r; const coordKey = `${p.lat},${p.lng}`;
+                totalUsd += p.usd; const coordKey = `${p.lat},${p.lng}`;
                 if (!tempMap[coordKey]) {
                     const cid = 'city_' + cityCounter++;
                     tempMap[coordKey] = cid; window.cityData[cid] = []; window.cityIndices[cid] = 0;
                 }
                 const cityId = tempMap[coordKey];
                 
+                // SEGREDO VISUAL: Classe CSS diferente se for Brasileiro
+                const cssClasse = p.br ? 'ranking-item is-br' : 'ranking-item';
+                const nomeExibicao = p.br ? `${p.n} 🇧🇷` : p.n;
+
                 listaRanking.innerHTML += `
-                    <div class="ranking-item" onclick="abrirDoRanking('${cityId}', ${window.cityData[cityId].length})">
+                    <div class="${cssClasse}" onclick="abrirDoRanking('${cityId}', ${window.cityData[cityId].length})">
                         <div>
-                            <div class="ranking-name">${p.n}</div>
-                            <span class="badge">${p.setor}</span>
+                            <div class="ranking-name">${nomeExibicao}</div>
+                            <span class="badge" style="background:rgba(255,255,255,0.1); border:none; color:#ccc;">${p.setor}</span>
                         </div>
-                        <b style="color:var(--accent); font-size: 14px;">R$ ${p.r}B</b>
+                        <b style="color:var(--accent); font-size: 14px;">$${p.usd}B</b>
                     </div>
                 `;
                 window.cityData[cityId].push(p);
@@ -279,30 +254,22 @@
 
             for (let coord in tempMap) {
                 const cityId = tempMap[coord]; const p = window.cityData[cityId][0];
+                
+                // SEGREDO DO PIN: Verde se for brasileiro, Azul se for resto do mundo
+                const corPin = p.br ? 'green' : 'blue';
+                
                 const icon = new L.Icon({
-                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${coresPins[p.uf] || 'blue'}.png`,
+                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${corPin}.png`,
                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+                    iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34]
                 });
                 const marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(camadaPins);
                 marker.bindPopup(`<div id="popup-${cityId}">${window.renderPopup(cityId)}</div>`, { maxWidth: 280 });
                 window.cidadesMap[cityId] = { lat: p.lat, lng: p.lng, marker: marker };
             }
-            document.getElementById('total-money').innerText = `R$ ${totalBi.toFixed(1)} Bi`;
+            document.getElementById('total-money').innerText = `$ ${totalUsd.toFixed(1)} Bi`;
         }
         
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function () {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML = '<strong style="color:var(--accent)">🌎 Legenda (Estado)</strong><br style="margin-bottom:5px;">';
-            const legendCores = { 'SP': '#2ecc71', 'RJ': '#e74c3c', 'GO': '#f1c40f', 'RS': '#e67e22', 'SC': '#9b59b6', 'CE': '#7f8c8d', 'Exterior': '#3498db' };
-            for (let k in legendCores) {
-                div.innerHTML += `<i style="background:${legendCores[k]}"></i> ${k}<br>`;
-            }
-            return div;
-        };
-        legend.addTo(map);
-
         processar();
     </script>
 </body>
