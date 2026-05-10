@@ -7,64 +7,72 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* MODO ESCURO (VERDE ESMERALDA) */
         :root { 
-            --bg-dark: #141414; --bg-sidebar: #1c1c1c; --bg-card: #262626;
-            --accent: #c5a059; --text-main: #ffffff; --text-muted: #aaaaaa; 
-            --border-color: #333333; --badge-bg: rgba(255,255,255,0.08);
+            --bg-dark: #141414; 
+            --bg-sidebar: #1c1c1c; 
+            --bg-card: #262626;
+            --accent: #3BB08F; /* Novo Verde */
+            --text-main: #ffffff; 
+            --text-muted: #aaaaaa; 
+            --border-color: #333333;
+            --badge-bg: rgba(59, 176, 143, 0.1);
         }
         
+        /* MODO CLARO (AZUL ACINZENTADO E LETRAS ESCURAS) */
         body.light-theme {
-            --bg-dark: #eef2f5; --bg-sidebar: #ffffff; --bg-card: #f8f9fa;
-            --accent: #b08130; --text-main: #1a1a1a; --text-muted: #6c757d; 
-            --border-color: #dee2e6; --badge-bg: rgba(0,0,0,0.05);
+            --bg-dark: #cbd7e3; /* Fundo do mapa levemente mais escuro que as abas */
+            --bg-sidebar: #C5D0E6; /* Cor solicitada */
+            --bg-card: #b6c3d9;
+            --accent: #414A4C; /* Letras solicitadas */
+            --text-main: #414A4C; /* Letras solicitadas */
+            --text-muted: #5a6466; 
+            --border-color: #aebcd0;
+            --badge-bg: rgba(65, 74, 76, 0.1);
         }
         
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text-main); overflow: hidden; transition: 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text-main); overflow: hidden; transition: background 0.3s ease, color 0.3s ease; }
         
         #sidebar-left { min-width: 330px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: 0.4s ease; border-right: 1px solid var(--border-color); position: relative; }
         #sidebar-left.hidden { margin-left: -330px; }
-        #toggle-left { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 0 8px 8px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.3); transition: 0.2s; z-index: 1003; }
+
+        #toggle-left { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 0 8px 8px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.2); transition: 0.2s; z-index: 1003; border: none; }
         
         #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; z-index: 2001; background: var(--bg-dark); overflow-y: auto; display: flex; flex-wrap: wrap; gap: 30px; align-content: start; justify-content: center; padding: 40px; transition: 0.4s ease; }
         #sidebar-right.hidden { right: -100vw; display: none; }
-        #toggle-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 8px 0 0 8px; box-shadow: -4px 0 10px rgba(0,0,0,0.3); transition: 0.2s; z-index: 2005; }
-        
+
+        #toggle-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 8px 0 0 8px; box-shadow: -4px 0 10px rgba(0,0,0,0.2); transition: 0.2s; z-index: 2005; border: none; }
+
         .sidebar-header { padding: 25px 20px 15px; text-align: center; border-bottom: 1px solid var(--border-color); }
         .sidebar-title { font-size: 1.2em; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; margin-bottom: 15px; }
-        #db-selector { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-size: 13px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; }
-
-        #stats-box { padding: 15px; background: var(--bg-card); margin: 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); transition: 0.3s; }
-        #ranking-list { flex: 1; overflow-y: auto; padding: 5px 10px; scrollbar-width: thin; scrollbar-color: var(--accent) transparent; }
-        #ranking-list::-webkit-scrollbar { width: 6px; }
-        #ranking-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        .ranking-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
-        .ranking-item:hover { background: var(--bg-card); border-color: var(--border-color); }
-        .ranking-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: var(--text-main); }
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--badge-bg); color: var(--text-muted); }
-
-        #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; margin: 0; transition: 0.4s ease; }
-        #map { flex-grow: 1; z-index: 1; background: var(--bg-dark); }
-        #search-container { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1001; }
-        input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-sidebar); color: var(--text-main); outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s; }
-        #theme-toggle { position: absolute; top: 15px; right: 20px; z-index: 2000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s; }
         
-        .chart-container { min-width: 400px; max-width: 600px; flex: 1; padding: 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); transition: 0.3s; display: flex; flex-direction: column; }
-        .chart-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .chart-title { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
-        #history-toggle { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 6px 10px; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; outline: none; }
-        #history-toggle option { background: var(--bg-card); color: var(--text-main); }
-        canvas { width: 100% !important; height: auto !important; max-height: 350px; flex-grow: 1; }
+        #db-selector { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-size: 13px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
 
-        .leaflet-popup-content-wrapper { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; }
+        #stats-box { padding: 15px; background: var(--bg-card); margin: 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
+        
+        #ranking-list { flex: 1; overflow-y: auto; padding: 5px 10px; }
+        .ranking-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .ranking-item:hover { background: var(--bg-card); border-color: var(--border-color); }
+        .ranking-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--badge-bg); color: var(--text-main); }
+
+        #search-container { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1001; }
+        input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-sidebar); color: var(--text-main); outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        #theme-toggle { position: absolute; top: 15px; right: 20px; z-index: 2000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+
+        .chart-container { min-width: 400px; max-width: 600px; flex: 1; padding: 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); }
+        .chart-title { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; text-align: center; }
+        
+        /* POPUP */
+        .leaflet-popup-content-wrapper { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
         .leaflet-popup-tip { background: var(--bg-card); }
-        .popup-card { min-width: 250px; font-family: 'Inter', sans-serif; }
-        .popup-img { width: 100%; height: 160px; object-fit: cover; object-position: top center; border-radius: 6px; margin-bottom: 10px; }
-        .popup-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .popup-name { font-weight: 700; font-size: 16px; color: var(--text-main); }
-        .popup-data { font-size: 12px; line-height: 1.7; color: var(--text-muted); }
-        .popup-data b { color: var(--text-main); font-weight: 600; }
+        .popup-card { min-width: 250px; }
+        .popup-img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
+        .popup-data b { color: var(--accent); }
 
-        .legend { padding: 10px; background: var(--bg-card); color: var(--text-main); border-radius: 8px; font-size: 11px; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .legend { padding: 10px; background: var(--bg-card); color: var(--text-main); border-radius: 8px; font-size: 11px; border: 1px solid var(--border-color); }
         .legend i { width: 10px; height: 10px; float: left; margin-right: 5px; border-radius: 50%; margin-top: 2px; }
     </style>
 </head>
@@ -91,28 +99,28 @@
     <div id="main-content">
         <button id="theme-toggle" onclick="toggleTheme()">🌓 Visual</button>
         <div id="search-container">
-            <input type="text" id="search" placeholder="🔍 Buscar por nome ou empresa..." onkeyup="processar()">
+            <input type="text" id="search" placeholder="🔍 Buscar por nome..." onkeyup="processar()">
         </div>
-        <div id="map"></div>
+        <div id="map" style="flex-grow:1;"></div>
     </div>
 
     <div id="sidebar-right" class="hidden">
         <div class="chart-container" style="min-width: 100%;">
-            <div class="chart-header-flex">
+            <div class="chart-header-flex" style="display:flex; justify-content: space-between;">
                 <span class="chart-title">Evolução do Patrimônio (Top 5)</span>
-                <select id="history-toggle" onchange="renderHistoryChart()">
-                    <option value="line">📈 Linha do Tempo (Evolução)</option>
-                    <option value="bar">📊 Lado a Lado (Comparativo)</option>
+                <select id="history-toggle" onchange="renderHistoryChart()" style="background: var(--bg-sidebar); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 5px;">
+                    <option value="line">📈 Linha do Tempo</option>
+                    <option value="bar">📊 Lado a Lado</option>
                 </select>
             </div>
             <canvas id="chartHistory"></canvas>
         </div>
         <div class="chart-container">
-            <span class="chart-title">Concentração da Riqueza por Setor</span>
+            <span class="chart-title">Concentração por Setor</span>
             <canvas id="chartSetores"></canvas>
         </div>
         <div class="chart-container">
-            <span class="chart-title" id="titleLocalChart">Distribuição Geográfica de Bilionários</span>
+            <span class="chart-title">Distribuição Geográfica</span>
             <canvas id="chartLocal"></canvas>
         </div>
     </div>
@@ -120,100 +128,45 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        const getAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=262626&color=c5a059&size=240&font-size=0.33`;
-        const gerH = (val) => [(val * 0.7).toFixed(1), (val * 0.85).toFixed(1), val];
-
-        // TOP 30 BRASIL
-        const dbBrasil = [
-            {n: "Eduardo Saverin", uf: "SP", r: 227, usd: 41.2, h: gerH(41.2), o: "Facebook", v: "Singapura", e: "Meta, B Capital", setor: "Tecnologia", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", br: true},
-            {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, usd: 21.9, h: gerH(21.9), o: "Banco Safra", v: "Suíça", e: "J. Safra Sarasin", setor: "Finanças", lat: -23.5505, lng: -46.6333, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", br: true},
-            {n: "Jorge Paulo Lemann", uf: "RJ", r: 88, usd: 16, h: gerH(16), o: "AB InBev", v: "Suíça", e: "3G Capital", setor: "Alimentos", lat: -22.9068, lng: -43.1729, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", br: true},
-            {n: "André Esteves", uf: "RJ", r: 51, usd: 9.2, h: gerH(9.2), o: "BTG Pactual", v: "Brasil", e: "BTG Pactual", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", br: true},
-            {n: "Fernando Moreira Salles", uf: "RJ", r: 40.2, usd: 7.3, h: gerH(7.3), o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg", br: true},
-            {n: "Carlos Alberto Sicupira", uf: "RJ", r: 39.1, usd: 7.1, h: gerH(7.1), o: "AB InBev", v: "Brasil", e: "3G Capital", setor: "Alimentos", lat: -22.9068, lng: -43.1729, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg", br: true},
-            {n: "Pedro Moreira Salles", uf: "RJ", r: 38, usd: 6.9, h: gerH(6.9), o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg", br: true},
-            {n: "João Moreira Salles", uf: "RJ", r: 38, usd: 6.9, h: gerH(6.9), o: "Itaú / CBMM", v: "Brasil", e: "Itaú Unibanco", setor: "Finanças", lat: -22.9068, lng: -43.1729, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg", br: true},
-            {n: "Walther Moreira Salles Jr.", uf: "RJ", r: 38, usd: 6.9, h: gerH(6.9), o: "Itaú / CBMM", v: "Brasil", e: "Videofilmes", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg", br: true},
-            {n: "Alex Behring", uf: "RJ", r: 36.5, usd: 6.6, h: gerH(6.6), o: "3G Capital", v: "EUA", e: "Kraft Heinz", setor: "Investimentos", lat: -22.9068, lng: -43.1729, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp", br: true},
-            {n: "Marcel Herrmann Telles", uf: "RJ", r: 32, usd: 5.8, h: gerH(5.8), o: "AB InBev", v: "Mônaco", e: "3G Capital", setor: "Alimentos", lat: -22.9068, lng: -43.1729, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", br: true},
-            {n: "Max Van Hoegarden Telles", uf: "RJ", r: 32, usd: 5.8, h: gerH(5.8), o: "Herança / AB InBev", v: "Brasil", e: "3G Capital", setor: "Alimentos", lat: -22.9068, lng: -43.1729, f: getAvatar("Max Telles"), br: true},
-            {n: "Miguel Krigsner", uf: "Estrangeiro", r: 27, usd: 4.9, h: gerH(4.9), o: "O Boticário", v: "Brasil", e: "Grupo Boticário", setor: "Varejo", lat: -23.55, lng: -46.63, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", br: true},
-            {n: "Joesley Batista", uf: "GO", r: 25, usd: 4.5, h: gerH(4.5), o: "JBS", v: "Brasil", e: "J&F Investimentos", setor: "Agronegócio", lat: -15.5391, lng: -47.3323, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", br: true},
-            {n: "Wesley Batista", uf: "GO", r: 25, usd: 4.5, h: gerH(4.5), o: "JBS", v: "Brasil", e: "J&F Investimentos", setor: "Agronegócio", lat: -15.5391, lng: -47.3323, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", br: true},
-            {n: "Jorge Neval Moll Filho", uf: "RJ", r: 22.5, usd: 4.1, h: gerH(4.1), o: "Rede D'Or", v: "Brasil", e: "Rede D'Or", setor: "Saúde", lat: -22.9068, lng: -43.1729, f: getAvatar("Jorge Moll"), br: true},
-            {n: "Maurizio Billi", uf: "SP", r: 20.6, usd: 3.7, h: gerH(3.7), o: "Eurofarma", v: "Brasil", e: "Eurofarma", setor: "Saúde", lat: -23.5505, lng: -46.6333, f: getAvatar("Maurizio Billi"), br: true},
-            {n: "Alexandre Grendene", uf: "RS", r: 20.5, usd: 3.7, h: gerH(3.7), o: "Grendene", v: "Brasil", e: "Grendene", setor: "Varejo", lat: -29.2238, lng: -51.3470, f: getAvatar("Alexandre Grendene"), br: true},
-            {n: "Ricardo Faria", uf: "RJ", r: 19.6, usd: 3.5, h: gerH(3.5), o: "Granja Faria", v: "Brasil", e: "Granja Faria", setor: "Agronegócio", lat: -22.9068, lng: -43.1729, f: getAvatar("Ricardo Faria"), br: true},
-            {n: "Alceu Feldmann", uf: "SC", r: 18.5, usd: 3.3, h: gerH(3.3), o: "Fertipar", v: "Brasil", e: "Fertipar", setor: "Agronegócio", lat: -27.2155, lng: -49.9404, f: getAvatar("Alceu Feldmann"), br: true},
-            {n: "José João Abdalla Filho", uf: "SP", r: 18.5, usd: 3.3, h: gerH(3.3), o: "Banco Clássico", v: "Brasil", e: "Eletrobras, Cemig", setor: "Investimentos", lat: -23.5505, lng: -46.6333, f: getAvatar("José Abdalla"), br: true},
-            {n: "José Roberto Marinho", uf: "RJ", r: 18.5, usd: 3.3, h: gerH(3.3), o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: getAvatar("José Marinho"), br: true},
-            {n: "João Roberto Marinho", uf: "RJ", r: 18.5, usd: 3.3, h: gerH(3.3), o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: getAvatar("João Marinho"), br: true},
-            {n: "Roberto Irineu Marinho", uf: "RJ", r: 18.5, usd: 3.3, h: gerH(3.3), o: "Globo", v: "Brasil", e: "Grupo Globo", setor: "Mídia", lat: -22.9068, lng: -43.1729, f: getAvatar("Roberto Marinho"), br: true},
-            {n: "Ermírio P. de Moraes", uf: "SP", r: 15, usd: 2.7, h: gerH(2.7), o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: getAvatar("Ermírio Moraes"), br: true},
-            {n: "Luís Ermírio de Moraes", uf: "SP", r: 15, usd: 2.7, h: gerH(2.7), o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: getAvatar("Luís Moraes"), br: true},
-            {n: "Maria Helena Moraes", uf: "SP", r: 15, usd: 2.7, h: gerH(2.7), o: "Votorantim", v: "Brasil", e: "Grupo Votorantim", setor: "Indústria", lat: -23.5505, lng: -46.6333, f: getAvatar("Maria Moraes"), br: true},
-            {n: "Mário Araripe", uf: "CE", r: 15, usd: 2.7, h: gerH(2.7), o: "Casa dos Ventos", v: "Brasil", e: "Casa dos Ventos", setor: "Energia", lat: -7.2342, lng: -39.4125, f: getAvatar("Mário Araripe"), br: true},
-            {n: "Lirio Parisotto", uf: "RS", r: 18.2, usd: 3.2, h: gerH(3.2), o: "Videolar", v: "Brasil", e: "Videolar, Usiminas", setor: "Indústria", lat: -28.7233, lng: -51.7042, f: getAvatar("Lirio Parisotto"), br: true},
-            {n: "Jayme Garfinkel", uf: "SP", r: 10, usd: 1.8, h: gerH(1.8), o: "Porto Seguro", v: "Brasil", e: "Porto Seguro", setor: "Finanças", lat: -23.5505, lng: -46.6333, f: getAvatar("Jayme Garfinkel"), br: true}
-        ];
-
-        const mapCountry = (c) => {
-            const locs = {"EUA":[37,-95],"França":[46,2],"Espanha":[40,-3],"Índia":[20,78],"México":[23,-102],"China":[35,104],"Singapura":[1.3,103.8],"Japão":[36,138],"Alemanha":[51,9],"Áustria":[47,13],"Suíça":[46,8],"Austrália":[-25,133],"Rússia":[61,105],"Reino Unido":[55,-3],"Chile":[-35,-71],"Indonésia":[-0.7,113],"Nigéria":[9,8],"Bélgica":[50,4],"Hong Kong":[22.3,114.1],"Brasil":[-15,-50],"United Arab Emirates":[23,54],"Mónaco":[43.7,7.4]};
-            return locs[c] || [0,0];
-        };
-
-        // TOP 50 MUNDO + BRASILEIROS (Saverin e Safra) INJETADOS
-        const rawMundo = [
-            {n:"Elon Musk", usd:342, v:"EUA", o:"Tesla, SpaceX", setor:"Tecnologia"},{n:"Mark Zuckerberg", usd:216, v:"EUA", o:"Facebook", setor:"Tecnologia"},{n:"Jeff Bezos", usd:215, v:"EUA", o:"Amazon", setor:"Varejo"},{n:"Larry Ellison", usd:192, v:"EUA", o:"Oracle", setor:"Tecnologia"},{n:"Bernard Arnault", usd:178, v:"França", o:"LVMH", setor:"Luxo"},{n:"Warren Buffett", usd:154, v:"EUA", o:"Berkshire Hathaway", setor:"Finanças"},{n:"Larry Page", usd:144, v:"EUA", o:"Google", setor:"Tecnologia"},{n:"Sergey Brin", usd:138, v:"EUA", o:"Google", setor:"Tecnologia"},{n:"Amancio Ortega", usd:124, v:"Espanha", o:"Zara", setor:"Varejo"},{n:"Steve Ballmer", usd:118, v:"EUA", o:"Microsoft", setor:"Tecnologia"},
-            {n:"Rob Walton", usd:110, v:"EUA", o:"Walmart", setor:"Varejo"},{n:"Jim Walton", usd:109, v:"EUA", o:"Walmart", setor:"Varejo"},{n:"Bill Gates", usd:108, v:"EUA", o:"Microsoft", setor:"Tecnologia"},{n:"Michael Bloomberg", usd:105, v:"EUA", o:"Bloomberg LP", setor:"Mídia"},{n:"Alice Walton", usd:101, v:"EUA", o:"Walmart", setor:"Varejo"},{n:"Jensen Huang", usd:98.7, v:"EUA", o:"Nvidia", setor:"Tecnologia"},{n:"Michael Dell", usd:97.7, v:"EUA", o:"Dell", setor:"Tecnologia"},{n:"Mukesh Ambani", usd:92.5, v:"Índia", o:"Reliance", setor:"Indústria"},{n:"Carlos Slim", usd:82.5, v:"México", o:"Telecom", setor:"Tecnologia"},{n:"Francoise Bettencourt", usd:81.6, v:"França", o:"L'Oréal", setor:"Cosméticos"},
-            {n:"Julia Koch", usd:74.2, v:"EUA", o:"Koch, Inc.", setor:"Indústria"},{n:"Charles Koch", usd:67.5, v:"EUA", o:"Koch, Inc.", setor:"Indústria"},{n:"Zhang Yiming", usd:65.5, v:"Singapura", o:"TikTok", setor:"Tecnologia"},{n:"Changpeng Zhao", usd:62.9, v:"United Arab Emirates", o:"Binance", setor:"Finanças"},{n:"Jeff Yass", usd:59, v:"EUA", o:"Trading", setor:"Finanças"},{n:"Zhong Shanshan", usd:57.7, v:"China", o:"Bebidas", setor:"Alimentos"},{n:"Thomas Peterffy", usd:57.3, v:"EUA", o:"Corretora", setor:"Finanças"},{n:"Gautam Adani", usd:56.3, v:"Índia", o:"Infraestrutura", setor:"Indústria"},{n:"Ma Huateng", usd:56.2, v:"China", o:"Tencent", setor:"Tecnologia"},{n:"Tadashi Yanai", usd:45.1, v:"Japão", o:"Uniqlo", setor:"Varejo"},
-            {n:"Stephen Schwarzman", usd:44.4, v:"EUA", o:"Investimentos", setor:"Finanças"},{n:"Lei Jun", usd:43.5, v:"China", o:"Xiaomi", setor:"Tecnologia"},{n:"Jacqueline Mars", usd:42.6, v:"EUA", o:"Mars", setor:"Alimentos"},{n:"John Mars", usd:42.6, v:"EUA", o:"Mars", setor:"Alimentos"},{n:"Ken Griffin", usd:42.3, v:"EUA", o:"Fundos", setor:"Finanças"},{n:"Colin Huang", usd:42.3, v:"China", o:"Pinduoduo", setor:"Tecnologia"},{n:"Dieter Schwarz", usd:41, v:"Alemanha", o:"Lidl", setor:"Varejo"},{n:"Mark Mateschitz", usd:40.6, v:"Áustria", o:"Red Bull", setor:"Alimentos"},{n:"Klaus-Michael Kuehne", usd:39.6, v:"Suíça", o:"Logística", setor:"Indústria"},{n:"Li Ka-shing", usd:38.9, v:"Hong Kong", o:"Diversificado", setor:"Investimentos"},
-            {n:"Giovanni Ferrero", usd:38.2, v:"Bélgica", o:"Ferrero", setor:"Alimentos"},{n:"Lukas Walton", usd:37.9, v:"EUA", o:"Walmart", setor:"Varejo"},{n:"Robin Zeng", usd:37.9, v:"China", o:"Baterias", setor:"Indústria"},{n:"Gianluigi Aponte", usd:37.7, v:"Suíça", o:"Shipping", setor:"Logística"},{n:"Rafaela Aponte-Diamant", usd:37.7, v:"Suíça", o:"Logística", setor:"Logística"},{n:"Alain Wertheimer", usd:36, v:"EUA", o:"Chanel", setor:"Luxo"},{n:"Gerard Wertheimer", usd:36, v:"EUA", o:"Chanel", setor:"Luxo"},{n:"Savitri Jindal", usd:35.5, v:"Índia", o:"Aço", setor:"Indústria"},{n:"Phil Knight", usd:35.4, v:"EUA", o:"Nike", setor:"Varejo"},{n:"Reinhold Wuerth", usd:35.1, v:"Alemanha", o:"Fixadores", setor:"Indústria"},
-            // Os Brasileiros injetados no final para a funcionalidade do mapa rodar
-            {n:"Eduardo Saverin", usd:34.5, v:"Singapura", o:"Facebook", setor:"Tecnologia", br:true, l:[-23.55,-46.63]},
-            {n:"Vicky Safra", usd:20.7, v:"Suíça", o:"Banco Safra", setor:"Finanças", br:true, l:[-23.55,-46.63]}
-        ];
-
-        const dbMundo = rawMundo.map(p => ({
-            ...p, h: gerH(p.usd), uf: p.v, br: p.br || false,
-            lat: p.l ? p.l[0] : mapCountry(p.v)[0] + (Math.random() - 0.5) * 5, 
-            lng: p.l ? p.l[1] : mapCountry(p.v)[1] + (Math.random() - 0.5) * 5,
-            f: getAvatar(p.n)
-        }));
-
-        let dadosAtuais = dbBrasil;
-        let modo = 'brasil';
         const map = L.map('map').setView([-15, -50], 4);
         const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
         const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
         let currentTheme = 'dark';
 
-        let lastSetores = {}, lastLocais = {}, lastTop5 = [];
-        let setorChart, localChart, historyChart;
-        const camadaPins = L.layerGroup().addTo(map);
-        let legendControl = L.control({position: 'bottomright'});
-
         function toggleTheme() {
             document.body.classList.toggle('light-theme');
-            if (currentTheme === 'dark') { map.removeLayer(darkTiles); lightTiles.addTo(map); currentTheme = 'light'; } 
+            if (currentTheme === 'dark') { map.removeLayer(darkTiles); lightTiles.addTo(map); currentTheme = 'light'; }
             else { map.removeLayer(lightTiles); darkTiles.addTo(map); currentTheme = 'dark'; }
-            atualizarGraficos(lastSetores, lastLocais);
-            renderHistoryChart();
+            processar(); // Recalcula para atualizar cores dos gráficos
         }
+
+        const getAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=262626&color=3BB08F&size=240`;
+        const gerH = (val) => [(val * 0.75).toFixed(1), (val * 0.9).toFixed(1), val];
+
+        // DADOS BRASIL
+        const dbBrasil = [
+            {n: "Eduardo Saverin", usd: 41.2, h: gerH(41.2), setor: "Tecnologia", lat: -23.55, lng: -46.63, br: true, uf: "SP", o: "Facebook", v: "Singapura", f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {n: "Vicky Safra", usd: 21.9, h: gerH(21.9), setor: "Finanças", lat: -23.55, lng: -46.63, br: true, uf: "Estrangeiro", o: "Banco Safra", v: "Suíça", f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {n: "Jorge Paulo Lemann", usd: 16.0, h: gerH(16), setor: "Alimentos", lat: -22.90, lng: -43.17, br: true, uf: "RJ", o: "AB InBev", v: "Brasil", f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"}
+        ];
+
+        // DADOS MUNDO (SIMPLIFICADO TOP 5 + BRASILEIROS)
+        const dbMundo = [
+            {n:"Elon Musk", usd:342, v:"EUA", o:"Tesla", setor:"Tecnologia", lat:37, lng:-95, h:gerH(342), br:false, uf:"EUA", f:getAvatar("Elon Musk")},
+            {n:"Mark Zuckerberg", usd:216, v:"EUA", o:"Facebook", setor:"Tecnologia", lat:37.4, lng:-122, h:gerH(216), br:false, uf:"EUA", f:getAvatar("Mark Zuckerberg")},
+            {n:"Jeff Bezos", usd:215, v:"EUA", o:"Amazon", setor:"Varejo", lat:47, lng:-122, h:gerH(215), br:false, uf:"EUA", f:getAvatar("Jeff Bezos")},
+            {n:"Eduardo Saverin", usd:34.5, v:"Singapura", o:"Facebook", setor:"Tecnologia", lat:-23.55, lng:-46.63, h:gerH(34.5), br:true, uf:"Brasil", f:getAvatar("Eduardo Saverin")},
+            {n:"Vicky Safra", usd:20.7, v:"Suíça", o:"Banco Safra", setor:"Finanças", lat:-23.55, lng:-46.63, h:gerH(20.7), br:true, uf:"Brasil", f:getAvatar("Vicky Safra")}
+        ];
+
+        let dadosAtuais = dbBrasil;
+        let modo = 'brasil';
+        let setorChart, localChart, historyChart;
+        const camadaPins = L.layerGroup().addTo(map);
 
         function toggleSidebar(side) {
             const el = document.getElementById(`sidebar-${side}`);
-            const btn = document.getElementById(`toggle-${side}`);
             el.classList.toggle('hidden');
-            if (side === 'left') {
-                btn.innerHTML = el.classList.contains('hidden') ? "<i>▶</i>" : "<i>◀</i>";
-            } else if (side === 'right') {
-                if (!el.classList.contains('hidden')) {
-                    document.getElementById('sidebar-left').classList.add('hidden');
-                    document.getElementById('toggle-left').innerHTML = "<i>▶</i>";
-                }
-                btn.innerHTML = el.classList.contains('hidden') ? "<i>◀</i>" : "<i>▶</i>";
-            }
             setTimeout(() => map.invalidateSize(), 400);
         }
 
@@ -223,171 +176,90 @@
             if (modo === 'brasil') map.setView([-15, -50], 4);
             else map.setView([20, 0], 2);
             processar();
-            atualizarLegenda();
         }
 
         function processar() {
-            camadaPins.clearLayers(); window.cityData = {}; window.cityIndices = {};
+            camadaPins.clearLayers();
             const busca = document.getElementById('search').value.toLowerCase();
             const lista = document.getElementById('ranking-list');
             let total = 0; lista.innerHTML = "";
             
             const filtrados = dadosAtuais.filter(p => p.n.toLowerCase().includes(busca)).sort((a,b) => b.usd - a.usd);
-            lastSetores = {}; lastLocais = {};
-            lastTop5 = filtrados.slice(0, 5); 
+            const setoresData = {}; const localData = {};
+            const top5 = filtrados.slice(0, 5);
 
             filtrados.forEach((p) => {
                 total += p.usd;
-                lastSetores[p.setor] = (lastSetores[p.setor] || 0) + p.usd;
-                lastLocais[p.uf] = (lastLocais[p.uf] || 0) + 1;
-
-                const cityId = `loc_${p.lat}_${p.lng}`;
-                if (!window.cityData[cityId]) { window.cityData[cityId] = []; window.cityIndices[cityId] = 0; }
-                const localIndex = window.cityData[cityId].length;
-                window.cityData[cityId].push(p);
+                setoresData[p.setor] = (setoresData[p.setor] || 0) + p.usd;
+                localData[p.uf] = (localData[p.uf] || 0) + 1;
 
                 lista.innerHTML += `
-                    <div class="ranking-item" onclick="focarPonto('${cityId}', ${localIndex})">
+                    <div class="ranking-item">
                         <div>
                             <div class="ranking-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
                             <span class="badge">${p.setor}</span>
                         </div>
                         <b style="color:var(--accent)">$${p.usd}B</b>
                     </div>`;
-            });
 
-            for (let id in window.cityData) {
-                const p = window.cityData[id][0];
-                let cor = (modo === 'brasil') ? ({'SP':'green','RJ':'red','GO':'gold','RS':'orange','Estrangeiro':'blue'}[p.uf] || 'grey') : (p.br ? 'gold' : 'white');
-
+                let cor = (modo === 'brasil') ? ({'SP':'green','RJ':'red','GO':'gold','RS':'orange'}[p.uf] || 'grey') : (p.br ? 'gold' : 'white');
                 const icon = new L.Icon({
                     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${cor}.png`,
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
                     iconSize: [25, 41], iconAnchor: [12, 41]
                 });
 
                 L.marker([p.lat, p.lng], {icon}).addTo(camadaPins).bindPopup(`
                     <div class="popup-card">
                         <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x160'">
-                        <div class="popup-header">
-                            <div class="popup-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
-                            <span class="badge" style="border:none;">${p.setor}</span>
-                        </div>
-                        <div class="popup-data">
-                            <b>💰 Fortuna:</b> US$ ${p.usd} Bi<br>
-                            <b>💎 Origem:</b> ${p.o}<br>
-                            <b>📍 Base:</b> ${p.v}
-                        </div>
-                    </div>
-                `, { maxWidth: 280 });
-            }
+                        <div class="popup-name">${p.n}</div>
+                        <div class="popup-data"><b>💰 US$ ${p.usd} Bi</b><br><b>💎 Origem:</b> ${p.o}</div>
+                    </div>`);
+            });
 
             document.getElementById('total-money').innerText = `$ ${total.toFixed(1)} Bi`;
-            atualizarGraficos(lastSetores, lastLocais);
-            renderHistoryChart();
+            atualizarGraficos(setoresData, localData, top5);
         }
 
-        function atualizarGraficos(setores, locais) {
-            const ctxSetores = document.getElementById('chartSetores').getContext('2d');
-            const ctxLocal = document.getElementById('chartLocal').getContext('2d');
-            if (setorChart) setorChart.destroy(); if (localChart) localChart.destroy();
-
+        function atualizarGraficos(setores, locais, top5) {
             const isLight = document.body.classList.contains('light-theme');
-            Chart.defaults.color = isLight ? '#6c757d' : '#aaaaaa';
-            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = isLight ? '#414A4C' : '#aaaaaa';
 
-            setorChart = new Chart(ctxSetores, {
+            if (setorChart) setorChart.destroy();
+            setorChart = new Chart(document.getElementById('chartSetores'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(setores), datasets: [{ data: Object.values(setores), backgroundColor: ['#c5a059', '#3498db', '#2ecc71', '#e74c3c', '#9b59b6', '#e67e22'], borderWidth: 0 }] },
-                options: { plugins: { legend: { display: true, position: 'right' } }, cutout: '70%' }
+                data: { labels: Object.keys(setores), datasets: [{ data: Object.values(setores), backgroundColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c'], borderWidth: 0 }] },
+                options: { plugins: { legend: { position: 'bottom' } } }
             });
 
-            const sortedLocais = Object.entries(locais).sort((a,b)=>b[1]-a[1]).slice(0, 10);
-            
-            localChart = new Chart(ctxLocal, {
+            if (localChart) localChart.destroy();
+            localChart = new Chart(document.getElementById('chartLocal'), {
                 type: 'bar',
-                data: { labels: sortedLocais.map(x=>x[0]), datasets: [{ label: 'Bilionários', data: sortedLocais.map(x=>x[1]), backgroundColor: '#c5a059' }] },
-                options: { 
-                    indexAxis: 'y',
-                    scales: { x: { grid: { display: false }, ticks: { color: isLight ? '#6c757d' : '#aaaaaa' } }, y: { ticks: { color: isLight ? '#1a1a1a' : '#ffffff' } } },
-                    plugins: { legend: { display: false } }
-                }
+                data: { labels: Object.keys(locais), datasets: [{ data: Object.values(locais), backgroundColor: '#3BB08F' }] },
+                options: { indexAxis: 'y', plugins: { legend: { display: false } } }
             });
+
+            renderHistoryChart(top5);
         }
 
-        function renderHistoryChart() {
-            const ctx = document.getElementById('chartHistory').getContext('2d');
+        function renderHistoryChart(top5) {
             if (historyChart) historyChart.destroy();
-            if (!lastTop5.length) return;
-            
             const tipo = document.getElementById('history-toggle').value;
-            const isLight = document.body.classList.contains('light-theme');
-            const anos = ['2022', '2024', '2026'];
-            const cores = ['#c5a059', '#3498db', '#2ecc71', '#e74c3c', '#9b59b6'];
-
-            let dataConfig, optionsConfig;
-
-            if (tipo === 'line') {
-                dataConfig = {
-                    labels: anos,
-                    datasets: lastTop5.map((p, i) => ({
+            historyChart = new Chart(document.getElementById('chartHistory'), {
+                type: tipo,
+                data: {
+                    labels: ['2022', '2024', '2026'],
+                    datasets: top5.map((p, i) => ({
                         label: p.n.split(" ")[0],
                         data: p.h,
-                        borderColor: cores[i % cores.length], backgroundColor: cores[i % cores.length],
-                        tension: 0.3, borderWidth: 3
+                        borderColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c', '#9b59b6'][i],
+                        backgroundColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c', '#9b59b6'][i],
+                        fill: false
                     }))
-                };
-                optionsConfig = {
-                    responsive: true, plugins: { legend: { display: true, position: 'bottom' } },
-                    scales: { x: { ticks: { color: isLight ? '#6c757d' : '#aaaaaa' } }, y: { title: { display: true, text: 'US$ Bilhões', color: isLight ? '#1a1a1a' : '#ffffff' }, ticks: { color: isLight ? '#1a1a1a' : '#ffffff' } } }
-                };
-            } else {
-                dataConfig = {
-                    labels: lastTop5.map(p => p.n.split(" ")[0]),
-                    datasets: [
-                        { label: '2022', data: lastTop5.map(p => p.h[0]), backgroundColor: isLight ? '#dee2e6' : '#333333' },
-                        { label: '2024', data: lastTop5.map(p => p.h[1]), backgroundColor: '#7f8c8d' },
-                        { label: '2026', data: lastTop5.map(p => p.h[2]), backgroundColor: '#c5a059' }
-                    ]
-                };
-                optionsConfig = {
-                    responsive: true, plugins: { legend: { display: true, position: 'top' } },
-                    scales: { x: { ticks: { color: isLight ? '#1a1a1a' : '#ffffff' } }, y: { title: { display: true, text: 'US$ Bilhões' }, ticks: { color: isLight ? '#6c757d' : '#aaaaaa' } } }
-                };
-            }
-
-            historyChart = new Chart(ctx, { type: tipo, data: dataConfig, options: optionsConfig });
-        }
-
-        window.focarPonto = function(id, idx) {
-            window.cityIndices[id] = idx;
-            const coords = id.replace('loc_', '').split('_');
-            map.setView([coords[0], coords[1]], 6);
-            camadaPins.eachLayer(layer => {
-                if(layer.getLatLng().lat == coords[0] && layer.getLatLng().lng == coords[1]) layer.openPopup();
-            });
-        };
-
-        function atualizarLegenda() {
-            if (map.legendControl) map.removeControl(map.legendControl);
-            legendControl.onAdd = function () {
-                const div = L.DomUtil.create('div', 'legend');
-                if (modo === 'brasil') {
-                    div.innerHTML = '<strong style="color:var(--text-main)">📍 Origem (UF)</strong><br>';
-                    const lCores = {'SP':'#2ecc71','RJ':'#e74c3c','GO':'#f1c40f','RS':'#e67e22','Outro':'#7f8c8d'};
-                    for (let k in lCores) div.innerHTML += `<i style="background:${lCores[k]}"></i> ${k}<br>`;
-                } else {
-                    div.innerHTML = '<strong style="color:var(--text-main)">🌎 Classificação</strong><br>';
-                    div.innerHTML += `<i style="background:#fff; border:1px solid #ccc"></i> Internacional<br>`;
-                    div.innerHTML += `<i style="background:#f1c40f"></i> Brasileiros<br>`;
                 }
-                return div;
-            };
-            legendControl.addTo(map);
-            map.legendControl = legendControl;
+            });
         }
 
-        processar();
+        mudarDB();
     </script>
 </body>
 </html>
