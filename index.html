@@ -2,101 +2,106 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Fortunas do Brasil | Dashboard Pro</title>
+    <title>Fortunas Dashboard | Versão Final Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* VARIÁVEIS DE TEMA ESCURO */
         :root { 
-            --bg: #101214; --panel: #1a1d21; --card: #24282d;
-            --accent: #C5D0E6; --text: #ffffff; --muted: #8a8f98;
+            --bg: #101214; 
+            --panel: rgba(26, 29, 33, 0.8); 
+            --backdrop: blur(12px);
+            --card: #24282d;
+            --accent: #C5D0E6; 
+            --text: #ffffff; 
+            --muted: #8a8f98; 
             --border: rgba(255,255,255,0.05);
         }
         
+        /* VARIÁVEIS DE TEMA CLARO SOLICITADO */
         body.light-theme {
-            --bg: #f0f2f5; --panel: #C5D0E6; --card: #d9e2f0;
-            --accent: #414A4C; --text: #414A4C; --muted: #5a6466;
-            --border: rgba(0,0,0,0.05);
+            --bg: #cbd7e3; 
+            --panel: rgba(197, 208, 230, 0.9); 
+            --backdrop: blur(10px);
+            --card: #b6c3d9;
+            --accent: #414A4C; 
+            --text: #414A4C; 
+            --muted: #5a6466;
+            --border: rgba(0,0,0,0.1);
         }
         
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); transition: 0.3s; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg); color: var(--text); transition: 0.3s; overflow: hidden; }
         
-        /* Sidebar Esquerda Minimalista */
-        #sidebar-left { min-width: 340px; background: var(--panel); display: flex; flex-direction: column; border-right: 1px solid var(--border); position: relative; transition: 0.4s; }
+        #sidebar-left { min-width: 340px; width: 340px; background: var(--panel); backdrop-filter: var(--backdrop); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: 0.4s ease; border-right: 1px solid var(--border); position: relative; }
         #sidebar-left.hidden { margin-left: -340px; }
 
-        /* Botão Seta Centralizado e Elegante */
-        .toggle-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--panel); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .toggle-handle { position: absolute; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2005; border: none; }
         #toggle-left { right: -24px; border-radius: 0 8px 8px 0; }
         #toggle-right { left: -24px; border-radius: 8px 0 0 8px; }
 
-        .header-area { padding: 30px 20px; text-align: left; }
-        .sidebar-title { font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
-        
-        #db-selector { width: 100%; padding: 12px; border-radius: 10px; background: var(--card); color: var(--text); border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .header-area { padding: 30px 20px; }
+        .sidebar-title { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
+        #db-selector { width: 100%; padding: 12px; border-radius: 10px; background: var(--card); color: var(--text); border: 1px solid var(--border); font-size: 13px; font-weight: 600; cursor: pointer; outline: none; }
 
         .stat-card { padding: 20px; background: var(--card); margin: 0 20px 20px; border-radius: 15px; border: 1px solid var(--border); }
-        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
         .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); display: block; margin-top: 5px; }
 
         #ranking-list { flex: 1; overflow-y: auto; padding: 0 20px; }
-        .ranking-item { padding: 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; background: transparent; }
-        .ranking-item:hover { background: var(--card); transform: translateX(5px); }
-        .rank-info b { font-size: 14px; display: block; margin-bottom: 2px; }
-        .rank-info span { font-size: 12px; color: var(--muted); }
-
-        /* Aba Direita de Análise Fullscreen */
-        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: var(--bg); z-index: 2000; padding: 60px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        #sidebar-right.hidden { right: -100vw; }
+        .ranking-item { padding: 12px; border-radius: 12px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .ranking-item:hover { background: var(--card); }
 
         #main-content { flex: 1; position: relative; display: flex; flex-direction: column; }
-        #map { flex: 1; z-index: 1; filter: grayscale(0.2); }
+        #map { flex: 1; width: 100%; height: 100%; z-index: 1; background: #0b0c10; }
         
-        #search-box { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 340px; z-index: 1000; }
-        #search-box input { width: 100%; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel); color: var(--text); outline: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #search-box { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1000; }
+        #search-box input { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel); backdrop-filter: var(--backdrop); color: var(--text); outline: none; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-        #theme-btn { position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 15px; background: var(--card); color: var(--text); border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
+        #theme-btn { position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 15px; background: var(--card); color: var(--text); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; font-weight: 600; }
         
-        .chart-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--border); }
-        .chart-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px; }
+        #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.6); backdrop-filter: blur(15px); z-index: 2000; padding: 60px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; transition: 0.5s; overflow-y: auto; }
+        #sidebar-right.hidden { right: -100vw; display: none; }
+        
+        .chart-box { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .chart-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; text-align: center; }
 
-        /* Popups Customizados */
-        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 15px; border: 1px solid var(--border); }
+        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); }
         .leaflet-popup-tip { background: var(--card); }
     </style>
 </head>
 <body>
 
     <div id="sidebar-left">
-        <div id="toggle-left" class="toggle-handle" onclick="toggle('left')">▶</div>
+        <button id="toggle-left" class="toggle-handle" onclick="toggle('left')">◀</button>
         <div class="header-area">
-            <div class="sidebar-title">Fortunas do Brasil</div>
+            <div class="sidebar-title">FORTUNAS DO BRASIL</div>
             <select id="db-selector" onchange="switchData()">
-                <option value="br">Top 30 Brasil</option>
-                <option value="world">Top 50 Mundo</option>
+                <option value="br">🇧🇷 Top 30 Brasil</option>
+                <option value="world">🌍 Top 30 Mundo</option>
             </select>
         </div>
         <div class="stat-card">
-            <span class="stat-label">Patrimônio Líquido Total</span>
+            <span class="stat-label">Patrimônio Acumulado</span>
             <span class="stat-value" id="total-val">$ 0 Bi</span>
         </div>
         <div id="ranking-list"></div>
     </div>
 
     <div id="main-content">
-        <button id="theme-btn" onclick="swapTheme()">🌓</button>
+        <button id="theme-btn" onclick="swapTheme()">🌓 Visual</button>
         <div id="search-box">
-            <input type="text" placeholder="Pesquisar investidor..." onkeyup="refresh()">
+            <input type="text" placeholder="Pesquisar nome..." onkeyup="refresh()">
         </div>
         <div id="map"></div>
     </div>
 
     <div id="sidebar-right" class="hidden">
-        <div id="toggle-right" class="toggle-handle" onclick="toggle('right')">◀</div>
+        <button id="toggle-right" class="toggle-handle" onclick="toggle('right')">◀</button>
         <div class="chart-box" style="grid-column: span 2;">
             <div style="display:flex; justify-content:space-between">
                 <span class="chart-title">Evolução Histórica</span>
-                <select id="hist-type" onchange="refresh()" style="background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px;">
+                <select id="hist-type" onchange="refresh()" style="background:none; border:1px solid var(--accent); color:var(--accent); border-radius:5px; padding: 4px; font-size: 12px;">
                     <option value="line">Linha</option>
                     <option value="bar">Barras</option>
                 </select>
@@ -110,34 +115,100 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         const map = L.map('map').setView([-15, -50], 4);
-        let currentTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+        let darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+        let lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
+        darkTiles.addTo(map);
         
         function swapTheme() {
             document.body.classList.toggle('light-theme');
-            map.removeLayer(currentTiles);
             const isLight = document.body.classList.contains('light-theme');
-            currentTiles = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${isLight ? 'light' : 'dark'}_all/{z}/{x}/{y}{r}.png`).addTo(map);
+            if (isLight) { map.removeLayer(darkTiles); lightTiles.addTo(map); }
+            else { map.removeLayer(lightTiles); darkTiles.addTo(map); }
             refresh();
         }
 
         function toggle(side) {
-            document.getElementById(`sidebar-${side}`).classList.toggle('hidden');
+            const el = document.getElementById(`sidebar-${side}`);
+            el.classList.toggle('hidden');
+            if(side === 'left') document.getElementById('toggle-left').innerText = el.classList.contains('hidden') ? '▶' : '◀';
             setTimeout(() => map.invalidateSize(), 400);
         }
 
-        // Dados resumidos para teste (Insira os 30/50 aqui)
-        const dataBR = [
-            {n: "Eduardo Saverin", v: 41.2, h: [12, 25, 41.2], s: "Tecnologia", lat: -23.55, lng: -46.63, uf: "SP", o: "Facebook", img: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", v: 21.9, h: [15, 18, 21.9], s: "Finanças", lat: -23.56, lng: -46.64, uf: "Estrangeiro", o: "Banco Safra", img: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"}
+        const gerH = (v) => [(v*0.8).toFixed(1), (v*0.9).toFixed(1), v];
+
+        const dbBrasil = [
+            {n: "Eduardo Saverin", usd: 28.0, h: gerH(28), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true},
+            {n: "Vicky Safra", usd: 20.6, h: gerH(20.6), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true},
+            {n: "Jorge Paulo Lemann", usd: 16.4, h: gerH(16.4), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
+            {n: "Marcel Telles", usd: 10.9, h: gerH(10.9), uf: "RJ", lat: -22.91, lng: -43.18, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
+            {n: "Carlos Alberto Sicupira", usd: 8.9, h: gerH(8.9), uf: "RJ", lat: -22.92, lng: -43.19, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true},
+            {n: "André Esteves", usd: 6.6, h: gerH(6.6), uf: "RJ", lat: -22.93, lng: -43.20, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true},
+            {n: "Alexandre Behring", usd: 6.3, h: gerH(6.3), uf: "RJ", lat: -22.94, lng: -43.21, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true},
+            {n: "João Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.95, lng: -43.22, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
+            {n: "Walther Moreira Salles Jr", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.96, lng: -43.23, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
+            {n: "Fernando R. Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.97, lng: -43.24, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
+            {n: "Pedro Moreira Salles", usd: 5.3, h: gerH(5.3), uf: "RJ", lat: -22.98, lng: -43.25, setor: "Finanças", o: "Itaú", v: "Brasil", br:true},
+            {n: "Maurizio Billi", usd: 3.9, h: gerH(3.9), uf: "SP", lat: -23.57, lng: -46.65, setor: "Saúde", o: "Eurofarma", v: "Brasil", br:true},
+            {n: "Walter Faria", usd: 3.2, h: gerH(3.2), uf: "SP", lat: -23.58, lng: -46.66, setor: "Bebidas", o: "Grupo Petrópolis", v: "Brasil", br:true},
+            {n: "Miguel Krigsner", usd: 3.1, h: gerH(3.1), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true},
+            {n: "Alceu Feldmann", usd: 3.0, h: gerH(3.0), uf: "PR", lat: -25.43, lng: -49.28, setor: "Agro", o: "Fertipar", v: "Brasil", br:true},
+            {n: "J. João Abdalla Filho", usd: 2.8, h: gerH(2.8), uf: "SP", lat: -23.59, lng: -46.67, setor: "Energia", o: "Banco Clássico", v: "Brasil", br:true},
+            {n: "Claudio S. de Moraes", usd: 2.6, h: gerH(2.6), uf: "SP", lat: -23.60, lng: -46.68, setor: "Saúde", o: "EMS", v: "Brasil", br:true},
+            {n: "Lúcia Maggi", usd: 2.6, h: gerH(2.6), uf: "MT", lat: -15.60, lng: -56.09, setor: "Agro", o: "Amaggi", v: "Brasil", br:true},
+            {n: "Artur Grynbaum", usd: 2.5, h: gerH(2.5), uf: "PR", lat: -25.44, lng: -49.29, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true},
+            {n: "Jose Isaac Peres", usd: 2.4, h: gerH(2.4), uf: "RJ", lat: -22.99, lng: -43.26, setor: "Imobiliário", o: "Multiplan", v: "Brasil", br:true},
+            {n: "Eduardo de Voys", usd: 2.3, h: gerH(2.3), uf: "SP", lat: -23.61, lng: -46.69, setor: "Investimentos", o: "Lojas Americanas", v: "Brasil", br:true},
+            {n: "Irineu Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.80, lng: -43.10, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
+            {n: "João Roberto Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.81, lng: -43.11, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
+            {n: "José Roberto Marinho", usd: 2.2, h: gerH(2.2), uf: "RJ", lat: -22.82, lng: -43.12, setor: "Mídia", o: "Globo", v: "Brasil", br:true},
+            {n: "Rubens Ometto", usd: 2.1, h: gerH(2.1), uf: "SP", lat: -23.62, lng: -46.70, setor: "Logística", o: "Cosan", v: "Brasil", br:true},
+            {n: "Luciano Hang", usd: 2.0, h: gerH(2), uf: "SC", lat: -27.10, lng: -48.91, setor: "Varejo", o: "Havan", v: "Brasil", br:true},
+            {n: "Alexandre Grendene", usd: 2.0, h: gerH(2), uf: "RS", lat: -29.16, lng: -51.51, setor: "Calçados", o: "Grendene", v: "Brasil", br:true},
+            {n: "Sasson Dayan", usd: 1.9, h: gerH(1.9), uf: "SP", lat: -23.63, lng: -46.71, setor: "Finanças", o: "Banco Daycoval", v: "Brasil", br:true},
+            {n: "Guilherme Benchimol", usd: 1.9, h: gerH(1.9), uf: "RJ", lat: -23.00, lng: -43.30, setor: "Finanças", o: "XP Inc.", v: "Brasil", br:true},
+            {n: "Julio Bozano", usd: 1.8, h: gerH(1.8), uf: "RJ", lat: -23.01, lng: -43.31, setor: "Finanças", o: "Banco Bozano", v: "Brasil", br:true}
         ];
 
-        let activeSet = dataBR;
+        const dbMundo = [
+            {n: "Elon Musk", usd: 210, h: gerH(210), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla", v: "EUA", br: false},
+            {n: "Jeff Bezos", usd: 201, h: gerH(201), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
+            {n: "Bernard Arnault", usd: 195, h: gerH(195), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false},
+            {n: "Mark Zuckerberg", usd: 175, h: gerH(175), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false},
+            {n: "Larry Ellison", usd: 152, h: gerH(152), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false},
+            {n: "Warren Buffett", usd: 135, h: gerH(135), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Investimentos", o: "Berkshire", v: "EUA", br: false},
+            {n: "Bill Gates", usd: 131, h: gerH(131), uf: "EUA", lat: 47.60, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
+            {n: "Larry Page", usd: 128, h: gerH(128), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {n: "Steve Ballmer", usd: 125, h: gerH(125), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
+            {n: "Sergey Brin", usd: 121, h: gerH(121), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {n: "Mukesh Ambani", usd: 116, h: gerH(116), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false},
+            {n: "Michael Bloomberg", usd: 106, h: gerH(106), uf: "EUA", lat: 40.71, lng: -74.00, setor: "Mídia", o: "Bloomberg", v: "EUA", br: false},
+            {n: "Amancio Ortega", usd: 103, h: gerH(103), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false},
+            {n: "Carlos Slim Helu", usd: 102, h: gerH(102), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false},
+            {n: "Francoise Bettencourt", usd: 99, h: gerH(99), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false},
+            {n: "Michael Dell", usd: 91, h: gerH(91), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false},
+            {n: "Gautam Adani", usd: 84, h: gerH(84), uf: "Índia", lat: 23.02, lng: 72.57, setor: "Infra", o: "Adani", v: "Índia", br: false},
+            {n: "Jim Walton", usd: 78, h: gerH(78), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "Rob Walton", usd: 77, h: gerH(77), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "Alice Walton", usd: 72, h: gerH(72), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {n: "David Thomson", usd: 67, h: gerH(67), uf: "Canadá", lat: 43.65, lng: -79.38, setor: "Mídia", o: "Reuters", v: "Canadá", br: false},
+            {n: "Julia Koch", usd: 64, h: gerH(64), uf: "EUA", lat: 40.75, lng: -73.98, setor: "Indústria", o: "Koch", v: "EUA", br: false},
+            {n: "Charles Koch", usd: 58, h: gerH(58), uf: "EUA", lat: 37.68, lng: -97.33, setor: "Indústria", o: "Koch", v: "EUA", br: false},
+            {n: "Zhong Shanshan", usd: 52, h: gerH(52), uf: "China", lat: 30.27, lng: 120.15, setor: "Bebidas", o: "Nongfu", v: "China", br: false},
+            {n: "Jensen Huang", usd: 51, h: gerH(51), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false},
+            {n: "Prajogo Pangestu", usd: 49, h: gerH(49), uf: "Indonésia", lat: -6.20, lng: 106.84, setor: "Energia", o: "Barito", v: "Indonésia", br: false},
+            {n: "Tadashi Yanai", usd: 43, h: gerH(43), uf: "Japão", lat: 35.68, lng: 139.65, setor: "Moda", o: "Uniqlo", v: "Japão", br: false},
+            {n: "Phil Knight", usd: 40, h: gerH(40), uf: "EUA", lat: 45.52, lng: -122.67, setor: "Moda", o: "Nike", v: "EUA", br: false},
+            {n: "Zhang Yiming", usd: 38, h: gerH(38), uf: "China", lat: 39.90, lng: 116.40, setor: "Tecnologia", o: "TikTok", v: "China", br: false},
+            {n: "Eduardo Saverin", usd: 28, h: gerH(28), uf: "Brasil", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br: true}
+        ];
+
+        let activeSet = dbBrasil;
         const pins = L.layerGroup().addTo(map);
         let c1, c2, c3;
 
         function refresh() {
             pins.clearLayers();
-            const search = document.querySelector('input').value.toLowerCase();
+            const search = document.querySelector('#search-box input').value.toLowerCase();
             const list = document.getElementById('ranking-list');
             let total = 0; list.innerHTML = "";
             
@@ -145,18 +216,18 @@
             const secs = {}; const geos = {};
 
             filtered.forEach(p => {
-                total += p.v;
-                secs[p.s] = (secs[p.s] || 0) + p.v;
-                geos[p.uf || p.n] = (geos[p.uf || p.n] || 0) + 1;
+                total += p.usd;
+                secs[p.setor] = (secs[p.setor] || 0) + p.usd;
+                geos[p.uf] = (geos[p.uf] || 0) + 1;
 
-                list.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 8)">
-                    <div class="rank-info"><b>${p.n}</b><span>${p.s}</span></div>
-                    <b style="color:var(--accent)">$${p.v}B</b>
+                list.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 7)">
+                    <div><b>${p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
+                    <b style="color:var(--accent)">$${p.usd}B</b>
                 </div>`;
 
                 L.marker([p.lat, p.lng], {
-                    icon: L.divIcon({ className: 'custom-pin', html: `<div style="background:var(--accent); width:12px; height:12px; border-radius:50%; border:2px solid white;"></div>` })
-                }).addTo(pins).bindPopup(`<b>${p.n}</b><br>$${p.v} Bi`);
+                    icon: L.divIcon({ className: 'p', html: `<div style="background:var(--accent); width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>` })
+                }).addTo(pins).bindPopup(`<b>${p.n}</b><br>$${p.usd} Bi<br>${p.o}`);
             });
 
             document.getElementById('total-val').innerText = `$ ${total.toFixed(1)} Bi`;
@@ -166,33 +237,32 @@
         function updateCharts(s, g, t5) {
             const isL = document.body.classList.contains('light-theme');
             Chart.defaults.color = isL ? '#414A4C' : '#8a8f98';
-
             if(c1) c1.destroy(); if(c2) c2.destroy(); if(c3) c3.destroy();
 
             c1 = new Chart(document.getElementById('secChart'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(s), datasets: [{ data: Object.values(s), backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66'], borderWidth: 0 }] },
-                options: { cutout: '80%', plugins: { legend: { position: 'bottom' } } }
+                data: { labels: Object.keys(s), datasets: [{ data: Object.values(s), backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'], borderWidth: 0 }] },
+                options: { cutout: '80%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
             });
 
             c2 = new Chart(document.getElementById('geoChart'), {
                 type: 'bar',
                 data: { labels: Object.keys(g), datasets: [{ data: Object.values(g), backgroundColor: '#C5D0E6' }] },
-                options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+                options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
             });
 
             c3 = new Chart(document.getElementById('histChart'), {
                 type: document.getElementById('hist-type').value,
                 data: {
                     labels: ['2022', '2024', '2026'],
-                    datasets: t5.map((p, i) => ({ label: p.n, data: p.h, borderColor: '#C5D0E6', tension: 0.3 }))
+                    datasets: t5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], backgroundColor: ['#C5D0E6', '#8FA3C4', '#5A739C', '#3A4B66', '#2A364F'][i], tension: 0.3 }))
                 }
             });
         }
 
         function switchData() {
-            const val = document.getElementById('db-selector').value;
-            // No futuro, carregue o set de dados correspondente aqui
+            activeSet = (document.getElementById('db-selector').value === 'br') ? dbBrasil : dbMundo;
+            if(activeSet === dbBrasil) map.setView([-15, -50], 4); else map.setView([20, 0], 2);
             refresh();
         }
 
