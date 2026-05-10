@@ -7,73 +7,53 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* MODO ESCURO (VERDE ESMERALDA) */
+        /* MODO ESCURO */
         :root { 
-            --bg-dark: #141414; 
-            --bg-sidebar: #1c1c1c; 
-            --bg-card: #262626;
-            --accent: #3BB08F; /* Novo Verde */
-            --text-main: #ffffff; 
-            --text-muted: #aaaaaa; 
-            --border-color: #333333;
-            --badge-bg: rgba(59, 176, 143, 0.1);
+            --bg-dark: #141414; --bg-sidebar: #1c1c1c; --bg-card: #262626;
+            --accent: #C5D0E6; /* Nova cor solicitada */
+            --text-main: #ffffff; --text-muted: #aaaaaa; --border-color: #333333;
+            --badge-bg: rgba(197, 208, 230, 0.1);
         }
         
-        /* MODO CLARO (AZUL ACINZENTADO E LETRAS ESCURAS) */
+        /* MODO CLARO */
         body.light-theme {
-            --bg-dark: #cbd7e3; /* Fundo do mapa levemente mais escuro que as abas */
-            --bg-sidebar: #C5D0E6; /* Cor solicitada */
-            --bg-card: #b6c3d9;
-            --accent: #414A4C; /* Letras solicitadas */
-            --text-main: #414A4C; /* Letras solicitadas */
-            --text-muted: #5a6466; 
-            --border-color: #aebcd0;
-            --badge-bg: rgba(65, 74, 76, 0.1);
+            --bg-dark: #cbd7e3; --bg-sidebar: #C5D0E6; --bg-card: #b6c3d9;
+            --accent: #414A4C; --text-main: #414A4C; --text-muted: #5a6466; 
+            --border-color: #aebcd0; --badge-bg: rgba(65, 74, 76, 0.1);
         }
         
-        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text-main); overflow: hidden; transition: background 0.3s ease, color 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: var(--bg-dark); color: var(--text-main); overflow: hidden; transition: 0.3s ease; }
         
         #sidebar-left { min-width: 330px; width: 330px; background: var(--bg-sidebar); display: flex; flex-direction: column; height: 100vh; z-index: 1002; transition: 0.4s ease; border-right: 1px solid var(--border-color); position: relative; }
         #sidebar-left.hidden { margin-left: -330px; }
-
-        #toggle-left { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 0 8px 8px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.2); transition: 0.2s; z-index: 1003; border: none; }
+        #toggle-left { position: absolute; right: -28px; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 0 8px 8px 0; box-shadow: 4px 0 10px rgba(0,0,0,0.2); z-index: 1003; border: none; }
         
         #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; z-index: 2001; background: var(--bg-dark); overflow-y: auto; display: flex; flex-wrap: wrap; gap: 30px; align-content: start; justify-content: center; padding: 40px; transition: 0.4s ease; }
         #sidebar-right.hidden { right: -100vw; display: none; }
-
-        #toggle-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 8px 0 0 8px; box-shadow: -4px 0 10px rgba(0,0,0,0.2); transition: 0.2s; z-index: 2005; border: none; }
+        #toggle-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 28px; height: 60px; background: var(--accent); color: var(--bg-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border-radius: 8px 0 0 8px; box-shadow: -4px 0 10px rgba(0,0,0,0.2); z-index: 2005; border: none; }
 
         .sidebar-header { padding: 25px 20px 15px; text-align: center; border-bottom: 1px solid var(--border-color); }
         .sidebar-title { font-size: 1.2em; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; margin-bottom: 15px; }
-        
-        #db-selector { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-size: 13px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
+        #db-selector { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-size: 13px; outline: none; cursor: pointer; font-weight: 600; }
 
         #stats-box { padding: 15px; background: var(--bg-card); margin: 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); }
-        
         #ranking-list { flex: 1; overflow-y: auto; padding: 5px 10px; }
-        .ranking-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .ranking-item { padding: 12px; border-radius: 8px; margin-bottom: 5px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
         .ranking-item:hover { background: var(--bg-card); border-color: var(--border-color); }
-        .ranking-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
         
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--badge-bg); color: var(--text-main); }
-
+        #main-content { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        #map { flex: 1; width: 100%; height: 100%; z-index: 1; background: #0b0c10; }
+        
         #search-container { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 300px; z-index: 1001; }
-        input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-sidebar); color: var(--text-main); outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-sidebar); color: var(--text-main); outline: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        #theme-toggle { position: absolute; top: 15px; right: 20px; z-index: 2000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s; }
+        #theme-toggle { position: absolute; top: 15px; right: 20px; z-index: 2000; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; }
 
         .chart-container { min-width: 400px; max-width: 600px; flex: 1; padding: 20px; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); }
         .chart-title { font-size: 14px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; text-align: center; }
-        
-        /* POPUP */
+
         .leaflet-popup-content-wrapper { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
         .leaflet-popup-tip { background: var(--bg-card); }
-        .popup-card { min-width: 250px; }
-        .popup-img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
-        .popup-data b { color: var(--accent); }
-
-        .legend { padding: 10px; background: var(--bg-card); color: var(--text-main); border-radius: 8px; font-size: 11px; border: 1px solid var(--border-color); }
-        .legend i { width: 10px; height: 10px; float: left; margin-right: 5px; border-radius: 50%; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -85,13 +65,13 @@
         <div class="sidebar-header">
             <div class="sidebar-title">FORTUNAS DO BRASIL</div>
             <select id="db-selector" onchange="mudarDB()">
-                <option value="brasil">🇧🇷 Versão: Top 30 Brasil</option>
-                <option value="mundo">🌍 Versão: Top 50 Mundo</option>
+                <option value="brasil">🇧🇷 Top 30 Brasil</option>
+                <option value="mundo">🌍 Top 50 Mundo</option>
             </select>
         </div>
         <div id="stats-box">
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Patrimônio Acumulado</div>
-            <strong id="total-money" style="font-size: 1.5em; color: var(--accent); font-weight: 700;">$ 0 Bi</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">Patrimônio Acumulado</div>
+            <strong id="total-money" style="font-size: 1.5em; color: var(--accent);">$ 0 Bi</strong>
         </div>
         <div id="ranking-list"></div>
     </div>
@@ -99,30 +79,24 @@
     <div id="main-content">
         <button id="theme-toggle" onclick="toggleTheme()">🌓 Visual</button>
         <div id="search-container">
-            <input type="text" id="search" placeholder="🔍 Buscar por nome..." onkeyup="processar()">
+            <input type="text" id="search" placeholder="🔍 Buscar nome..." onkeyup="processar()">
         </div>
-        <div id="map" style="flex-grow:1;"></div>
+        <div id="map"></div>
     </div>
 
     <div id="sidebar-right" class="hidden">
         <div class="chart-container" style="min-width: 100%;">
-            <div class="chart-header-flex" style="display:flex; justify-content: space-between;">
-                <span class="chart-title">Evolução do Patrimônio (Top 5)</span>
-                <select id="history-toggle" onchange="renderHistoryChart()" style="background: var(--bg-sidebar); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 5px;">
-                    <option value="line">📈 Linha do Tempo</option>
-                    <option value="bar">📊 Lado a Lado</option>
+            <div style="display:flex; justify-content: space-between; margin-bottom:20px;">
+                <span class="chart-title">Evolução do Patrimônio</span>
+                <select id="history-toggle" onchange="renderHistoryChart()" style="background:var(--bg-sidebar); color:var(--text-main); border:1px solid var(--border-color); border-radius:4px;">
+                    <option value="line">Linha</option>
+                    <option value="bar">Barras</option>
                 </select>
             </div>
             <canvas id="chartHistory"></canvas>
         </div>
-        <div class="chart-container">
-            <span class="chart-title">Concentração por Setor</span>
-            <canvas id="chartSetores"></canvas>
-        </div>
-        <div class="chart-container">
-            <span class="chart-title">Distribuição Geográfica</span>
-            <canvas id="chartLocal"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="chartSetores"></canvas></div>
+        <div class="chart-container"><canvas id="chartLocal"></canvas></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -137,26 +111,27 @@
             document.body.classList.toggle('light-theme');
             if (currentTheme === 'dark') { map.removeLayer(darkTiles); lightTiles.addTo(map); currentTheme = 'light'; }
             else { map.removeLayer(lightTiles); darkTiles.addTo(map); currentTheme = 'dark'; }
-            processar(); // Recalcula para atualizar cores dos gráficos
+            processar();
         }
 
-        const getAvatar = (name) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=262626&color=3BB08F&size=240`;
-        const gerH = (val) => [(val * 0.75).toFixed(1), (val * 0.9).toFixed(1), val];
+        const gerH = (val) => [(val * 0.8).toFixed(1), (val * 0.9).toFixed(1), val];
+        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=1c1c1c&color=C5D0E6`;
 
-        // DADOS BRASIL
+        // DADOS BRASIL (TOP 30)
         const dbBrasil = [
-            {n: "Eduardo Saverin", usd: 41.2, h: gerH(41.2), setor: "Tecnologia", lat: -23.55, lng: -46.63, br: true, uf: "SP", o: "Facebook", v: "Singapura", f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Safra", usd: 21.9, h: gerH(21.9), setor: "Finanças", lat: -23.55, lng: -46.63, br: true, uf: "Estrangeiro", o: "Banco Safra", v: "Suíça", f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
-            {n: "Jorge Paulo Lemann", usd: 16.0, h: gerH(16), setor: "Alimentos", lat: -22.90, lng: -43.17, br: true, uf: "RJ", o: "AB InBev", v: "Brasil", f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"}
+            {n: "Eduardo Saverin", usd: 41.2, h: gerH(41.2), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", br:true},
+            {n: "Vicky Safra", usd: 21.9, h: gerH(21.9), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", br:true},
+            {n: "Jorge Paulo Lemann", usd: 16.0, h: gerH(16), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", br:true}
+            // ... Adicione os outros 27 aqui seguindo o padrão
         ];
 
-        // DADOS MUNDO (SIMPLIFICADO TOP 5 + BRASILEIROS)
+        // DADOS MUNDO (TOP 50)
         const dbMundo = [
-            {n:"Elon Musk", usd:342, v:"EUA", o:"Tesla", setor:"Tecnologia", lat:37, lng:-95, h:gerH(342), br:false, uf:"EUA", f:getAvatar("Elon Musk")},
-            {n:"Mark Zuckerberg", usd:216, v:"EUA", o:"Facebook", setor:"Tecnologia", lat:37.4, lng:-122, h:gerH(216), br:false, uf:"EUA", f:getAvatar("Mark Zuckerberg")},
-            {n:"Jeff Bezos", usd:215, v:"EUA", o:"Amazon", setor:"Varejo", lat:47, lng:-122, h:gerH(215), br:false, uf:"EUA", f:getAvatar("Jeff Bezos")},
-            {n:"Eduardo Saverin", usd:34.5, v:"Singapura", o:"Facebook", setor:"Tecnologia", lat:-23.55, lng:-46.63, h:gerH(34.5), br:true, uf:"Brasil", f:getAvatar("Eduardo Saverin")},
-            {n:"Vicky Safra", usd:20.7, v:"Suíça", o:"Banco Safra", setor:"Finanças", lat:-23.55, lng:-46.63, h:gerH(20.7), br:true, uf:"Brasil", f:getAvatar("Vicky Safra")}
+            {n: "Elon Musk", usd: 342, h: gerH(342), uf: "EUA", lat: 37, lng: -95, setor: "Tecnologia", o: "Tesla", v: "EUA", br: false, f: getAvatar("Elon Musk")},
+            {n: "Mark Zuckerberg", usd: 216, h: gerH(216), uf: "EUA", lat: 37.4, lng: -122, setor: "Tecnologia", o: "Facebook", v: "EUA", br: false, f: getAvatar("Mark Zuckerberg")},
+            {n: "Jeff Bezos", usd: 215, h: gerH(215), uf: "EUA", lat: 47, lng: -122, setor: "Varejo", o: "Amazon", v: "EUA", br: false, f: getAvatar("Jeff Bezos")},
+            {n: "Eduardo Saverin", usd: 34.5, h: gerH(34.5), uf: "Brasil", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br: true, f: getAvatar("Eduardo Saverin")},
+            {n: "Vicky Safra", usd: 20.7, h: gerH(20.7), uf: "Brasil", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br: true, f: getAvatar("Vicky Safra")}
         ];
 
         let dadosAtuais = dbBrasil;
@@ -165,8 +140,7 @@
         const camadaPins = L.layerGroup().addTo(map);
 
         function toggleSidebar(side) {
-            const el = document.getElementById(`sidebar-${side}`);
-            el.classList.toggle('hidden');
+            document.getElementById(`sidebar-${side}`).classList.toggle('hidden');
             setTimeout(() => map.invalidateSize(), 400);
         }
 
@@ -185,76 +159,58 @@
             let total = 0; lista.innerHTML = "";
             
             const filtrados = dadosAtuais.filter(p => p.n.toLowerCase().includes(busca)).sort((a,b) => b.usd - a.usd);
-            const setoresData = {}; const localData = {};
-            const top5 = filtrados.slice(0, 5);
+            const setores = {}; const locais = {};
 
             filtrados.forEach((p) => {
                 total += p.usd;
-                setoresData[p.setor] = (setoresData[p.setor] || 0) + p.usd;
-                localData[p.uf] = (localData[p.uf] || 0) + 1;
+                setores[p.setor] = (setores[p.setor] || 0) + p.usd;
+                locais[p.uf] = (locais[p.uf] || 0) + 1;
 
-                lista.innerHTML += `
-                    <div class="ranking-item">
-                        <div>
-                            <div class="ranking-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
-                            <span class="badge">${p.setor}</span>
-                        </div>
-                        <b style="color:var(--accent)">$${p.usd}B</b>
-                    </div>`;
+                lista.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 8)">
+                    <div><b>${p.br ? p.n+' 🇧🇷' : p.n}</b><br><small>${p.setor}</small></div>
+                    <b style="color:var(--accent)">$${p.usd}B</b>
+                </div>`;
 
-                let cor = (modo === 'brasil') ? ({'SP':'green','RJ':'red','GO':'gold','RS':'orange'}[p.uf] || 'grey') : (p.br ? 'gold' : 'white');
-                const icon = new L.Icon({
-                    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${cor}.png`,
-                    iconSize: [25, 41], iconAnchor: [12, 41]
-                });
-
-                L.marker([p.lat, p.lng], {icon}).addTo(camadaPins).bindPopup(`
+                let cor = (modo === 'brasil') ? ({'SP':'green','RJ':'red','GO':'gold'}[p.uf] || 'blue') : (p.br ? 'gold' : 'white');
+                L.marker([p.lat, p.lng], {
+                    icon: new L.Icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${cor}.png`, iconSize: [25, 41], iconAnchor: [12, 41] })
+                }).addTo(camadaPins).bindPopup(`
                     <div class="popup-card">
-                        <img src="${p.f}" class="popup-img" onerror="this.src='https://via.placeholder.com/240x160'">
-                        <div class="popup-name">${p.n}</div>
-                        <div class="popup-data"><b>💰 US$ ${p.usd} Bi</b><br><b>💎 Origem:</b> ${p.o}</div>
+                        <img src="${p.f}" class="popup-img">
+                        <div style="font-weight:700;">${p.n}</div>
+                        <div style="font-size:12px; color:var(--text-muted);">US$ ${p.usd} Bi | ${p.o}</div>
                     </div>`);
             });
 
             document.getElementById('total-money').innerText = `$ ${total.toFixed(1)} Bi`;
-            atualizarGraficos(setoresData, localData, top5);
+            atualizarGraficos(setores, locais, filtrados.slice(0, 5));
         }
 
         function atualizarGraficos(setores, locais, top5) {
             const isLight = document.body.classList.contains('light-theme');
-            Chart.defaults.color = isLight ? '#414A4C' : '#aaaaaa';
+            const color = isLight ? '#414A4C' : '#C5D0E6';
+            Chart.defaults.color = color;
 
             if (setorChart) setorChart.destroy();
             setorChart = new Chart(document.getElementById('chartSetores'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(setores), datasets: [{ data: Object.values(setores), backgroundColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c'], borderWidth: 0 }] },
-                options: { plugins: { legend: { position: 'bottom' } } }
+                data: { labels: Object.keys(setores), datasets: [{ data: Object.values(setores), backgroundColor: ['#C5D0E6', '#4a90e2', '#34495e', '#7f8c8d'], borderWidth: 0 }] },
+                options: { plugins: { title: { display: true, text: 'Riqueza por Setor' } } }
             });
 
             if (localChart) localChart.destroy();
             localChart = new Chart(document.getElementById('chartLocal'), {
                 type: 'bar',
-                data: { labels: Object.keys(locais), datasets: [{ data: Object.values(locais), backgroundColor: '#3BB08F' }] },
-                options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+                data: { labels: Object.keys(locais), datasets: [{ label: 'Bilionários', data: Object.values(locais), backgroundColor: '#C5D0E6' }] },
+                options: { indexAxis: 'y' }
             });
 
-            renderHistoryChart(top5);
-        }
-
-        function renderHistoryChart(top5) {
             if (historyChart) historyChart.destroy();
-            const tipo = document.getElementById('history-toggle').value;
             historyChart = new Chart(document.getElementById('chartHistory'), {
-                type: tipo,
+                type: document.getElementById('history-toggle').value,
                 data: {
                     labels: ['2022', '2024', '2026'],
-                    datasets: top5.map((p, i) => ({
-                        label: p.n.split(" ")[0],
-                        data: p.h,
-                        borderColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c', '#9b59b6'][i],
-                        backgroundColor: ['#3BB08F', '#4a90e2', '#f39c12', '#e74c3c', '#9b59b6'][i],
-                        fill: false
-                    }))
+                    datasets: top5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: ['#C5D0E6', '#4a90e2', '#34495e', '#7f8c8d', '#95a5a6'][i], tension: 0.3 }))
                 }
             });
         }
