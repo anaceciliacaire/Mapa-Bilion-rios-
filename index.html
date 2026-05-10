@@ -28,8 +28,7 @@
         #toggle-sidebar { position: absolute; right: -28px; top: 20px; width: 28px; height: 60px; background: var(--accent); color: #000; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 8px 8px 0; font-weight: bold; z-index: 2000; box-shadow: 4px 0 10px rgba(0,0,0,0.3); font-size: 16px; transition: 0.2s;}
         #toggle-sidebar:hover { background: #00b55b; width: 32px; right: -32px; }
         
-        .sidebar-header { padding: 30px 20px 20px; background: var(--bg-sidebar); text-align: center; font-weight: 700; color: var(--text-main); letter-spacing: 0.5px; font-size: 1.1em; border-bottom: 1px solid var(--border-color); }
-        .sidebar-header span { color: var(--accent); }
+        .sidebar-header { padding: 30px 20px 20px; background: var(--bg-sidebar); text-align: center; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; font-size: 1.1em; border-bottom: 1px solid var(--border-color); }
         
         #stats-box { padding: 18px; background: var(--bg-card); margin: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
@@ -81,7 +80,7 @@
 
     <div id="sidebar">
         <div id="toggle-sidebar" onclick="toggleSidebar()"> ◀ </div>
-        <div class="sidebar-header">FORBES <span>BRASIL</span></div>
+        <div class="sidebar-header">FORTUNAS DO BRASIL</div>
         <div id="stats-box">
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Patrimônio Exibido</div>
             <strong id="total-money" style="font-size: 1.6em; color: var(--accent); font-weight: 700;">R$ 0 Bi</strong>
@@ -157,7 +156,6 @@
 
         const coresPins = { 'SP': 'green', 'RJ': 'red', 'GO': 'gold', 'RS': 'orange', 'SC': 'violet', 'CE': 'grey', 'Estrangeiro': 'blue' };
 
-        // DADOS COM "SETOR" ADICIONADO PARA CADA UM
         const dados = [
             {n: "Eduardo Saverin", uf: "SP", r: 227, usd: 41.2, o: "Facebook", v: "Singapura", e: "Meta, B Capital", setor: "Tecnologia", lat: -23.5505, lng: -46.6333, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
             {n: "Vicky Safra", uf: "Estrangeiro", r: 120.5, usd: 21.9, o: "Banco Safra", v: "Suíça", e: "J. Safra Sarasin", setor: "Finanças", lat: 37.9838, lng: 23.7275, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
