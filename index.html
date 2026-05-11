@@ -65,7 +65,6 @@
         /* --- SIDEBAR DIREITA (ANÁLISE) --- */
         #btn-open-right { position: fixed; right: 0; top: 50%; transform: translateY(-50%); width: 24px; height: 48px; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; font-weight: bold; border-radius: 8px 0 0 8px; z-index: 1001; border: none; box-shadow: -4px 0 12px rgba(0,0,0,0.2);}
 
-        /* Regras estritas para não vazar da página */
         #sidebar-right { position: fixed; top: 0; right: 0; width: 100vw; height: 100vh; background: rgba(16, 18, 20, 0.9); backdrop-filter: blur(15px); z-index: 2000; padding: 40px; display: flex; flex-direction: column; gap: 20px; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); overflow-y: auto; box-sizing: border-box; }
         body.light-theme #sidebar-right { background: rgba(197, 208, 230, 0.9); }
         #sidebar-right.active { transform: translateX(0); }
@@ -85,18 +84,7 @@
         .leaflet-popup-tip { background: var(--card); }
         .leaflet-popup-content { margin: 0; }
         .popup-card { width: 240px; position: relative; display: flex; flex-direction: column; }
-        
-        /* MUDANÇA AQUI: Foco no rosto (object-position top-biased) */
-        .popup-img { 
-            display: block; 
-            margin: 0 auto; 
-            width: 100%; 
-            height: 160px; /* Altura fixa para enquadramento facial consistente */
-            object-fit: cover; 
-            object-position: 50% 20%; /* Centraliza horizontalmente e foca no terço superior (rosto) */
-            border-bottom: 1px solid var(--border); 
-        }
-        
+        .popup-img { display: block; margin: 0 auto; width: 100%; height: 160px; object-fit: cover; object-position: 50% 20%; border-bottom: 1px solid var(--border); }
         .popup-body { padding: 15px; }
         .popup-name { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 5px; text-align: center;}
         .popup-data { font-size: 12px; line-height: 1.6; color: var(--muted); margin-top: 10px;}
@@ -184,69 +172,68 @@
         }
 
         const gerH = (v) => [(v*0.75).toFixed(1), (v*0.85).toFixed(1), v];
-        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=1c1c1c&color=C5D0E6`;
 
-        // BASE EXATA DA FORBES BRASIL 2025 (Valores em USD para gerar os BRL correspondentes no balão)
+        // BASE EXATA DA FORBES BRASIL 2025 (Localização reflete o local de nascimento)
         const dbBrasil = [
-            {n: "Eduardo Luiz Saverin", usd: 45.40, h: gerH(45.40), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
-            {n: "Vicky Sarfati Safra e família", usd: 24.10, h: gerH(24.10), uf: "Estrangeiro", lat: -23.56, lng: -46.64, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
-            {n: "Jorge Paulo Lemann", usd: 17.60, h: gerH(17.60), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Suíça", br:true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
-            {n: "André Santos Esteves", usd: 10.20, h: gerH(10.20), uf: "RJ", lat: -22.93, lng: -43.20, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
-            {n: "Fernando R. Moreira Salles", usd: 8.04, h: gerH(8.04), uf: "RJ", lat: -22.94, lng: -43.21, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
-            {n: "Carlos Alberto da Veiga Sicupira", usd: 7.82, h: gerH(7.82), uf: "RJ", lat: -22.92, lng: -43.19, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
-            {n: "Pedro Moreira Salles", usd: 7.60, h: gerH(7.60), uf: "RJ", lat: -22.95, lng: -43.22, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
-            {n: "Miguel Gellert Krigsner", usd: 6.84, h: gerH(6.84), uf: "PR", lat: -25.42, lng: -49.27, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
-            {n: "Alex Behring", usd: 6.20, h: gerH(6.20), uf: "RJ", lat: -22.98, lng: -43.25, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
-            {n: "Jorge Neval Moll Filho", usd: 6.08, h: gerH(6.08), uf: "RJ", lat: -22.99, lng: -43.26, setor: "Saúde", o: "Rede D'Or", v: "Brasil", br:true},
-            {n: "Max Van Hoegaerden H. Telles", usd: 5.86, h: gerH(5.86), uf: "SP", lat: -23.58, lng: -46.66, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "EUA", br:true},
-            {n: "Ermírio Pereira de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.59, lng: -46.67, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true},
-            {n: "Luís Ermírio de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.60, lng: -46.68, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true},
-            {n: "Maria Helena Moraes Scripilliti", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.61, lng: -46.69, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true},
-            {n: "João Moreira Salles", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.96, lng: -43.23, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
-            {n: "Walther Moreira Salles Junior", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.97, lng: -43.24, setor: "Mídia", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
-            {n: "Joesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
-            {n: "Wesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.54, lng: -47.34, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
-            {n: "Rubens Ometto", usd: 4.80, h: gerH(4.80), uf: "SP", lat: -23.62, lng: -46.70, setor: "Logística", o: "Cosan", v: "Brasil", br:true},
-            {n: "Alexandre Grendene", usd: 4.50, h: gerH(4.50), uf: "RS", lat: -29.16, lng: -51.51, setor: "Varejo", o: "Grendene", v: "Brasil", br:true},
-            {n: "Julio Bozano", usd: 4.30, h: gerH(4.30), uf: "RJ", lat: -22.80, lng: -43.10, setor: "Finanças", o: "Banco Bozano", v: "Brasil", br:true},
-            {n: "Guilherme Benchimol", usd: 4.10, h: gerH(4.10), uf: "RJ", lat: -23.00, lng: -43.30, setor: "Finanças", o: "XP Inc.", v: "Brasil", br:true},
-            {n: "Luciano Hang", usd: 4.00, h: gerH(4.00), uf: "SC", lat: -27.10, lng: -48.91, setor: "Varejo", o: "Havan", v: "Brasil", br:true},
-            {n: "Jayme Garfinkel", usd: 3.90, h: gerH(3.90), uf: "SP", lat: -23.63, lng: -46.71, setor: "Finanças", o: "Porto Seguro", v: "Brasil", br:true},
-            {n: "Mário Araripe", usd: 3.80, h: gerH(3.80), uf: "CE", lat: -7.23, lng: -39.41, setor: "Energia", o: "Casa dos Ventos", v: "Brasil", br:true},
-            {n: "João Roberto Marinho", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.81, lng: -43.11, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true},
-            {n: "José Roberto Marinho", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.82, lng: -43.12, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true},
-            {n: "Roberto Irineu Marinho", usd: 3.36, h: gerH(3.36), uf: "RJ", lat: -22.83, lng: -43.13, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true},
-            {n: "Lirio Albino Parisotto", usd: 2.82, h: gerH(2.82), uf: "RS", lat: -28.72, lng: -51.70, setor: "Indústria", o: "Videolar", v: "Brasil", br:true},
-            {n: "Marcel Herrmann Telles", usd: 2.50, h: gerH(2.50), uf: "RJ", lat: -22.91, lng: -43.18, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"}
+            {rank: 1, n: "Eduardo Saverin", usd: 45.40, h: gerH(45.40), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br:true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg"},
+            {rank: 2, n: "Vicky Safra", usd: 24.10, h: gerH(24.10), uf: "Grécia", lat: 37.98, lng: 23.72, setor: "Finanças", o: "Banco Safra", v: "Suíça", br:true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg"},
+            {rank: 3, n: "Jorge Paulo Lemann", usd: 17.60, h: gerH(17.60), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Suíça", br:true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg"},
+            {rank: 4, n: "André Santos Esteves", usd: 10.20, h: gerH(10.20), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg"},
+            {rank: 5, n: "Fernando Roberto Moreira Salles", usd: 8.04, h: gerH(8.04), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg"},
+            {rank: 6, n: "Carlos Alberto da Veiga Sicupira", usd: 7.82, h: gerH(7.82), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg"},
+            {rank: 7, n: "Pedro Moreira Salles", usd: 7.60, h: gerH(7.60), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg"},
+            {rank: 8, n: "Miguel Gellert Krigsner", usd: 6.84, h: gerH(6.84), uf: "Bolívia", lat: -16.50, lng: -68.11, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br:true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg"},
+            {rank: 9, n: "Alex Behring", usd: 6.20, h: gerH(6.20), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Investimentos", o: "3G Capital", v: "EUA", br:true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp"},
+            {rank: 10, n: "Jorge Neval Moll Filho", usd: 6.08, h: gerH(6.08), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Saúde", o: "Rede D'Or", v: "Brasil", br:true, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds"},
+            {rank: 11, n: "Max Van Hoegarden Herrmann Telles", usd: 5.86, h: gerH(5.86), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "EUA", br:true, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg"},
+            {rank: 12, n: "Ermírio Pereira de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true, f: "https://geneall.net/images/names/pes_1072027.jpg"},
+            {rank: 13, n: "Luís Ermírio de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true, f: "https://cdn-sites-assets.mziq.com/wp-content/uploads/sites/918/2022/02/luis-ermirio.jpg"},
+            {rank: 14, n: "Maria Helena Moraes Scripilliti", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br:true, f: "https://marciatravessoni.com.br/wp-content/uploads/2021/09/Maria-Helena-Moraes-Scripilliti.jpg"},
+            {rank: 15, n: "João Moreira Salles", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg"},
+            {rank: 16, n: "Walther Moreira Salles Junior", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Itaú Unibanco, CBMM", v: "Brasil", br:true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg"},
+            {rank: 17, n: "Joesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg"},
+            {rank: 18, n: "Wesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br:true, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg"},
+            {rank: 19, n: "Maurizio Billi", usd: 4.80, h: gerH(4.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Saúde", o: "Eurofarma", v: "Brasil", br:true, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg"},
+            {rank: 20, n: "Alexandre Grendene Bartelle", usd: 4.60, h: gerH(4.60), uf: "RS", lat: -29.22, lng: -51.34, setor: "Varejo", o: "Grendene", v: "Brasil", br:true, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909"},
+            {rank: 21, n: "Ricardo Castellar de Faria", usd: 4.50, h: gerH(4.50), uf: "SC", lat: -28.67, lng: -49.37, setor: "Agronegócio", o: "Granja Faria", v: "Brasil", br:true, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp"},
+            {rank: 22, n: "Alceu Elias Feldmann", usd: 4.30, h: gerH(4.30), uf: "SC", lat: -27.25, lng: -49.93, setor: "Agronegócio", o: "Fertipar", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg"},
+            {rank: 23, n: "José João Abdalla Filho", usd: 4.20, h: gerH(4.20), uf: "SP", lat: -23.55, lng: -46.63, setor: "Energia", o: "Banco Clássico", v: "Brasil", br:true, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg"},
+            {rank: 24, n: "José Roberto Marinho", usd: 4.10, h: gerH(4.10), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg"},
+            {rank: 25, n: "João Roberto Marinho", usd: 4.00, h: gerH(4.00), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s"},
+            {rank: 26, n: "Mário Araújo Alencar Araripe", usd: 3.90, h: gerH(3.90), uf: "CE", lat: -7.23, lng: -39.41, setor: "Energia", o: "Casa dos Ventos", v: "Brasil", br:true, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg"},
+            {rank: 27, n: "Jayme Brasil Garfinkel", usd: 3.80, h: gerH(3.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Finanças", o: "Porto Seguro", v: "Brasil", br:true, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg"},
+            {rank: 28, n: "Roberto Irineu Marinho", usd: 3.70, h: gerH(3.70), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br:true, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg"},
+            {rank: 29, n: "Lirio Albino Parisotto", usd: 3.60, h: gerH(3.60), uf: "RS", lat: -28.73, lng: -51.70, setor: "Indústria", o: "Videolar", v: "Brasil", br:true, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg"},
+            {rank: 30, n: "Marcel Herrmann Telles", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"}
         ];
 
         // BASE EXATA DA FORBES MUNDO 2026 (SEM FOTOS)
         const dbMundo = [
-            {n: "Elon Musk", usd: 839, h: gerH(839), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false},
-            {n: "Larry Page", usd: 257, h: gerH(257), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
-            {n: "Sergey Brin", usd: 237, h: gerH(237), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
-            {n: "Jeff Bezos", usd: 224, h: gerH(224), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
-            {n: "Mark Zuckerberg", usd: 222, h: gerH(222), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false},
-            {n: "Larry Ellison", usd: 190, h: gerH(190), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false},
-            {n: "Bernard Arnault", usd: 171, h: gerH(171), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false},
-            {n: "Jensen Huang", usd: 154, h: gerH(154), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false},
-            {n: "Warren Buffett", usd: 149, h: gerH(149), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false},
-            {n: "Amancio Ortega", usd: 148, h: gerH(148), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false},
-            {n: "Rob Walton", usd: 146, h: gerH(146), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "Jim Walton", usd: 143, h: gerH(143), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "Michael Dell", usd: 141, h: gerH(141), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false},
-            {n: "Alice Walton", usd: 134, h: gerH(134), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
-            {n: "Steve Ballmer", usd: 126, h: gerH(126), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
-            {n: "Carlos Slim", usd: 125, h: gerH(125), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false},
-            {n: "Francoise Bettencourt", usd: 100, h: gerH(100), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false},
-            {n: "Mukesh Ambani", usd: 99.7, h: gerH(99.7), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false},
-            {n: "Zhong Shanshan", usd: 68.1, h: gerH(68.1), uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos/Bebidas", o: "Nongfu Spring", v: "China", br: false},
-            {n: "John Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.90, lng: -77.03, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
-            {n: "Jacqueline Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.91, lng: -77.04, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
-            {n: "Giovanni Ferrero", usd: 48.8, h: gerH(48.8), uf: "Itália", lat: 45.07, lng: 7.68, setor: "Alimentos/Bebidas", o: "Ferrero", v: "Itália", br: false},
-            {n: "Mark Mateschitz", usd: 45.8, h: gerH(45.8), uf: "Áustria", lat: 47.80, lng: 13.04, setor: "Alimentos/Bebidas", o: "Red Bull", v: "Áustria", br: false},
-            {n: "Emmanuel Besnier", usd: 40.0, h: gerH(40.0), uf: "França", lat: 48.08, lng: -0.75, setor: "Alimentos/Bebidas", o: "Lactalis", v: "França", br: false},
-            {n: "Todd Graves", usd: 39.0, h: gerH(39.0), uf: "EUA", lat: 30.45, lng: -91.14, setor: "Alimentos/Bebidas", o: "Raising Cane's", v: "EUA", br: false}
+            {rank: 1, n: "Elon Musk", usd: 839, h: gerH(839), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false},
+            {rank: 2, n: "Larry Page", usd: 257, h: gerH(257), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {rank: 3, n: "Sergey Brin", usd: 237, h: gerH(237), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false},
+            {rank: 4, n: "Jeff Bezos", usd: 224, h: gerH(224), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false},
+            {rank: 5, n: "Mark Zuckerberg", usd: 222, h: gerH(222), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false},
+            {rank: 6, n: "Larry Ellison", usd: 190, h: gerH(190), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false},
+            {rank: 7, n: "Bernard Arnault", usd: 171, h: gerH(171), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false},
+            {rank: 8, n: "Jensen Huang", usd: 154, h: gerH(154), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false},
+            {rank: 9, n: "Warren Buffett", usd: 149, h: gerH(149), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false},
+            {rank: 10, n: "Amancio Ortega", usd: 148, h: gerH(148), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false},
+            {rank: 11, n: "Rob Walton", usd: 146, h: gerH(146), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {rank: 12, n: "Jim Walton", usd: 143, h: gerH(143), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {rank: 13, n: "Michael Dell", usd: 141, h: gerH(141), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false},
+            {rank: 14, n: "Alice Walton", usd: 134, h: gerH(134), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false},
+            {rank: 15, n: "Steve Ballmer", usd: 126, h: gerH(126), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false},
+            {rank: 16, n: "Carlos Slim", usd: 125, h: gerH(125), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false},
+            {rank: 17, n: "Francoise Bettencourt", usd: 100, h: gerH(100), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false},
+            {rank: 18, n: "Mukesh Ambani", usd: 99.7, h: gerH(99.7), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false},
+            {rank: 19, n: "Zhong Shanshan", usd: 68.1, h: gerH(68.1), uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos/Bebidas", o: "Nongfu Spring", v: "China", br: false},
+            {rank: 20, n: "John Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.90, lng: -77.03, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
+            {rank: 21, n: "Jacqueline Mars", usd: 49.1, h: gerH(49.1), uf: "EUA", lat: 38.91, lng: -77.04, setor: "Alimentos/Bebidas", o: "Mars", v: "EUA", br: false},
+            {rank: 22, n: "Giovanni Ferrero", usd: 48.8, h: gerH(48.8), uf: "Itália", lat: 45.07, lng: 7.68, setor: "Alimentos/Bebidas", o: "Ferrero", v: "Itália", br: false},
+            {rank: 23, n: "Mark Mateschitz", usd: 45.8, h: gerH(45.8), uf: "Áustria", lat: 47.80, lng: 13.04, setor: "Alimentos/Bebidas", o: "Red Bull", v: "Áustria", br: false},
+            {rank: 24, n: "Emmanuel Besnier", usd: 40.0, h: gerH(40.0), uf: "França", lat: 48.08, lng: -0.75, setor: "Alimentos/Bebidas", o: "Lactalis", v: "França", br: false},
+            {rank: 25, n: "Todd Graves", usd: 39.0, h: gerH(39.0), uf: "EUA", lat: 30.45, lng: -91.14, setor: "Alimentos/Bebidas", o: "Raising Cane's", v: "EUA", br: false}
         ];
 
         let activeSet = dbBrasil;
@@ -278,8 +265,9 @@
                 if(!window.clusterData[key]) window.clusterData[key] = [];
                 window.clusterData[key].push(p);
 
+                // Ranking número + nome na lista lateral
                 list.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 7)">
-                    <div><b style="color:var(--text)">${p.br ? p.n+' 🇧🇷' : p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
+                    <div><b style="color:var(--text)">${p.rank}. ${p.br ? p.n+' 🇧🇷' : p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
                     <b style="color:var(--accent)">$${p.usd}B</b>
                 </div>`;
             });
@@ -313,7 +301,7 @@
                 <div class="popup-card">
                     ${imgHtml}
                     <div class="popup-body">
-                        <div class="popup-name">${p.br ? p.n+' 🇧🇷' : p.n}</div>
+                        <div class="popup-name">${p.rank}. ${p.br ? p.n+' 🇧🇷' : p.n}</div>
                         <div class="popup-data">
                             <b>💰 Fortuna:</b> US$ ${p.usd} Bi (R$ ${brl} Bi)<br>
                             <b>💎 Setor:</b> ${p.setor}<br>
