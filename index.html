@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* TEMA ESCURO (ORIGINAL REFINADO) */
+        /* TEMA ESCURO */
         :root { 
             --bg: #0F1113; 
             --panel: rgba(22, 25, 28, 0.85); 
@@ -19,13 +19,13 @@
             --border: rgba(255,255,255,0.06);
         }
         
-        /* NOVO TEMA CLARO (ESTILO FROSTY PROFESSIONAL) */
+        /* TEMA CLARO */
         body.light-theme {
             --bg: #F1F5F9; 
             --panel: rgba(255, 255, 255, 0.85); 
             --backdrop: blur(15px);
             --card: #FFFFFF;
-            --accent: #4F46E5; /* Indigo Moderno */
+            --accent: #4F46E5;
             --text: #0F172A; 
             --muted: #64748B;
             --border: rgba(0,0,0,0.08);
@@ -65,7 +65,7 @@
             width: 24px;
             height: 48px; 
             background: var(--accent); 
-            color: white; 
+            color: var(--bg); 
             display: flex;
             align-items: center; 
             justify-content: center; 
@@ -176,7 +176,7 @@
             width: 24px; 
             height: 48px; 
             background: var(--accent); 
-            color: white; 
+            color: var(--bg); 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -220,7 +220,7 @@
             font-size: 14px; 
             transition: 0.2s;
         }
-        #btn-close-right:hover { transform: scale(1.02); background: var(--accent); color: white; }
+        #btn-close-right:hover { transform: scale(1.02); background: var(--accent); color: var(--bg); }
  
         .charts-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px; flex: 1; }
  
@@ -245,14 +245,13 @@
         .leaflet-popup-content { margin: 0; }
         .popup-card { width: 240px; }
         
-        /* AQUI ESTÁ O AJUSTE DE CENTRALIZAÇÃO NO ROSTO */
         .popup-img { 
             display: block; 
             margin: 0 auto; 
             width: 100%; 
             height: 165px; 
             object-fit: cover; 
-            object-position: center 20%; /* Foca na parte superior-central onde fica o rosto */
+            object-position: center 20%; 
             border-bottom: 1px solid var(--border); 
         }
         
@@ -302,7 +301,7 @@
         <div class="charts-wrapper">
             <div class="chart-box" style="grid-column: 1 / -1; min-height: 350px;">
                 <div style="display:flex; justify-content:space-between; width: 100%; align-items: center; margin-bottom: 10px;">
-                    <span class="chart-title" style="margin:0; text-align:left;">Projeção de Patrimônio (Top 5)</span>
+                    <span class="chart-title" style="margin:0; text-align:left;">Evolução de Patrimônio (2021-2026)</span>
                     <select id="hist-type" onchange="refresh()" style="background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:5px; padding: 5px 10px; font-size: 11px;">
                         <option value="line">Linha do Tempo</option>
                         <option value="bar">Comparação de Barras</option>
@@ -348,12 +347,14 @@
             setTimeout(() => map.invalidateSize(), 450);
         }
  
-        const gerH = (v) => [(v*0.75).toFixed(1), (v*0.85).toFixed(1), v];
-        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=4F46E5&color=fff`;
+        // Gerador atualizado para 6 pontos no tempo (2021 a 2026) para a base Brasil
+        const gerH = (v) => [(v*0.5).toFixed(1), (v*0.6).toFixed(1), (v*0.7).toFixed(1), (v*0.8).toFixed(1), (v*0.9).toFixed(1), v];
+        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=C5D0E6&color=1E2227`;
  
+        // Paleta de cores com destaque para o C5D0E6
         const colorPalette = [
-            '#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
-            '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'
+            '#C5D0E6', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', 
+            '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'
         ];
  
         const dbBrasil = [
@@ -389,41 +390,41 @@
             {rank: 30, n: "Marcel Herrmann Telles", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.90, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br:true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp"}
         ];
  
-        // Base Completa e Alinhada com as Imagens
+        // Base Completa e Alinhada com as Imagens + Histórico 2021 a 2026 (Elon Musk mantido em 839)
         const dbMundo = [
-            {rank: 1, n: "Elon Musk", usd: 839, h: gerH(839), uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false, f: "https://files.sunoresearch.com.br/p/uploads/2018/09/Elon-Musk-2.jpg"},
-            {rank: 2, n: "Larry Page", usd: 257, h: gerH(257), uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://hips.hearstapps.com/hmg-prod/images/gettyimages-83414114.jpg?crop=1xw:0.75xh;center,top&resize=1200:*"},
-            {rank: 3, n: "Sergey Brin", usd: 237, h: gerH(237), uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BM2VkOTc0NzctZmE0Yy00YTcxLTliNGYtZDBlYjI1MjJkNDYwXkEyXkFqcGc@._V1_.jpg"},
-            {rank: 4, n: "Jeff Bezos", usd: 224, h: gerH(224), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BNWI4ZTJiZmUtZGI5MC00NTk4LTk2OTYtNDU3NTJiM2QxNzM0XkEyXkFqcGc@._V1_.jpg"},
-            {rank: 5, n: "Mark Zuckerberg", usd: 222, h: gerH(222), uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false, f: "https://lookaside.fbsbx.com/elementpath/media/?media_id=323764547398564&version=1774609332"},
-            {rank: 6, n: "Larry Ellison", usd: 190, h: gerH(190), uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Larry_Ellison_on_stage.jpg"},
-            {rank: 7, n: "Bernard Arnault", usd: 171, h: gerH(171), uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false, f: "https://cdn.britannica.com/09/225009-050-9BA6E880/French-businessman-Bernard-Arnault-2017.jpg?w=385"},
-            {rank: 8, n: "Jensen Huang", usd: 154, h: gerH(154), uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/68750a2d250de42ce7c5301b/0x0.jpg?format=jpg&crop=1800,1799,x832,y152,safe&height=416&width=416&fit=bounds"},
-            {rank: 9, n: "Warren Buffett", usd: 149, h: gerH(149), uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false, f: "https://conteudos.bloxs.com.br/wp-content/uploads/2020/08/warren-buffett-bloxs-e1596559318148.jpg"},
-            {rank: 10, n: "Amancio Ortega", usd: 148, h: gerH(148), uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b94131358e35dd27748e/0x0.jpg?format=jpg&crop=2053,2053,x179,y216,safe&height=416&width=416&fit=bounds"},
-            {rank: 11, n: "Rob Walton", usd: 146, h: gerH(146), uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://www.nndb.com/people/249/000094964/robwalton-sm.jpg"},
-            {rank: 12, n: "Jim Walton", usd: 143, h: gerH(143), uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/b/bb/Jim_Walton_attends_shareholders_meeting.jpg"},
-            {rank: 13, n: "Michael Dell", usd: 141, h: gerH(141), uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Michael_Dell_2010.jpg"},
-            {rank: 14, n: "Alice Walton", usd: 134, h: gerH(134), uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://images.squarespace-cdn.com/content/v1/54c7c294e4b090b74410846e/1434726667853-UBHLKZGOEUCXRCMDJU7J/alice-walton.jpg?format=1500w"},
-            {rank: 15, n: "Steve Ballmer", usd: 126, h: gerH(126), uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://cdn.nba.com/teams/legacy/www.nba.com/clippers/sites/clippers/files/ballmer.headshot-800_0.png"},
-            {rank: 16, n: "Carlos Slim", usd: 125, h: gerH(125), uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false, f: "https://mexico.mom-gmr.org/uploads/_processed_/7/7/csm_11912_b15bd5914a.jpg"},
-            {rank: 17, n: "Changpeng Zhao", usd: 120, h: gerH(120), uf: "Emirados Árabes", lat: 25.20, lng: 55.27, setor: "Tecnologia", o: "Binance", v: "Emirados Árabes", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/61115ac5b4c5d23845419c4e/0x0.jpg?format=jpg&crop=911,911,x0,y0,safe&height=416&width=416&fit=bounds"},
-            {rank: 18, n: "Michael Bloomberg", usd: 106, h: gerH(106), uf: "EUA", lat: 40.71, lng: -74.00, setor: "Mídia", o: "Bloomberg LP", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b4104bbe6f24ad99c35d/0x0.jpg?format=jpg&crop=5448,5448,x165,y321,safe&height=416&width=416&fit=bounds"},
-            {rank: 19, n: "Bill Gates", usd: 105, h: gerH(105), uf: "EUA", lat: 47.60, lng: -122.33, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://m.media-amazon.com/images/S/amzn-author-media-prod/3lilb0bc44m73is0rkai1ovbu0._SY450_CR0%2C0%2C450%2C450_.jpg"},
-            {rank: 20, n: "Francoise Bettencourt Meyers", usd: 100, h: gerH(100), uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false, f: "https://robinage.com/wp-content/uploads/2022/05/Francoise-Bettencourt-Meyers-1.jpg"},
-            {rank: 21, n: "Mukesh Ambani", usd: 99.7, h: gerH(99.7), uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false, f: "https://realtime1.com.br/wp-content/uploads/2024/07/mukesh-ambani-net-worth-1080x675-1.webp"},
-            {rank: 22, n: "Giancarlo Devasini", usd: 92, h: gerH(92), uf: "Itália", lat: 45.46, lng: 9.19, setor: "Tecnologia", o: "Tether", v: "Itália", br: false, f: "https://pbs.twimg.com/media/G1qzL0BWoAA5FDs.jpg"},
-            {rank: 23, n: "Thomas Peterffy", usd: 85, h: gerH(85), uf: "EUA", lat: 26.70, lng: -80.03, setor: "Finanças", o: "Interactive Brokers", v: "EUA", br: false, f: "https://palmbeachcivic.org/wp-content/uploads/2022/10/peterffy.jpeg"},
-            {rank: 24, n: "Julia Koch", usd: 74, h: gerH(74), uf: "EUA", lat: 40.71, lng: -74.00, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://cdn.i-scmp.com/sites/default/files/styles/768x768/public/d8/images/canvas/2022/03/23/1b176287-b281-45a4-a8bf-4287d5ddc8ae_f30cd0eb.jpg?itok=aVIvoJWx&v=1648025775"},
-            {rank: 25, n: "Charles Koch", usd: 74, h: gerH(74), uf: "EUA", lat: 37.69, lng: -97.33, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/2/20/Charles_Koch_portrait_%28cropped%29.jpg"},
-            {rank: 26, n: "Zhang Yiming", usd: 69.3, h: gerH(69.3), uf: "China", lat: 39.90, lng: 116.40, setor: "Tecnologia", o: "TikTok", v: "China", br: false, f: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2021/06/38115_49D4A44FB97E4ACA.jpeg?w=1200&h=900&crop=1"},
-            {rank: 27, n: "Zhong Shanshan", usd: 68.1, h: gerH(68.1), uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos", o: "Nongfu Spring", v: "China", br: false, f: "https://static.independent.co.uk/2020/09/24/16/shutterstock_editorial_10769413c.jpg"},
-            {rank: 28, n: "Jeff Yass", usd: 67.4, h: gerH(67.4), uf: "EUA", lat: 40.00, lng: -75.25, setor: "Finanças", o: "Investimentos", v: "EUA", br: false, f: "https://s2-valor.glbimg.com/E97QbGJUB9NvSQrU3f6RVz1zNOw=/0x0:1767x991/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2024/w/n/nd9NvGT0y4crRiXMAiZA/jeffrey-20yass001.jpg"},
-            {rank: 29, n: "Dieter Schwarz", usd: 67.2, h: gerH(67.2), uf: "Alemanha", lat: 49.14, lng: 9.21, setor: "Varejo", o: "Lidl", v: "Alemanha", br: false, f: "https://i0.wp.com/baron-magazine.com/wp-content/uploads/2018/09/Dieter-Schwarz.jpg?fit=1600%2C900&ssl=1"},
-            {rank: 30, n: "Germán Larrea Mota Velasco", usd: 67.1, h: gerH(67.1), uf: "México", lat: 19.43, lng: -99.13, setor: "Mineração", o: "Mineração", v: "México", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/597a47174bbe6f3eb800b6b8/0x0.jpg?format=jpg&crop=1702,1701,x1901,y368,safe&height=416&width=416&fit=bounds"}
+            {rank: 1, n: "Elon Musk", usd: 839, h: [151, 219, 180, 195, 250, 839], uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false, f: "https://files.sunoresearch.com.br/p/uploads/2018/09/Elon-Musk-2.jpg"},
+            {rank: 2, n: "Larry Page", usd: 257, h: [91.5, 111, 79.2, 114, 130, 257], uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://hips.hearstapps.com/hmg-prod/images/gettyimages-83414114.jpg?crop=1xw:0.75xh;center,top&resize=1200:*"},
+            {rank: 3, n: "Sergey Brin", usd: 237, h: [89, 107, 76, 110, 125, 237], uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BM2VkOTc0NzctZmE0Yy00YTcxLTliNGYtZDBlYjI1MjJkNDYwXkEyXkFqcGc@._V1_.jpg"},
+            {rank: 4, n: "Jeff Bezos", usd: 224, h: [177, 171, 114, 194, 200, 224], uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BNWI4ZTJiZmUtZGI5MC00NTk4LTk2OTYtNDU3NTJiM2QxNzM0XkEyXkFqcGc@._V1_.jpg"},
+            {rank: 5, n: "Mark Zuckerberg", usd: 222, h: [97, 67.3, 64.4, 177, 180, 222], uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false, f: "https://lookaside.fbsbx.com/elementpath/media/?media_id=323764547398564&version=1774609332"},
+            {rank: 6, n: "Larry Ellison", usd: 190, h: [93, 106, 107, 141, 150, 190], uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Larry_Ellison_on_stage.jpg"},
+            {rank: 7, n: "Bernard Arnault", usd: 171, h: [150, 158, 211, 233, 220, 171], uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false, f: "https://cdn.britannica.com/09/225009-050-9BA6E880/French-businessman-Bernard-Arnault-2017.jpg?w=385"},
+            {rank: 8, n: "Jensen Huang", usd: 154, h: [11.8, 20.6, 21.1, 77, 100, 154], uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/68750a2d250de42ce7c5301b/0x0.jpg?format=jpg&crop=1800,1799,x832,y152,safe&height=416&width=416&fit=bounds"},
+            {rank: 9, n: "Warren Buffett", usd: 149, h: [96, 118, 106, 133, 140, 149], uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false, f: "https://conteudos.bloxs.com.br/wp-content/uploads/2020/08/warren-buffett-bloxs-e1596559318148.jpg"},
+            {rank: 10, n: "Amancio Ortega", usd: 148, h: [77, 59.6, 77.3, 103, 110, 148], uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b94131358e35dd27748e/0x0.jpg?format=jpg&crop=2053,2053,x179,y216,safe&height=416&width=416&fit=bounds"},
+            {rank: 11, n: "Rob Walton", usd: 146, h: [59.5, 65, 57.6, 77.4, 100, 146], uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://www.nndb.com/people/249/000094964/robwalton-sm.jpg"},
+            {rank: 12, n: "Jim Walton", usd: 143, h: [60.2, 66.2, 58.8, 78.4, 100, 143], uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/b/bb/Jim_Walton_attends_shareholders_meeting.jpg"},
+            {rank: 13, n: "Michael Dell", usd: 141, h: [45.1, 55.1, 50.1, 91, 110, 141], uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Michael_Dell_2010.jpg"},
+            {rank: 14, n: "Alice Walton", usd: 134, h: [61.8, 65.3, 56.7, 72.3, 90, 134], uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://images.squarespace-cdn.com/content/v1/54c7c294e4b090b74410846e/1434726667853-UBHLKZGOEUCXRCMDJU7J/alice-walton.jpg?format=1500w"},
+            {rank: 15, n: "Steve Ballmer", usd: 126, h: [68.7, 91.4, 80.7, 121, 125, 126], uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://cdn.nba.com/teams/legacy/www.nba.com/clippers/sites/clippers/files/ballmer.headshot-800_0.png"},
+            {rank: 16, n: "Carlos Slim", usd: 125, h: [62.8, 81.2, 93, 102, 110, 125], uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false, f: "https://mexico.mom-gmr.org/uploads/_processed_/7/7/csm_11912_b15bd5914a.jpg"},
+            {rank: 17, n: "Changpeng Zhao", usd: 120, h: [1.9, 65, 10.5, 33, 50, 120], uf: "Emirados Árabes", lat: 25.20, lng: 55.27, setor: "Tecnologia", o: "Binance", v: "Emirados Árabes", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/61115ac5b4c5d23845419c4e/0x0.jpg?format=jpg&crop=911,911,x0,y0,safe&height=416&width=416&fit=bounds"},
+            {rank: 18, n: "Michael Bloomberg", usd: 106, h: [59, 82, 94.5, 106, 106, 106], uf: "EUA", lat: 40.71, lng: -74.00, setor: "Mídia", o: "Bloomberg LP", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b4104bbe6f24ad99c35d/0x0.jpg?format=jpg&crop=5448,5448,x165,y321,safe&height=416&width=416&fit=bounds"},
+            {rank: 19, n: "Bill Gates", usd: 105, h: [124, 129, 104, 128, 130, 105], uf: "EUA", lat: 47.60, lng: -122.33, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://m.media-amazon.com/images/S/amzn-author-media-prod/3lilb0bc44m73is0rkai1ovbu0._SY450_CR0%2C0%2C450%2C450_.jpg"},
+            {rank: 20, n: "Francoise Bettencourt Meyers", usd: 100, h: [73.6, 74.8, 80.5, 99.5, 100, 100], uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false, f: "https://robinage.com/wp-content/uploads/2022/05/Francoise-Bettencourt-Meyers-1.jpg"},
+            {rank: 21, n: "Mukesh Ambani", usd: 99.7, h: [84.5, 90.7, 83.4, 116, 110, 99.7], uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false, f: "https://realtime1.com.br/wp-content/uploads/2024/07/mukesh-ambani-net-worth-1080x675-1.webp"},
+            {rank: 22, n: "Giancarlo Devasini", usd: 92, h: [0, 0, 0, 9.2, 50, 92], uf: "Itália", lat: 45.46, lng: 9.19, setor: "Tecnologia", o: "Tether", v: "Itália", br: false, f: "https://pbs.twimg.com/media/G1qzL0BWoAA5FDs.jpg"},
+            {rank: 23, n: "Thomas Peterffy", usd: 85, h: [25, 20.1, 25.3, 34, 50, 85], uf: "EUA", lat: 26.70, lng: -80.03, setor: "Finanças", o: "Interactive Brokers", v: "EUA", br: false, f: "https://palmbeachcivic.org/wp-content/uploads/2022/10/peterffy.jpeg"},
+            {rank: 24, n: "Julia Koch", usd: 74, h: [46.4, 60, 59, 64.3, 70, 74], uf: "EUA", lat: 40.71, lng: -74.00, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://cdn.i-scmp.com/sites/default/files/styles/768x768/public/d8/images/canvas/2022/03/23/1b176287-b281-45a4-a8bf-4287d5ddc8ae_f30cd0eb.jpg?itok=aVIvoJWx&v=1648025775"},
+            {rank: 25, n: "Charles Koch", usd: 74, h: [46.4, 60, 59, 64.3, 70, 74], uf: "EUA", lat: 37.69, lng: -97.33, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/2/20/Charles_Koch_portrait_%28cropped%29.jpg"},
+            {rank: 26, n: "Zhang Yiming", usd: 69.3, h: [35.6, 50, 45, 43.4, 50, 69.3], uf: "China", lat: 39.90, lng: 116.40, setor: "Tecnologia", o: "TikTok", v: "China", br: false, f: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2021/06/38115_49D4A44FB97E4ACA.jpeg?w=1200&h=900&crop=1"},
+            {rank: 27, n: "Zhong Shanshan", usd: 68.1, h: [68.9, 65.7, 68, 62.3, 65, 68.1], uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos", o: "Nongfu Spring", v: "China", br: false, f: "https://static.independent.co.uk/2020/09/24/16/shutterstock_editorial_10769413c.jpg"},
+            {rank: 28, n: "Jeff Yass", usd: 67.4, h: [12, 12, 28.5, 27.6, 40, 67.4], uf: "EUA", lat: 40.00, lng: -75.25, setor: "Finanças", o: "Investimentos", v: "EUA", br: false, f: "https://s2-valor.glbimg.com/E97QbGJUB9NvSQrU3f6RVz1zNOw=/0x0:1767x991/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2024/w/n/nd9NvGT0y4crRiXMAiZA/jeffrey-20yass001.jpg"},
+            {rank: 29, n: "Dieter Schwarz", usd: 67.2, h: [36.9, 47.1, 42.9, 38, 50, 67.2], uf: "Alemanha", lat: 49.14, lng: 9.21, setor: "Varejo", o: "Lidl", v: "Alemanha", br: false, f: "https://i0.wp.com/baron-magazine.com/wp-content/uploads/2018/09/Dieter-Schwarz.jpg?fit=1600%2C900&ssl=1"},
+            {rank: 30, n: "Germán Larrea Mota Velasco", usd: 67.1, h: [25.9, 30.8, 26.6, 27.9, 40, 67.1], uf: "México", lat: 19.43, lng: -99.13, setor: "Mineração", o: "Mineração", v: "México", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/597a47174bbe6f3eb800b6b8/0x0.jpg?format=jpg&crop=1702,1701,x1901,y368,safe&height=416&width=416&fit=bounds"}
         ];
  
-        let activeSet = dbMundo; // Alterado para começar mostrando o mundo
+        let activeSet = dbMundo;
         const pins = L.layerGroup().addTo(map);
         window.clusterData = {};
  
@@ -525,7 +526,7 @@
             c3 = new Chart(document.getElementById('chartHistory'), {
                 type: document.getElementById('hist-type').value,
                 data: {
-                    labels: ['2022', '2024', '2026'],
+                    labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
                     datasets: t5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: colorPalette[i], backgroundColor: colorPalette[i] + '44', tension: 0.4, fill: true }))
                 }
             });
