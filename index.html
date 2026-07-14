@@ -1,32 +1,578 @@
-const dbBrasil = [
-    {rank: 1, n: "Eduardo Luiz Saverin", usd: 45.40, h: gerH(45.40), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br: true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", tipoOrigem: "Herança", faculdade: "Harvard"},
-    {rank: 2, n: "Vicky Safra", usd: 24.10, h: gerH(24.10), uf: "Grécia", lat: 37.98, lng: 23.72, setor: "Finanças", o: "Banco Safra", v: "Suíça", br: true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 3, n: "Jorge Paulo Lemann", usd: 17.60, h: gerH(17.60), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Suíça", br: true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", tipoOrigem: "Herança", faculdade: "Harvard"},
-    {rank: 4, n: "André Santos Esteves", usd: 10.20, h: gerH(10.20), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br: true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", tipoOrigem: "Herança", faculdade: "Universidade Federal do Rio de Janeiro"},
-    {rank: 5, n: "Fernando Roberto Moreira Salles", usd: 8.04, h: gerH(8.04), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg", tipoOrigem: "Herança", faculdade: "Fundação Getúlio Vargas"},
-    {rank: 6, n: "Carlos Alberto Sicupira", usd: 7.82, h: gerH(7.82), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br: true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 7, n: "Pedro Moreira Salles", usd: 7.60, h: gerH(7.60), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 8, n: "Miguel Gellert Krigsner", usd: 6.84, h: gerH(6.84), uf: "Bolívia", lat: -16.5, lng: -68.11, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br: true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 9, n: "Alex Behring", usd: 6.20, h: gerH(6.20), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Investimentos", o: "3G Capital", v: "EUA", br: true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 10, n: "Jorge Neval Moll Filho", usd: 6.08, h: gerH(6.08), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Saúde", o: "Rede D'Or", v: "Brasil", br: true, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 11, n: "Max Van Hoegarden Telles", usd: 5.86, h: gerH(5.86), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "EUA", br: true, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg", tipoOrigem: "Herança", faculdade: "Bacharel em artes pela Wake"},
-    {rank: 12, n: "Ermírio Pereira de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://geneall.net/images/names/pes_1072027.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 13, n: "Luís Ermírio de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://cdn-sites-assets.mziq.com/wp-content/uploads/sites/918/2022/02/luis-ermirio.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 14, n: "Maria Helena Moraes Scripilliti", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://marciatravessoni.com.br/wp-content/uploads/2021/09/Maria-Helena-Moraes-Scripilliti.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 15, n: "João Moreira Salles", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 16, n: "Walther M. Salles Junior", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 17, n: "Joesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br: true, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 18, n: "Wesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br: true, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 19, n: "Maurizio Billi", usd: 4.80, h: gerH(4.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Saúde", o: "Eurofarma", v: "Brasil", br: true, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 20, n: "Alexandre Grendene Bartelle", usd: 4.60, h: gerH(4.60), uf: "RS", lat: -29.22, lng: -51.34, setor: "Varejo", o: "Grendene", v: "Brasil", br: true, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 21, n: "Ricardo Castellar de Faria", usd: 4.50, h: gerH(4.50), uf: "SC", lat: -28.67, lng: -49.37, setor: "Agronegócio", o: "Granja Faria", v: "Brasil", br: true, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 22, n: "Alceu Elias Feldmann", usd: 4.30, h: gerH(4.30), uf: "SC", lat: -27.25, lng: -49.93, setor: "Agronegócio", o: "Fertipar", v: "Brasil", br: true, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 23, n: "José João Abdalla Filho", usd: 4.20, h: gerH(4.20), uf: "SP", lat: -23.55, lng: -46.63, setor: "Energia", o: "Banco Clássico", v: "Brasil", br: true, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 24, n: "José Roberto Marinho", usd: 4.10, h: gerH(4.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg", tipoOrigem: "Herança", faculdade: "PUC-RJ / UFRJ"},
-    {rank: 25, n: "João Roberto Marinho", usd: 4.00, h: gerH(4.00), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s", tipoOrigem: "Herança", faculdade: "Instituto Souza Leão / Colégio Andrews"},
-    {rank: 26, n: "Mário Araújo Alencar Araripe", usd: 3.90, h: gerH(3.90), uf: "CE", lat: -7.23, lng: -39.41, setor: "Energia", o: "Casa dos Ventos", v: "Brasil", br: true, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg", tipoOrigem: "Herança", faculdade: "ITA"},
-    {rank: 27, n: "Jayme Brasil Garfinkel", usd: 3.80, h: gerH(3.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Finanças", o: "Porto Seguro", v: "Brasil", br: true, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg", tipoOrigem: "Herança", faculdade: "USP / FGV"},
-    {rank: 28, n: "Roberto Irineu Marinho", usd: 3.70, h: gerH(3.70), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
-    {rank: 29, n: "Lirio Albino Parisotto", usd: 3.60, h: gerH(3.60), uf: "RS", lat: -28.73, lng: -51.7, setor: "Indústria", o: "Videolar", v: "Brasil", br: true, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
-    {rank: 30, n: "Marcel Herrmann Telles", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br: true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", tipoOrigem: "Self-Made", faculdade: "N/A"}
-];
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Fortunas Dashboard | Final Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* TEMA ESCURO */
+        :root { 
+            --bg: #0F1113; 
+            --panel: rgba(22, 25, 28, 0.85); 
+            --backdrop: blur(12px);
+            --card: #1E2227;
+            --accent: #C5D0E6; 
+            --text: #F8FAFC; 
+            --muted: #94A3B8; 
+            --border: rgba(255,255,255,0.06);
+        }
+        
+        /* TEMA CLARO */
+        body.light-theme {
+            --bg: #F1F5F9; 
+            --panel: rgba(255, 255, 255, 0.85); 
+            --backdrop: blur(15px);
+            --card: #FFFFFF;
+            --accent: #4F46E5;
+            --text: #0F172A; 
+            --muted: #64748B;
+            --border: rgba(0,0,0,0.08);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; 
+            height: 100vh;
+            background: var(--bg); 
+            color: var(--text); 
+            transition: background 0.4s, color 0.4s; 
+            overflow: hidden; 
+        }
+        
+        /* --- SIDEBAR ESQUERDA --- */
+        #sidebar-left { 
+            min-width: 340px; 
+            width: 340px; 
+            background: var(--panel); 
+            backdrop-filter: var(--backdrop); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            z-index: 1002; 
+            transition: margin-left 0.4s ease; 
+            border-right: 1px solid var(--border);
+            position: relative; 
+        }
+        #sidebar-left.hidden { margin-left: -340px; } 
+
+        .toggle-handle { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 24px;
+            height: 48px; 
+            background: var(--accent); 
+            color: var(--bg); 
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 12px;
+            font-weight: bold; 
+            transition: 0.2s; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2005; 
+            border: none; 
+        }
+        #toggle-left { right: -24px; border-radius: 0 8px 8px 0; }
+
+        .header-area { padding: 30px 20px; }
+        .sidebar-title { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--accent); 
+            letter-spacing: 2px;
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+        }
+        #db-selector {
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 10px; 
+            background: var(--card);
+            color: var(--text); 
+            border: 1px solid var(--border); 
+            font-size: 13px;
+            font-weight: 600; 
+            cursor: pointer; 
+            outline: none; 
+            transition: 0.3s; 
+        }
+
+        .stat-card {
+            padding: 20px; 
+            background: var(--card); 
+            margin: 0 20px 20px; 
+            border-radius: 15px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--accent); display: block; margin-top: 5px; }
+
+        #ranking-list { flex: 1; overflow-y: auto; padding: 0 20px; }
+        .ranking-item { 
+            padding: 12px; 
+            border-radius: 12px; 
+            margin-bottom: 5px; 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer;
+            transition: 0.2s; 
+            border: 1px solid transparent;
+        }
+        .ranking-item:hover { background: var(--card); border-color: var(--border); transform: translateY(-1px); }
+
+        /* --- CENTRO --- */
+        #main-content { flex: 1; position: relative; display: flex; flex-direction: column; }
+        #map { flex: 1; width: 100%; height: 100%; z-index: 1; min-height: 100vh; }
+        
+        #search-box {
+            position: absolute; 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 300px; 
+            z-index: 1000; 
+        }
+        #search-box input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            background: var(--panel); 
+            backdrop-filter: var(--backdrop);
+            color: var(--text); 
+            outline: none; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            box-sizing: border-box;
+        }
+
+        #theme-btn {
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            padding: 10px 15px;
+            background: var(--card); 
+            color: var(--text); 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            font-weight: 600; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        }
+
+        /* --- SIDEBAR DIREITA --- */
+        #btn-open-right { 
+            position: fixed; 
+            right: 0; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            width: 24px; 
+            height: 48px; 
+            background: var(--accent); 
+            color: var(--bg); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            font-size: 12px; 
+            font-weight: bold; 
+            border-radius: 8px 0 0 8px;
+            z-index: 1001; 
+            border: none; 
+            box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+        }
+
+        #sidebar-right { 
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            width: 100%; 
+            height: 100vh; 
+            background: var(--bg);
+            z-index: 2000; 
+            padding: 40px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            transform: translateX(100%); 
+            overflow-y: auto; 
+            box-sizing: border-box; 
+        }
+        #sidebar-right.active { transform: translateX(0); }
+        
+        .right-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        #btn-close-right { 
+            padding: 10px 20px; 
+            background: var(--card); 
+            color: var(--accent); 
+            font-weight: bold; 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: 0.2s;
+        }
+        #btn-close-right:hover { transform: scale(1.02); background: var(--accent); color: var(--bg); }
+
+        .charts-wrapper { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px; flex: 1; padding-bottom: 50px; }
+
+        .chart-box {
+            background: var(--card); 
+            padding: 24px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            min-height: 320px; 
+            box-sizing: border-box; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+        .chart-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 20px; width: 100%; text-align: center; }
+        .chart-box canvas { max-width: 100%; max-height: 260px; }
+
+        /* --- POPUP E IMAGEM --- */
+        .leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: 12px; border: 1px solid var(--border); padding: 0; overflow: hidden; }
+        .leaflet-popup-tip { background: var(--card); }
+        .leaflet-popup-content { margin: 0; }
+        .popup-card { width: 260px; }
+        
+        .popup-img { 
+            display: block; 
+            margin: 0 auto; 
+            width: 100%; 
+            height: 165px; 
+            object-fit: cover; 
+            object-position: center 20%; 
+            border-bottom: 1px solid var(--border); 
+        }
+        
+        .popup-body { padding: 15px; }
+        .popup-name { font-weight: 700; font-size: 16px; color: var(--text); margin-bottom: 5px; text-align: center;}
+        .popup-data { font-size: 12px; line-height: 1.6; color: var(--muted); margin-top: 10px;}
+        .popup-data b { color: var(--accent); }
+        
+        .carousel-controls { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.05); padding: 8px 15px; font-size: 11px; color: var(--accent); font-weight: bold; border-top: 1px solid var(--border); }
+        .carousel-btn { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: bold; font-size: 14px; padding: 0 10px;}
+    </style>
+</head>
+<body>
+
+    <div id="sidebar-left">
+        <button id="toggle-left" class="toggle-handle" onclick="toggleSidebar('left')">◀</button>
+        <div class="header-area">
+            <div class="sidebar-title">PATRIMÔNIO ESTRUTURADO</div>
+            <select id="db-selector" onchange="switchData()">
+                <option value="br" selected>🇧🇷 Top 30 Brasil</option>
+                <option value="world">🌍 Top 30 Mundo</option>
+            </select>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Total Acumulado (Grupo)</span>
+            <span class="stat-value" id="total-val">$ 0 Bi</span>
+        </div>
+        <div id="ranking-list"></div>
+    </div>
+
+    <div id="main-content">
+        <button id="theme-btn" onclick="swapTheme()">🌓 Mudar Visual</button>
+        <div id="search-box">
+            <input type="text" placeholder="Buscar bilionário ou origem..." onkeyup="refresh()">
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <button id="btn-open-right" onclick="toggleSidebar('right')">◀ ANÁLISE</button>
+
+    <div id="sidebar-right">
+        <div class="right-header">
+            <h2 style="margin:0; letter-spacing: 1px;">Analytics Pro</h2>
+            <button id="btn-close-right" onclick="toggleSidebar('right')">▶ Voltar ao Mapa</button>
+        </div>
+        
+        <div class="charts-wrapper">
+            <div class="chart-box" style="grid-column: 1 / -1; min-height: 350px;">
+                <div style="display:flex; justify-content:space-between; width: 100%; align-items: center; margin-bottom: 10px;">
+                    <span class="chart-title" style="margin:0; text-align:left;">Evolução de Patrimônio (2021-2026)</span>
+                    <select id="hist-type" onchange="refresh()" style="background:var(--card); color:var(--text); border:1px solid var(--border); border-radius:5px; padding: 5px 10px; font-size: 11px;">
+                        <option value="line">Linha do Tempo</option>
+                        <option value="bar">Comparação de Barras</option>
+                    </select>
+                </div>
+                <canvas id="chartHistory"></canvas>
+            </div>
+            
+            <div class="chart-box">
+                <span class="chart-title">Composição por Setor</span>
+                <canvas id="secChart"></canvas>
+            </div>
+            
+            <div class="chart-box">
+                <span class="chart-title">Origem da Fortuna</span>
+                <canvas id="origemChart"></canvas>
+            </div>
+            
+            <div class="chart-box" style="grid-column: 1 / -1;">
+                <span class="chart-title">Top Formações Acadêmicas</span>
+                <canvas id="faculdadeChart"></canvas>
+            </div>
+            
+            <div class="chart-box" style="grid-column: 1 / -1;">
+                <span class="chart-title">Distribuição Geográfica (Sede/Origem)</span>
+                <canvas id="geoChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([20, 0], 2);
+        
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
+        const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png');
+        
+        darkTiles.addTo(map);
+        
+        function swapTheme() {
+            const isLight = document.body.classList.toggle('light-theme');
+            if (isLight) { map.removeLayer(darkTiles); lightTiles.addTo(map); }
+            else { map.removeLayer(lightTiles); darkTiles.addTo(map); }
+            refreshCharts();
+        }
+
+        function toggleSidebar(side) {
+            if (side === 'left') {
+                const el = document.getElementById('sidebar-left');
+                el.classList.toggle('hidden');
+                document.getElementById('toggle-left').innerText = el.classList.contains('hidden') ? '▶' : '◀';
+            } else {
+                document.getElementById('sidebar-right').classList.toggle('active');
+            }
+            setTimeout(() => map.invalidateSize(), 450);
+        }
+
+        const gerH = (v) => [(v*0.5).toFixed(1), (v*0.6).toFixed(1), (v*0.7).toFixed(1), (v*0.8).toFixed(1), (v*0.9).toFixed(1), v];
+        const getAvatar = (n) => `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=C5D0E6&color=1E2227`;
+
+        const colorPalette = [
+            '#C5D0E6', '#4F46E5', '#10B981', '#F59E0B', '#EF4444', 
+            '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#14B8A6', '#6366F1'
+        ];
+
+        // --- DADOS ATUALIZADOS DA PLANILHA ---
+        const dbBrasil = [
+            {rank: 1, n: "Eduardo Luiz Saverin", usd: 45.40, h: gerH(45.40), uf: "SP", lat: -23.55, lng: -46.63, setor: "Tecnologia", o: "Facebook", v: "Singapura", br: true, f: "https://neofeed.com.br/wp-content/uploads/2020/07/saverin.jpg", tipoOrigem: "Herança", faculdade: "Harvard"},
+            {rank: 2, n: "Vicky Safra", usd: 24.10, h: gerH(24.10), uf: "Grécia", lat: 37.98, lng: 23.72, setor: "Finanças", o: "Banco Safra", v: "Suíça", br: true, f: "https://s2-g1.glbimg.com/6Wi_2Rfs0gTgTbNYiQRnuB-Q0ZA=/0x141:742x1274/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_59edd422c0c84a879bd37670ae4f538a/internal_photos/bs/2020/d/N/wZCHgSTYKwCeJZhUgcbQ/10449036.152501-1-.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 3, n: "Jorge Paulo Lemann", usd: 17.60, h: gerH(17.60), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev, 3G Capital", v: "Suíça", br: true, f: "https://s3.us-east-005.backblazeb2.com/glamurama01/2015/08/JorgePL.jpg", tipoOrigem: "Herança", faculdade: "Harvard"},
+            {rank: 4, n: "André Santos Esteves", usd: 10.20, h: gerH(10.20), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "BTG Pactual", v: "Brasil", br: true, f: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Andre_Esteves.jpg/960px-Andre_Esteves.jpg", tipoOrigem: "Herança", faculdade: "Universidade Federal do Rio de Janeiro"},
+            {rank: 5, n: "Fernando Roberto Moreira Salles", usd: 8.04, h: gerH(8.04), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://stories.cnnbrasil.com.br/wp-content/uploads/sites/9/2025/04/bilionarios-FR-moreira-salles.jpg", tipoOrigem: "Herança", faculdade: "Fundação Getúlio Vargas"},
+            {rank: 6, n: "Carlos Alberto Sicupira", usd: 7.82, h: gerH(7.82), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br: true, f: "https://s2-oglobo.glbimg.com/TtDZh_QN7ZHFmnBWwMb2E40PhbA=/0x0:1440x1080/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2023/0/t/RWEFqlRcShLiddNL6RaQ/betosicupira.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 7, n: "Pedro Moreira Salles", usd: 7.60, h: gerH(7.60), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://forbes.com.br/wp-content/uploads/2015/08/19-Pedro-Moreira-Salles-getty1-900x600.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 8, n: "Miguel Gellert Krigsner", usd: 6.84, h: gerH(6.84), uf: "Bolívia", lat: -16.5, lng: -68.11, setor: "Cosméticos", o: "O Boticário", v: "Brasil", br: true, f: "https://ogimg.infoglobo.com.br/in/14420421-430-3c8/FT1086A/2014102430114.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 9, n: "Alex Behring", usd: 6.20, h: gerH(6.20), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Investimentos", o: "3G Capital", v: "EUA", br: true, f: "https://neofeed.com.br/wp-content/uploads/2025/04/alex-behring-3g-capital.webp", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 10, n: "Jorge Neval Moll Filho", usd: 6.08, h: gerH(6.08), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Saúde", o: "Rede D'Or", v: "Brasil", br: true, f: "https://imageio.forbes.com/specials-images/imageserve/5c6ccd99a7ea437e33f37640/0x0.jpg?format=jpg&crop=683,683,x304,y0,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 11, n: "Max Van Hoegarden Telles", usd: 5.86, h: gerH(5.86), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "EUA", br: true, f: "https://s2-pipelinevalor.glbimg.com/7BIgAOHcXKtLbTnM51r-YiDktpA=/0x0:3840x2550/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_b3309463db95468aa275bd532137e960/internal_photos/bs/2023/A/b/ClE1DqTCqHtWJIySbKUA/210813marcel02.jpg", tipoOrigem: "Herança", faculdade: "Bacharel em artes pela Wake"},
+            {rank: 12, n: "Ermírio Pereira de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://geneall.net/images/names/pes_1072027.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 13, n: "Luís Ermírio de Moraes", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://cdn-sites-assets.mziq.com/wp-content/uploads/sites/918/2022/02/luis-ermirio.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 14, n: "Maria Helena Moraes Scripilliti", usd: 5.36, h: gerH(5.36), uf: "SP", lat: -23.55, lng: -46.63, setor: "Indústria", o: "Votorantim", v: "Brasil", br: true, f: "https://marciatravessoni.com.br/wp-content/uploads/2021/09/Maria-Helena-Moraes-Scripilliti.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 15, n: "João Moreira Salles", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Finanças", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://www.opovo.com.br/_midias/jpg/2025/01/02/paginas_azuis_joao_moreira_salles_48_31946352-32171576.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 16, n: "Walther M. Salles Junior", usd: 5.10, h: gerH(5.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Itaú Unibanco", v: "Brasil", br: true, f: "https://upload.wikimedia.org/wikipedia/commons/8/80/Walter_Salles_in_2024.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 17, n: "Joesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br: true, f: "https://static.poder360.com.br/2017/05/Joesley-Batista.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 18, n: "Wesley Mendonça Batista", usd: 5.00, h: gerH(5.00), uf: "GO", lat: -15.53, lng: -47.33, setor: "Alimentos", o: "JBS", v: "Brasil", br: true, f: "https://files.sunoresearch.com.br/p/uploads/2021/11/WesleyBatista.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 19, n: "Maurizio Billi", usd: 4.80, h: gerH(4.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Saúde", o: "Eurofarma", v: "Brasil", br: true, f: "https://f.i.uol.com.br/fotografia/2021/09/03/16307191496132ccad89c2e_1630719149_3x2_md.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 20, n: "Alexandre Grendene Bartelle", usd: 4.60, h: gerH(4.60), uf: "RS", lat: -29.22, lng: -51.34, setor: "Varejo", o: "Grendene", v: "Brasil", br: true, f: "https://veja.abril.com.br/wp-content/uploads/2016/12/alexandre-grendene.jpg?crop=1&resize=1212,909", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 21, n: "Ricardo Castellar de Faria", usd: 4.50, h: gerH(4.50), uf: "SC", lat: -28.67, lng: -49.37, setor: "Agronegócio", o: "Granja Faria", v: "Brasil", br: true, f: "https://s2-oglobo.glbimg.com/FINaw1Srfmu3JcvmbNPgjoKF7UQ=/0x0:1109x1023/888x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_da025474c0c44edd99332dddb09cabe8/internal_photos/bs/2024/o/4/baoZfNTKmtSRKit2sU0Q/ricardo-faria-granja.webp", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 22, n: "Alceu Elias Feldmann", usd: 4.30, h: gerH(4.30), uf: "SC", lat: -27.25, lng: -49.93, setor: "Agronegócio", o: "Fertipar", v: "Brasil", br: true, f: "https://medias.revistaoeste.com/wp-content/uploads/2021/07/alceu-elias-feldmann.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 23, n: "José João Abdalla Filho", usd: 4.20, h: gerH(4.20), uf: "SP", lat: -23.55, lng: -46.63, setor: "Energia", o: "Banco Clássico", v: "Brasil", br: true, f: "https://muraldoparana.com.br/wp-content/uploads/2017/10/96-Jos%C3%A9-Jo%C3%A3o-Abdalla-Filho.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 24, n: "José Roberto Marinho", usd: 4.10, h: gerH(4.10), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://ogimg.infoglobo.com.br/in/25257353-408-696/FT1086A/INFOCHPDPICT000082385660.jpg", tipoOrigem: "Herança", faculdade: "PUC-RJ / UFRJ"},
+            {rank: 25, n: "João Roberto Marinho", usd: 4.00, h: gerH(4.00), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ4Yg9GN5LfUwP0G45oVoCVVWW5PNS5rXR4A&s", tipoOrigem: "Herança", faculdade: "Instituto Souza Leão"},
+            {rank: 26, n: "Mário Araújo Alencar Araripe", usd: 3.90, h: gerH(3.90), uf: "CE", lat: -7.23, lng: -39.41, setor: "Energia", o: "Casa dos Ventos", v: "Brasil", br: true, f: "https://forbes.com.br/wp-content/uploads/2023/09/Mario-Araripe_GettyImages-768x512-1.jpg", tipoOrigem: "Herança", faculdade: "ITA"},
+            {rank: 27, n: "Jayme Brasil Garfinkel", usd: 3.80, h: gerH(3.80), uf: "SP", lat: -23.55, lng: -46.63, setor: "Finanças", o: "Porto Seguro", v: "Brasil", br: true, f: "https://www.acij.com.br/index/wp-content/uploads/2019/02/mercado-seguros-tema-palestra-jayme-garfinkel-acij-1024x536.jpg", tipoOrigem: "Herança", faculdade: "USP / FGV"},
+            {rank: 28, n: "Roberto Irineu Marinho", usd: 3.70, h: gerH(3.70), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Mídia", o: "Rede Globo", v: "Brasil", br: true, f: "https://p2.trrsf.com/image/fget/cf/1200/1200/middle/images.terra.com/2023/08/21/robertoirineu01-rl5llybac6r9.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 29, n: "Lirio Albino Parisotto", usd: 3.60, h: gerH(3.60), uf: "RS", lat: -28.73, lng: -51.7, setor: "Indústria", o: "Videolar", v: "Brasil", br: true, f: "https://cdn-images.grupoahora.net.br/2017/02/2017_02_21_Divulga%C3%A7%C3%A3o_L%C3%ADrio-Parisotto_Principal-e1487990122360-733x1024-1.jpg", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 30, n: "Marcel Herrmann Telles", usd: 3.50, h: gerH(3.50), uf: "RJ", lat: -22.9, lng: -43.17, setor: "Alimentos", o: "AB InBev", v: "Brasil", br: true, f: "https://medias.revistaoeste.com/wp-content/uploads/2022/04/marcel-herrmann-telles-que-e-vida-carreira-e-reestruturacao-da-brahma-5-jpg.webp", tipoOrigem: "Self-Made", faculdade: "N/A"}
+        ];
+
+        const dbMundo = [
+            {rank: 1, n: "Elon Musk", usd: 839, h: [151, 219, 180, 250, 520, 839], uf: "EUA", lat: 30.26, lng: -97.74, setor: "Tecnologia", o: "Tesla, SpaceX", v: "EUA", br: false, f: "https://files.sunoresearch.com.br/p/uploads/2018/09/Elon-Musk-2.jpg", tipoOrigem: "Self-Made", faculdade: "UPenn"},
+            {rank: 2, n: "Larry Page", usd: 257, h: [91.5, 111, 79.2, 114, 180, 257], uf: "EUA", lat: 37.38, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://hips.hearstapps.com/hmg-prod/images/gettyimages-83414114.jpg?crop=1xw:0.75xh;center,top&resize=1200:*", tipoOrigem: "Self-Made", faculdade: "Stanford"},
+            {rank: 3, n: "Sergey Brin", usd: 237, h: [89, 107, 76, 110, 175, 237], uf: "EUA", lat: 37.42, lng: -122.08, setor: "Tecnologia", o: "Google", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BM2VkOTc0NzctZmE0Yy00YTcxLTliNGYtZDBlYjI1MjJkNDYwXkEyXkFqcGc@._V1_.jpg", tipoOrigem: "Self-Made", faculdade: "Stanford"},
+            {rank: 4, n: "Jeff Bezos", usd: 224, h: [177, 171, 114, 194, 210, 224], uf: "EUA", lat: 47.60, lng: -122.33, setor: "Varejo", o: "Amazon", v: "EUA", br: false, f: "https://m.media-amazon.com/images/M/MV5BNWI4ZTJiZmUtZGI5MC00NTk4LTk2OTYtNDU3NTJiM2QxNzM0XkEyXkFqcGc@._V1_.jpg", tipoOrigem: "Self-Made", faculdade: "Princeton"},
+            {rank: 5, n: "Mark Zuckerberg", usd: 222, h: [97, 67.3, 64.4, 177, 200, 222], uf: "EUA", lat: 37.44, lng: -122.14, setor: "Tecnologia", o: "Meta", v: "EUA", br: false, f: "https://lookaside.fbsbx.com/elementpath/media/?media_id=323764547398564&version=1774609332", tipoOrigem: "Self-Made", faculdade: "Harvard"},
+            {rank: 6, n: "Larry Ellison", usd: 190, h: [93, 106, 107, 141, 160, 190], uf: "EUA", lat: 37.77, lng: -122.41, setor: "Tecnologia", o: "Oracle", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/d/d9/Larry_Ellison_on_stage.jpg", tipoOrigem: "Self-Made", faculdade: "U. Chicago"},
+            {rank: 7, n: "Bernard Arnault", usd: 171, h: [150, 158, 211, 233, 200, 171], uf: "França", lat: 48.85, lng: 2.35, setor: "Luxo", o: "LVMH", v: "França", br: false, f: "https://cdn.britannica.com/09/225009-050-9BA6E880/French-businessman-Bernard-Arnault-2017.jpg?w=385", tipoOrigem: "Herança", faculdade: "École Polytechnique"},
+            {rank: 8, n: "Jensen Huang", usd: 154, h: [11.8, 20.6, 21.1, 77, 120, 154], uf: "EUA", lat: 37.35, lng: -121.95, setor: "Tecnologia", o: "Nvidia", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/68750a2d250de42ce7c5301b/0x0.jpg?format=jpg&crop=1800,1799,x832,y152,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "Oregon State"},
+            {rank: 9, n: "Warren Buffett", usd: 149, h: [96, 118, 106, 133, 142, 149], uf: "EUA", lat: 41.25, lng: -95.99, setor: "Finanças", o: "Berkshire Hathaway", v: "EUA", br: false, f: "https://conteudos.bloxs.com.br/wp-content/uploads/2020/08/warren-buffett-bloxs-e1596559318148.jpg", tipoOrigem: "Self-Made", faculdade: "Nebraska"},
+            {rank: 10, n: "Amancio Ortega", usd: 148, h: [77, 59.6, 77.3, 103, 125, 148], uf: "Espanha", lat: 43.36, lng: -8.41, setor: "Varejo", o: "Zara", v: "Espanha", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b94131358e35dd27748e/0x0.jpg?format=jpg&crop=2053,2053,x179,y216,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 11, n: "Rob Walton", usd: 146, h: [59.5, 65, 57.6, 77.4, 110, 146], uf: "EUA", lat: 36.38, lng: -94.21, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://www.nndb.com/people/249/000094964/robwalton-sm.jpg", tipoOrigem: "Herança", faculdade: "U. Arkansas"},
+            {rank: 12, n: "Jim Walton", usd: 143, h: [60.2, 66.2, 58.8, 78.4, 105, 143], uf: "EUA", lat: 36.37, lng: -94.20, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/b/bb/Jim_Walton_attends_shareholders_meeting.jpg", tipoOrigem: "Herança", faculdade: "U. Arkansas"},
+            {rank: 13, n: "Michael Dell", usd: 141, h: [45.1, 55.1, 50.1, 91, 120, 141], uf: "EUA", lat: 30.27, lng: -97.74, setor: "Tecnologia", o: "Dell", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Michael_Dell_2010.jpg", tipoOrigem: "Self-Made", faculdade: "U. Texas"},
+            {rank: 14, n: "Alice Walton", usd: 134, h: [61.8, 65.3, 56.7, 72.3, 100, 134], uf: "EUA", lat: 36.39, lng: -94.22, setor: "Varejo", o: "Walmart", v: "EUA", br: false, f: "https://images.squarespace-cdn.com/content/v1/54c7c294e4b090b74410846e/1434726667853-UBHLKZGOEUCXRCMDJU7J/alice-walton.jpg?format=1500w", tipoOrigem: "Herança", faculdade: "Trinity University"},
+            {rank: 15, n: "Steve Ballmer", usd: 126, h: [68.7, 91.4, 80.7, 121, 124, 126], uf: "EUA", lat: 47.67, lng: -122.12, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://cdn.nba.com/teams/legacy/www.nba.com/clippers/sites/clippers/files/ballmer.headshot-800_0.png", tipoOrigem: "Self-Made", faculdade: "Harvard"},
+            {rank: 16, n: "Carlos Slim", usd: 125, h: [62.8, 81.2, 93, 102, 115, 125], uf: "México", lat: 19.43, lng: -99.13, setor: "Telecom", o: "América Móvil", v: "México", br: false, f: "https://mexico.mom-gmr.org/uploads/_processed_/7/7/csm_11912_b15bd5914a.jpg", tipoOrigem: "Self-Made", faculdade: "UNAM"},
+            {rank: 17, n: "Changpeng Zhao", usd: 120, h: [1.9, 65, 10.5, 33, 75, 120], uf: "Emirados Árabes", lat: 25.20, lng: 55.27, setor: "Tecnologia", o: "Binance", v: "Emirados Árabes", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/61115ac5b4c5d23845419c4e/0x0.jpg?format=jpg&crop=911,911,x0,y0,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "McGill University"},
+            {rank: 18, n: "Michael Bloomberg", usd: 106, h: [59, 82, 94.5, 106, 106, 106], uf: "EUA", lat: 40.71, lng: -74.00, setor: "Mídia", o: "Bloomberg LP", v: "EUA", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/5c76b4104bbe6f24ad99c35d/0x0.jpg?format=jpg&crop=5448,5448,x165,y321,safe&height=416&width=416&fit=bounds", tipoOrigem: "Self-Made", faculdade: "Johns Hopkins"},
+            {rank: 19, n: "Bill Gates", usd: 105, h: [124, 129, 104, 128, 115, 105], uf: "EUA", lat: 47.60, lng: -122.33, setor: "Tecnologia", o: "Microsoft", v: "EUA", br: false, f: "https://m.media-amazon.com/images/S/amzn-author-media-prod/3lilb0bc44m73is0rkai1ovbu0._SY450_CR0%2C0%2C450%2C450_.jpg", tipoOrigem: "Self-Made", faculdade: "Harvard"},
+            {rank: 20, n: "Francoise Bettencourt Meyers", usd: 100, h: [73.6, 74.8, 80.5, 99.5, 100, 100], uf: "França", lat: 48.86, lng: 2.30, setor: "Beleza", o: "L'Oréal", v: "França", br: false, f: "https://robinage.com/wp-content/uploads/2022/05/Francoise-Bettencourt-Meyers-1.jpg", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 21, n: "Mukesh Ambani", usd: 99.7, h: [84.5, 90.7, 83.4, 116, 105, 99.7], uf: "Índia", lat: 18.92, lng: 72.83, setor: "Indústria", o: "Reliance", v: "Índia", br: false, f: "https://realtime1.com.br/wp-content/uploads/2024/07/mukesh-ambani-net-worth-1080x675-1.webp", tipoOrigem: "Herança", faculdade: "Stanford"},
+            {rank: 22, n: "Giancarlo Devasini", usd: 92, h: [0, 0, 0, 9.2, 50, 92], uf: "Itália", lat: 45.46, lng: 9.19, setor: "Tecnologia", o: "Tether", v: "Itália", br: false, f: "https://pbs.twimg.com/media/G1qzL0BWoAA5FDs.jpg", tipoOrigem: "Self-Made", faculdade: "U. Milan"},
+            {rank: 23, n: "Thomas Peterffy", usd: 85, h: [25, 20.1, 25.3, 34, 60, 85], uf: "EUA", lat: 26.70, lng: -80.03, setor: "Finanças", o: "Interactive Brokers", v: "EUA", br: false, f: "https://palmbeachcivic.org/wp-content/uploads/2022/10/peterffy.jpeg", tipoOrigem: "Self-Made", faculdade: "N/A"},
+            {rank: 24, n: "Julia Koch", usd: 74, h: [46.4, 60, 59, 64.3, 70, 74], uf: "EUA", lat: 40.71, lng: -74.00, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://cdn.i-scmp.com/sites/default/files/styles/768x768/public/d8/images/canvas/2022/03/23/1b176287-b281-45a4-a8bf-4287d5ddc8ae_f30cd0eb.jpg?itok=aVIvoJWx&v=1648025775", tipoOrigem: "Herança", faculdade: "U. Central Arkansas"},
+            {rank: 25, n: "Charles Koch", usd: 74, h: [46.4, 60, 59, 64.3, 70, 74], uf: "EUA", lat: 37.69, lng: -97.33, setor: "Indústria", o: "Koch Industries", v: "EUA", br: false, f: "https://upload.wikimedia.org/wikipedia/commons/2/20/Charles_Koch_portrait_%28cropped%29.jpg", tipoOrigem: "Herança", faculdade: "MIT"},
+            {rank: 26, n: "Zhang Yiming", usd: 69.3, h: [35.6, 50, 45, 43.4, 55, 69.3], uf: "China", lat: 39.90, lng: 116.40, setor: "Tecnologia", o: "TikTok", v: "China", br: false, f: "https://admin.cnnbrasil.com.br/wp-content/uploads/sites/12/2021/06/38115_49D4A44FB97E4ACA.jpeg?w=1200&h=900&crop=1", tipoOrigem: "Self-Made", faculdade: "Nankai University"},
+            {rank: 27, n: "Zhong Shanshan", usd: 68.1, h: [68.9, 65.7, 68, 62.3, 65, 68.1], uf: "China", lat: 30.27, lng: 120.15, setor: "Alimentos", o: "Nongfu Spring", v: "China", br: false, f: "https://static.independent.co.uk/2020/09/24/16/shutterstock_editorial_10769413c.jpg", tipoOrigem: "Self-Made", faculdade: "Zhejiang RTVU"},
+            {rank: 28, n: "Jeff Yass", usd: 67.4, h: [12, 12, 28.5, 27.6, 50, 67.4], uf: "EUA", lat: 40.00, lng: -75.25, setor: "Finanças", o: "Investimentos", v: "EUA", br: false, f: "https://s2-valor.glbimg.com/E97QbGJUB9NvSQrU3f6RVz1zNOw=/0x0:1767x991/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2024/w/n/nd9NvGT0y4crRiXMAiZA/jeffrey-20yass001.jpg", tipoOrigem: "Self-Made", faculdade: "Binghamton University"},
+            {rank: 29, n: "Dieter Schwarz", usd: 67.2, h: [36.9, 47.1, 42.9, 38, 55, 67.2], uf: "Alemanha", lat: 49.14, lng: 9.21, setor: "Varejo", o: "Lidl", v: "Alemanha", br: false, f: "https://i0.wp.com/baron-magazine.com/wp-content/uploads/2018/09/Dieter-Schwarz.jpg?fit=1600%2C900&ssl=1", tipoOrigem: "Herança", faculdade: "N/A"},
+            {rank: 30, n: "Germán Larrea Mota Velasco", usd: 67.1, h: [25.9, 30.8, 26.6, 27.9, 45, 67.1], uf: "México", lat: 19.43, lng: -99.13, setor: "Mineração", o: "Mineração", v: "México", br: false, f: "https://imageio.forbes.com/specials-images/imageserve/597a47174bbe6f3eb800b6b8/0x0.jpg?format=jpg&crop=1702,1701,x1901,y368,safe&height=416&width=416&fit=bounds", tipoOrigem: "Herança", faculdade: "Anáhuac University"}
+        ];
+
+        let activeSet = dbBrasil;
+        const pins = L.layerGroup().addTo(map);
+        window.clusterData = {};
+
+        function switchData() {
+            activeSet = (document.getElementById('db-selector').value === 'br') ? dbBrasil : dbMundo;
+            if(activeSet === dbBrasil) map.setView([-15, -50], 4); else map.setView([20, 0], 2);
+            refresh();
+        }
+
+        window.buildPopupHTML = function(key, idx) {
+            const group = window.clusterData[key];
+            const p = group[idx];
+            const brl = (p.usd * 5.0).toFixed(1);
+            const imgUrl = p.f ? p.f : getAvatar(p.n);
+
+            let html = `<div class="popup-card"><img src="${imgUrl}" class="popup-img" onerror="this.src='${getAvatar(p.n)}'">
+                <div class="popup-body"><div class="popup-name">${p.rank}º. ${p.n}</div>
+                <div class="popup-data"><b>💰 Fortuna:</b> US$ ${p.usd} Bi (R$ ${brl} Bi)<br>
+                <b>💎 Setor:</b> ${p.setor}<br>
+                <b>🏢 Origem (Ativo):</b> ${p.o}<br>
+                <b>🌱 Tipo de Fortuna:</b> ${p.tipoOrigem || 'Não informado'}<br>
+                <b>🎓 Formação:</b> ${p.faculdade || 'Não informado'}<br>
+                <b>📍 Reside em:</b> ${p.v}</div></div>`;
+            
+            if(group.length > 1) {
+                html += `<div class="carousel-controls"><button class="carousel-btn" onclick="changeSlide('${key}', ${idx - 1}, event)">◀</button>
+                <span>${idx + 1} de ${group.length}</span><button class="carousel-btn" onclick="changeSlide('${key}', ${idx + 1}, event)">▶</button></div>`;
+            }
+            return html + `</div>`;
+        };
+
+        window.changeSlide = function(key, newIdx, e) {
+            e.stopPropagation(); 
+            const group = window.clusterData[key];
+            if(newIdx < 0) newIdx = group.length - 1;
+            if(newIdx >= group.length) newIdx = 0;
+            document.querySelector('.leaflet-popup-content').innerHTML = buildPopupHTML(key, newIdx);
+        };
+
+        let lastCharts = null;
+        let c1, c2, c3, c4, c5;
+
+        function refreshCharts() {
+            if(lastCharts) atualizarGraficos(lastCharts.s, lastCharts.g, lastCharts.t5, lastCharts.o, lastCharts.f);
+        }
+
+        function refresh() {
+            pins.clearLayers();
+            window.clusterData = {};
+            const search = document.querySelector('#search-box input').value.toLowerCase();
+            const list = document.getElementById('ranking-list');
+            let total = 0; list.innerHTML = "";
+            
+            const filtered = activeSet.filter(p => p.n.toLowerCase().includes(search)).sort((a,b) => b.usd - a.usd);
+            const secs = {}; const geos = {}; const origens = {}; const faculdades = {};
+
+            filtered.forEach(p => {
+                total += p.usd;
+                secs[p.setor] = (secs[p.setor] || 0) + p.usd;
+                geos[p.uf] = (geos[p.uf] || 0) + 1;
+                
+                if(p.tipoOrigem) origens[p.tipoOrigem] = (origens[p.tipoOrigem] || 0) + 1;
+                if(p.faculdade && p.faculdade !== "N/A" && p.faculdade !== "-") faculdades[p.faculdade] = (faculdades[p.faculdade] || 0) + 1;
+
+                const key = `${p.lat},${p.lng}`;
+                if(!window.clusterData[key]) window.clusterData[key] = [];
+                window.clusterData[key].push(p);
+
+                list.innerHTML += `<div class="ranking-item" onclick="map.setView([${p.lat}, ${p.lng}], 7)">
+                    <div><b style="color:var(--text)">${p.rank}º. ${p.n}</b><br><small style="color:var(--muted)">${p.setor}</small></div>
+                    <b style="color:var(--accent)">$${p.usd}B</b>
+                </div>`;
+            });
+
+            for(let key in window.clusterData) {
+                const group = window.clusterData[key];
+                const p = group[0]; 
+                
+                // Colorir o marcador baseado na origem da fortuna
+                const bgCor = p.tipoOrigem === "Self-Made" ? "#10B981" : "#F59E0B"; 
+
+                L.marker([p.lat, p.lng], {
+                    icon: L.divIcon({ className: 'p', html: `<div style="background:${bgCor}; width:14px; height:14px; border-radius:50%; border:3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>` })
+                }).addTo(pins).bindPopup(buildPopupHTML(key, 0));
+            }
+
+            document.getElementById('total-val').innerText = `$ ${total.toFixed(1)} Bi`;
+            atualizarGraficos(secs, geos, filtered.slice(0, 5), origens, faculdades);
+        }
+
+        function atualizarGraficos(s, g, t5, o, f) {
+            lastCharts = {s, g, t5, o, f};
+            const isL = document.body.classList.contains('light-theme');
+            Chart.defaults.color = isL ? '#334155' : '#94A3B8';
+
+            if(c1) c1.destroy(); if(c2) c2.destroy(); if(c3) c3.destroy(); if(c4) c4.destroy(); if(c5) c5.destroy();
+
+            c1 = new Chart(document.getElementById('secChart'), {
+                type: 'doughnut',
+                data: { labels: Object.keys(s), datasets: [{ data: Object.values(s), backgroundColor: colorPalette, borderWidth: 0 }] },
+                options: { cutout: '70%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            });
+
+            c2 = new Chart(document.getElementById('geoChart'), {
+                type: 'bar',
+                data: { labels: Object.keys(g), datasets: [{ data: Object.values(g), backgroundColor: colorPalette, borderRadius: 8 }] },
+                options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+            });
+
+            c3 = new Chart(document.getElementById('chartHistory'), {
+                type: document.getElementById('hist-type').value,
+                data: {
+                    labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
+                    datasets: t5.map((p, i) => ({ label: p.n.split(" ")[0], data: p.h, borderColor: colorPalette[i], backgroundColor: colorPalette[i] + '44', tension: 0.4, fill: true }))
+                }
+            });
+
+            // Gráfico 4: Origem da Fortuna
+            c4 = new Chart(document.getElementById('origemChart'), {
+                type: 'pie',
+                data: { labels: Object.keys(o), datasets: [{ data: Object.values(o), backgroundColor: ['#10B981', '#F59E0B'], borderWidth: 0 }] },
+                options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } } }
+            });
+
+            // Gráfico 5: Top Faculdades
+            const topFaculdades = Object.entries(f).sort((a,b) => b[1]-a[1]).slice(0, 10);
+            c5 = new Chart(document.getElementById('faculdadeChart'), {
+                type: 'bar',
+                data: { 
+                    labels: topFaculdades.map(item => item[0]), 
+                    datasets: [{ data: topFaculdades.map(item => item[1]), backgroundColor: '#4F46E5', borderRadius: 6 }] 
+                },
+                options: { plugins: { legend: { display: false } } }
+            });
+        }
+
+        // Inicializa a base Brasileira
+        switchData();
+    </script>
+</body>
+</html>
